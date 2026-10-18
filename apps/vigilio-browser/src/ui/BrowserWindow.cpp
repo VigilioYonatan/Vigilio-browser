@@ -240,9 +240,8 @@ void BrowserWindow::setupUi() {
     connect(newTabAction_, &QAction::triggered, this, [this]() { openTab(); });
 
     auto* menu = new QMenu(this);
-    // clang-format off
-    seniorAction_ = menu->addAction(makeResourceIcon("icons/tools/senior.svg"), "Interfaz más fácil de usar");
-    // clang-format on
+    seniorAction_ =
+        menu->addAction(makeResourceIcon("icons/tools/senior.svg"), "Interfaz más fácil de usar");
     seniorAction_->setObjectName("vigilio-action-senior");
     seniorAction_->setCheckable(true);
     seniorAction_->setAccessibleName(

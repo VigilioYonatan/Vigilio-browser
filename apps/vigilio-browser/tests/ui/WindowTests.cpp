@@ -1,3 +1,7 @@
+#include "core/ClangFormatConfiguration.h"
+#include "core/ClangFormatService.h"
+#include "core/ClangFormatTypes.h"
+#include "core/ClangFormatValidator.h"
 #include "core/CrashRecoveryCoordinator.h"
 #include "core/SessionFile.h"
 #include "core/TestFixtureFoundation.h"
@@ -528,6 +532,131 @@ int main(int argc, char** argv) {
             fixtureService.releaseAllFixtures();
             UI_CHECK(fixtureService.activeFixtureCount() == 0,
                      "All managed UI fixtures must be released");
+        }
+
+        // 7. Clang-Format quality governance and public copy audit in UI context
+        {
+            std::filesystem::path browserRoot;
+#ifdef VIGILIO_BROWSER_ROOT
+            browserRoot = VIGILIO_BROWSER_ROOT;
+#endif
+            if (browserRoot.empty() ||
+                !std::filesystem::exists(browserRoot / "src/ui/BrowserWindow.h")) {
+                for (const auto& candidate :
+                     {std::filesystem::current_path(), std::filesystem::current_path().parent_path(),
+                      std::filesystem::current_path() / "apps/vigilio-browser"}) {
+                    if (std::filesystem::exists(candidate / "src/ui/BrowserWindow.h")) {
+                        browserRoot = candidate;
+                        break;
+                    }
+                }
+            }
+            if (!browserRoot.empty() && std::filesystem::exists(browserRoot)) {
+                browserRoot = std::filesystem::canonical(browserRoot);
+            }
+            UI_CHECK(vigilio::ClangFormatValidator::isSafeConfigPath(browserRoot),
+                     "Resolved browserRoot path must be safe and contained");
+
+            vigilio::ClangFormatService formatService(
+                vigilio::ClangFormatConfiguration::canonicalConfig());
+            UI_CHECK(formatService.isConfigured(), "ClangFormatService must be configured");
+
+            vigilio::FormatServiceOptions serviceOptions;
+            serviceOptions.dryRun = true;
+            serviceOptions.maxFileSizeBytes = 10 * 1024 * 1024;
+
+            // TASK-003: Programmatic style inspection (dry-run) for BrowserWindow.h
+            const auto headerInspection =
+                formatService.inspectFile(browserRoot / "src/ui/BrowserWindow.h");
+            const auto headerStatus = headerInspection.isCompliant
+                                          ? vigilio::FormatExecutionStatus::Success
+                                          : vigilio::FormatExecutionStatus::DiscrepancyFound;
+            UI_CHECK(headerStatus == vigilio::FormatExecutionStatus::Success,
+                     "BrowserWindow.h must comply with Clang-Format canonical style");
+            UI_CHECK(headerInspection.isCompliant, "BrowserWindow.h isCompliant must be true");
+            UI_CHECK(headerInspection.discrepancySummary.empty(),
+                     "BrowserWindow.h must have zero discrepancies");
+
+            // TASK-004: Programmatic style inspection (dry-run) for BrowserWindow.cpp
+            const auto implInspection =
+                formatService.inspectFile(browserRoot / "src/ui/BrowserWindow.cpp");
+            const auto implStatus = implInspection.isCompliant
+                                        ? vigilio::FormatExecutionStatus::Success
+                                        : vigilio::FormatExecutionStatus::DiscrepancyFound;
+            UI_CHECK(implStatus == vigilio::FormatExecutionStatus::Success,
+                     "BrowserWindow.cpp must comply with Clang-Format canonical style");
+            UI_CHECK(implInspection.isCompliant, "BrowserWindow.cpp isCompliant must be true");
+            UI_CHECK(implInspection.discrepancySummary.empty(),
+                     "BrowserWindow.cpp must have zero discrepancies");
+
+            // TASK-005: Programmatic style inspection (dry-run) for WindowTests.cpp
+            const auto testsInspection =
+                formatService.inspectFile(browserRoot / "tests/ui/WindowTests.cpp");
+            const auto testsStatus = testsInspection.isCompliant
+                                         ? vigilio::FormatExecutionStatus::Success
+                                         : vigilio::FormatExecutionStatus::DiscrepancyFound;
+            UI_CHECK(testsStatus == vigilio::FormatExecutionStatus::Success,
+                     "WindowTests.cpp must comply with Clang-Format canonical style");
+            UI_CHECK(testsInspection.isCompliant, "WindowTests.cpp isCompliant must be true");
+            UI_CHECK(testsInspection.discrepancySummary.empty(),
+                     "WindowTests.cpp must have zero discrepancies");
+
+            // TASK-006: Audit of diagnostic and remediation copy in neutral Spanish (UX-COPY-PUBLICO.md)
+            const auto successMsg = vigilio::ClangFormatService::executionStatusToString(
+                vigilio::FormatExecutionStatus::Success);
+            UI_CHECK(!successMsg.empty(), "Success message must not be empty");
+            UI_CHECK(successMsg.find("correctamente") != std::string::npos ||
+                         successMsg.find("éxito") != std::string::npos,
+                     "Success message must be clear natural Spanish");
+
+            const auto discrepancyMsg = vigilio::ClangFormatService::executionStatusToString(
+                vigilio::FormatExecutionStatus::DiscrepancyFound);
+            UI_CHECK(!discrepancyMsg.empty(), "DiscrepancyFound message must not be empty");
+            UI_CHECK(discrepancyMsg.find("diferencias") != std::string::npos ||
+                         discrepancyMsg.find("discrepancias") != std::string::npos,
+                     "DiscrepancyFound message must be clear natural Spanish");
+
+            const auto cancelledMsg = vigilio::ClangFormatService::executionStatusToString(
+                vigilio::FormatExecutionStatus::Cancelled);
+            UI_CHECK(!cancelledMsg.empty(), "Cancelled message must not be empty");
+            UI_CHECK(cancelledMsg.find("cancelada") != std::string::npos,
+                     "Cancelled message must be clear natural Spanish");
+
+            const auto lockedMsg = vigilio::ClangFormatService::executionStatusToString(
+                vigilio::FormatExecutionStatus::FileLocked);
+            UI_CHECK(!lockedMsg.empty(), "FileLocked message must not be empty");
+            UI_CHECK(lockedMsg.find("archivo") != std::string::npos,
+                     "FileLocked message must be clear natural Spanish");
+
+            // Verify absence of forbidden internal technical jargon across all status strings
+            const std::vector<vigilio::FormatExecutionStatus> sampleStatuses = {
+                vigilio::FormatExecutionStatus::Success,
+                vigilio::FormatExecutionStatus::DiscrepancyFound,
+                vigilio::FormatExecutionStatus::Cancelled,
+                vigilio::FormatExecutionStatus::FileLocked,
+                vigilio::FormatExecutionStatus::PermissionDenied,
+                vigilio::FormatExecutionStatus::ReadError,
+                vigilio::FormatExecutionStatus::WriteError,
+                vigilio::FormatExecutionStatus::FileTooLarge,
+                vigilio::FormatExecutionStatus::UnsafePath,
+                vigilio::FormatExecutionStatus::FileNotFound,
+                vigilio::FormatExecutionStatus::ConfigurationError,
+                vigilio::FormatExecutionStatus::ToolUnavailable};
+            for (const auto st : sampleStatuses) {
+                const auto statusStr = vigilio::ClangFormatService::executionStatusToString(st);
+                UI_CHECK(statusStr.find("Senior Mode") == std::string::npos,
+                         "Public status string must not contain 'Senior Mode'");
+                UI_CHECK(statusStr.find("Modo Senior") == std::string::npos,
+                         "Public status string must not contain 'Modo Senior'");
+                UI_CHECK(statusStr.find("Prompt Builder") == std::string::npos,
+                         "Public status string must not contain 'Prompt Builder'");
+                UI_CHECK(statusStr.find("OpenSpec") == std::string::npos,
+                         "Public status string must not contain 'OpenSpec'");
+                UI_CHECK(statusStr.find("Linter") == std::string::npos,
+                         "Public status string must not contain 'Linter'");
+                UI_CHECK(statusStr.find("Clang-Format") == std::string::npos,
+                         "Public status string must not contain 'Clang-Format'");
+            }
         }
     }
 

@@ -271,6 +271,9 @@ if(VIGILIO_BUILD_GUI)
         add_executable(vigilio_ui_tests tests/ui/WindowTests.cpp src/ui/BrowserWindow.cpp resources.qrc)
         target_include_directories(vigilio_ui_tests SYSTEM PRIVATE ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS} ${Qt6WebEngineWidgets_INCLUDE_DIRS} ${Qt6Test_INCLUDE_DIRS})
         target_link_libraries(vigilio_ui_tests PRIVATE vigilio_core vigilio_storage vigilio_compiler_warnings Qt6::Core Qt6::Widgets Qt6::WebEngineWidgets Qt6::Test)
+        target_compile_definitions(vigilio_ui_tests PRIVATE
+          VIGILIO_BROWSER_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"
+        )
         add_test(NAME window_ui_tests COMMAND vigilio_ui_tests)
         set_tests_properties(window_ui_tests PROPERTIES LABELS "ui;fast" TIMEOUT 20)
       else()
