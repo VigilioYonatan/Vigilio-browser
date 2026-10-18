@@ -123,7 +123,8 @@ add_library(vigilio_core STATIC
   src/core/ClangFormatConfiguration.cpp
   src/core/ClangFormatService.cpp
   src/core/ClangTidyValidator.cpp
-  src/core/ClangTidyConfiguration.cpp)
+  src/core/ClangTidyConfiguration.cpp
+  src/core/ClangTidyService.cpp)
 target_include_directories(vigilio_core PUBLIC src)
 target_compile_features(vigilio_core PUBLIC cxx_std_20)
 target_link_libraries(vigilio_core PRIVATE SQLite::SQLite3 vigilio_compiler_warnings)
@@ -257,6 +258,14 @@ if(BUILD_TESTING)
   )
   add_test(NAME clang_tidy_configuration_tests COMMAND vigilio_clang_tidy_tests)
   set_tests_properties(clang_tidy_configuration_tests PROPERTIES LABELS "unit;fast" TIMEOUT 15)
+
+  add_executable(vigilio_clang_tidy_service_tests tests/unit/ClangTidyServiceTests.cpp)
+  target_link_libraries(vigilio_clang_tidy_service_tests PRIVATE vigilio_core vigilio_compiler_warnings)
+  target_compile_definitions(vigilio_clang_tidy_service_tests PRIVATE
+    VIGILIO_CLANG_TIDY_PATH="${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy"
+  )
+  add_test(NAME clang_tidy_service_tests COMMAND vigilio_clang_tidy_service_tests)
+  set_tests_properties(clang_tidy_service_tests PROPERTIES LABELS "unit;fast" TIMEOUT 15)
 endif()
 
 option(VIGILIO_ENABLE_E2E "Enable resource-intensive native browser E2E smoke" OFF)

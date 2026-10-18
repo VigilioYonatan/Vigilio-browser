@@ -1,10 +1,28 @@
 #pragma once
 
+#include <atomic>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>
 
 namespace vigilio {
+
+#ifndef VIGILIO_CANCELLATION_TOKEN_DEFINED
+#define VIGILIO_CANCELLATION_TOKEN_DEFINED
+/// @brief Token ligero para soporte de cancelación cooperativa multihilo.
+struct CancellationToken {
+    std::atomic<bool> cancelled{false};
+
+    void requestCancellation() noexcept {
+        cancelled.store(true, std::memory_order_release);
+    }
+
+    [[nodiscard]] bool isCancelled() const noexcept {
+        return cancelled.load(std::memory_order_acquire);
+    }
+};
+#endif
 
 /// @brief Familias de comprobaciones canónicas reconocidas por Clang-Tidy.
 enum class ClangTidyCheckCategory {
@@ -31,6 +49,22 @@ enum class ClangTidyError {
     UnsafeFilePath,
     CorruptedRules,
     MissingMandatoryKey
+};
+
+/// @brief Taxonomía fuertemente tipada de resultados operativos de Clang-Tidy.
+enum class TidyExecutionStatus : uint8_t {
+    Success = 0,
+    IssuesFound = 1,
+    Cancelled = 2,
+    FileLocked = 3,
+    PermissionDenied = 4,
+    ReadError = 5,
+    WriteError = 6,
+    FileTooLarge = 7,
+    UnsafePath = 8,
+    FileNotFound = 9,
+    ConfigurationError = 10,
+    ToolUnavailable = 11
 };
 
 /// @brief Estructura inmutable representativa del archivo canónico .clang-tidy.
@@ -63,6 +97,48 @@ struct ClangTidyIssueInspection {
     std::string checkName;
     std::string message;
     bool isWarningAsError{false};
+};
+
+/// @brief Estructura inmutable que encapsula la inspección individual de un archivo.
+struct SourceFileTidyInspection {
+    std::string relativePath;
+    bool isClean{true};
+    int issuesCount{0};
+    std::vector<ClangTidyIssueInspection> issues;
+    std::string summary;
+};
+
+/// @brief Opciones inmutables de configuración operativa para la capa de servicio.
+struct TidyServiceOptions {
+    bool dryRun{false};
+    bool createBackup{true};
+    std::size_t maxFileSizeBytes{10 * 1024 * 1024};
+    uint32_t timeoutMs{15000};
+    uint32_t maxRetries{3};
+    uint32_t retryBackoffMs{50};
+    bool recursive{true};
+    std::size_t maxScanDepth{32};
+    std::string buildDirectory{"_build"};
+    bool exportFixes{false};
+};
+
+/// @brief Estructura inmutable que encapsula el resultado consolidado de la operación de linteo.
+struct TidyOperationResult {
+    TidyExecutionStatus status{TidyExecutionStatus::Success};
+    std::size_t filesExamined{0};
+    std::size_t filesFixed{0};
+    std::size_t issuesCount{0};
+    uint64_t durationMs{0};
+    std::string remediationHint;
+    std::vector<SourceFileTidyInspection> details;
+
+    [[nodiscard]] bool isSuccess() const noexcept {
+        return status == TidyExecutionStatus::Success;
+    }
+
+    [[nodiscard]] bool hasIssues() const noexcept {
+        return issuesCount > 0;
+    }
 };
 
 } // namespace vigilio
