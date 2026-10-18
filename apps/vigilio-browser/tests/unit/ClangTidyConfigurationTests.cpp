@@ -276,6 +276,123 @@ void test_clang_tidy_public_copy_compliance() {
     }
 }
 
+// TEST-TIDY-012: test_clang_tidy_validator_regex_boundaries (TASK-001)
+void test_clang_tidy_validator_regex_boundaries() {
+    auto opts = ClangTidyConfiguration::canonicalConfig();
+
+    // 1. Expresión regular válida compleja
+    opts.headerFilterRegex = "^src/(core|storage)/.*\\.h$";
+    CHECK(ClangTidyValidator::validateOptions(opts) == ClangTidyError::None);
+    CHECK(ClangTidyValidator::isSafeRegex(opts.headerFilterRegex));
+
+    // 2. Expresión regular vacía (permisivo)
+    opts.headerFilterRegex = "";
+    CHECK(ClangTidyValidator::validateOptions(opts) == ClangTidyError::None);
+    CHECK(ClangTidyValidator::isSafeRegex(opts.headerFilterRegex));
+
+    // 3. Expresiones sintácticamente inválidas o desbalanceadas
+    const std::vector<std::string> invalidPatterns = {"[a-z(", "(?+invalid", "*invalid", "(",
+                                                      ")",     "[",          "+"};
+    for (const auto& pattern : invalidPatterns) {
+        opts.headerFilterRegex = pattern;
+        CHECK(ClangTidyValidator::validateOptions(opts) == ClangTidyError::InvalidHeaderFilterRegex);
+        CHECK(!ClangTidyValidator::isSafeRegex(pattern));
+    }
+}
+
+// TEST-TIDY-013: test_clang_tidy_malformed_yaml_inputs (TASK-002)
+void test_clang_tidy_malformed_yaml_inputs() {
+    // 1. YAML vacío
+    const auto emptyReport = ClangTidyValidator::validateConfigContent("");
+    CHECK(!emptyReport.isValid);
+    CHECK(emptyReport.error == ClangTidyError::ParseError);
+
+    // 2. YAML truncado a mitad de clave
+    const auto truncatedKeyReport =
+        ClangTidyValidator::validateConfigContent("Checks: 'bugprone-*'\nHeaderFilterReg");
+    CHECK(!truncatedKeyReport.isValid);
+    CHECK(truncatedKeyReport.error == ClangTidyError::ParseError);
+
+    // 3. YAML truncado a mitad de valor sin colon
+    const auto truncatedValReport = ClangTidyValidator::validateConfigContent("Checks");
+    CHECK(!truncatedValReport.isValid);
+    CHECK(truncatedValReport.error == ClangTidyError::ParseError);
+
+    // 4. YAML con caracteres nulos
+    std::string nullContent = "Checks: 'bugprone-*'\n";
+    nullContent.push_back('\0');
+    nullContent.append("HeaderFilterRegex: 'src/.*'\n");
+    const auto nullReport = ClangTidyValidator::validateConfigContent(nullContent);
+    CHECK(!nullReport.isValid);
+    CHECK(nullReport.error == ClangTidyError::ParseError);
+
+    // 5. Bytes binarios arbitrarios (encabezado ELF)
+    const std::string binaryContent("\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                                    16);
+    const auto binaryReport = ClangTidyValidator::validateConfigContent(binaryContent);
+    CHECK(!binaryReport.isValid);
+    CHECK(binaryReport.error == ClangTidyError::ParseError);
+}
+
+// TEST-TIDY-014: test_clang_tidy_complex_path_traversal (TASK-003)
+void test_clang_tidy_complex_path_traversal() {
+    CHECK(!ClangTidyValidator::isSafeConfigPath("./../.."));
+    CHECK(!ClangTidyValidator::isSafeConfigPath("foo/../../bar"));
+    CHECK(!ClangTidyValidator::isSafeConfigPath("..\\windows\\style"));
+    CHECK(!ClangTidyValidator::isSafeConfigPath("/etc/shadow"));
+    CHECK(!ClangTidyValidator::isSafeConfigPath("/usr/bin/clang-tidy"));
+
+    std::string nullPath = "path";
+    nullPath.push_back('\0');
+    nullPath.append("with_null.yaml");
+    CHECK(!ClangTidyValidator::isSafeConfigPath(nullPath));
+
+    const auto reportTraversal = ClangTidyValidator::validateConfigurationFile("./../..");
+    CHECK(!reportTraversal.isValid);
+    CHECK(reportTraversal.error == ClangTidyError::UnsafeFilePath);
+
+    const auto reportShadow = ClangTidyValidator::validateConfigurationFile("/etc/shadow");
+    CHECK(!reportShadow.isValid);
+    CHECK(reportShadow.error == ClangTidyError::UnsafeFilePath);
+}
+
+// TEST-TIDY-015: test_clang_tidy_roundtrip_variants (TASK-004)
+void test_clang_tidy_roundtrip_variants() {
+    const std::vector<std::string> checkVariants = {"+cert-*, -google-*, readability-*",
+                                                    "-*,bugprone-*,clang-analyzer-*,performance-*",
+                                                    "-*,cert-*", "-*,cppcoreguidelines-*,modernize-*"};
+    const std::vector<std::string> warnVariants = {"", "*", "cert-*"};
+    const std::vector<std::string> formatStyles = {"none", "file"};
+    const std::vector<std::string> headerFilters = {"", "src/.*", "^src/(core|storage)/.*\\.h$"};
+
+    for (const auto& checks : checkVariants) {
+        for (const auto& warns : warnVariants) {
+            for (const auto& fmt : formatStyles) {
+                for (const auto& hf : headerFilters) {
+                    ClangTidyOptions original;
+                    original.checks = checks;
+                    original.warningsAsErrors = warns;
+                    original.headerFilterRegex = hf;
+                    original.formatStyle = fmt;
+
+                    const std::string serialized = ClangTidyValidator::serializeConfig(original);
+                    CHECK(!serialized.empty());
+
+                    ClangTidyOptions reloaded;
+                    std::string errMsg;
+                    CHECK(ClangTidyValidator::parseConfig(serialized, reloaded, &errMsg));
+                    CHECK(errMsg.empty());
+                    CHECK(reloaded.checks == original.checks);
+                    CHECK(reloaded.warningsAsErrors == original.warningsAsErrors);
+                    CHECK(reloaded.headerFilterRegex == original.headerFilterRegex);
+                    CHECK(reloaded.formatStyle == original.formatStyle);
+                    CHECK(reloaded == original);
+                }
+            }
+        }
+    }
+}
+
 } // namespace
 
 int main() {
@@ -291,6 +408,10 @@ int main() {
         test_clang_tidy_file_extensions_and_exclusions();
         test_clang_tidy_token_extraction();
         test_clang_tidy_public_copy_compliance();
+        test_clang_tidy_validator_regex_boundaries();
+        test_clang_tidy_malformed_yaml_inputs();
+        test_clang_tidy_complex_path_traversal();
+        test_clang_tidy_roundtrip_variants();
 
         std::cout << "All ClangTidy configuration tests passed successfully." << std::endl;
         return 0;

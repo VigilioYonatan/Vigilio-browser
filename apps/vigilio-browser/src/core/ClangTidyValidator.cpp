@@ -219,7 +219,7 @@ ClangTidyValidationReport ClangTidyValidator::validateConfigContent(std::string_
 
     if (yamlContent.empty() || trim(yamlContent).empty()) {
         report.isValid = false;
-        report.error = ClangTidyError::MissingMandatoryKey;
+        report.error = ClangTidyError::ParseError;
         report.errorMessage = tidyErrorToString(report.error);
         return report;
     }

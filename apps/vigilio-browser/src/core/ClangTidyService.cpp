@@ -749,7 +749,13 @@ TidyOperationResult ClangTidyService::applyFixesToFile(const std::filesystem::pa
             static_cast<void>(rollbackFile(filePath));
             static_cast<void>(removeBackup(filePath));
         }
-        result.status = TidyExecutionStatus::WriteError;
+        std::error_code permEc;
+        const auto perms = std::filesystem::status(filePath, permEc).permissions();
+        if (!permEc && ((perms & std::filesystem::perms::owner_write) == std::filesystem::perms::none)) {
+            result.status = TidyExecutionStatus::PermissionDenied;
+        } else {
+            result.status = TidyExecutionStatus::WriteError;
+        }
         result.remediationHint = executionStatusToString(result.status);
         return result;
     }
