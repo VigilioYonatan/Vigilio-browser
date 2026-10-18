@@ -46,8 +46,9 @@ CTestTestfile.cmake
 *.swp
 *~
 
-# Automation runner artifacts
-.prompt-runner/
+# Automation runner exceptions
+!.prompt-runner/
+!.prompt-runner/**
 
 # OS and Editor artifacts
 .DS_Store

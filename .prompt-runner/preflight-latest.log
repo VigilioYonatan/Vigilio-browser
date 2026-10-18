@@ -1,0 +1,45 @@
+VIGILIO PREFLIGHT 2026-10-18T07:24:04Z | config=/config/Desktop/vigilio-browser/scripts/preflight-services.env | runner_os=linux
+
+=== 0. DIRS DERIVADOS (auto-creación, Apéndice E.2) ===
+OK: dirs derivados asegurados
+
+=== 1. Toolchain (node/pnpm/vigilio-prompt) ===
+OK: node v24.22.0
+OK: pnpm 12.14.0
+OK: vigilio-prompt 0.6.3
+
+=== 2. Registry/answers/baseline ===
+OK: registry.yaml existe
+OK: answers.md existe
+OK: factory-baseline.yaml existe
+OK: target-profiles.yaml existe
+
+=== 3. Targets declarados ===
+OK: la policy PREFLIGHT_REQUIRED_DIRECTORIES/FILES valida los targets sin asumir un layout local
+
+=== 4. Runtime: Docker, PostgreSQL y Redis/Valkey ===
+WARN: docker no requerido por policy
+WARN: postgres no requerido por policy
+WARN: redis no requerido por policy
+
+=== 4.1 Archivos/directorios/servicios declarados ===
+OK: apps directorio disponible
+OK: runner-state directorio escribible
+OK: generated directorio escribible
+
+=== 5. AWS/servicios (solo si el slice los adopta, C-004/C-012) ===
+Regla: ningún servicio (SQS/SNS/S3/Secrets) se asume adoptado sin consumer/contrato real en docs + change.
+WARN: aws cli ausente (solo importa si el slice usa AWS)
+
+=== 6. JS: lockfile + pins ===
+OK: workspace documental sin package.json local; Prompt Builder externo ya fue validado
+
+=== 7. Prompt Builder (modo correcto) ===
+OK: validate-references
+Exige plan enabled-packs (77/231) o plan-file; prohibido --include-context-packs para implementar.
+
+=== 8. UI runner (solo si hay cola UI) ===
+DISPLAY=:1.0 (esperado :1)
+WARN: UI no requerida por policy
+
+PREFLIGHT-ENV: PASS — puedes hacer build-all + queue. WARN=5
