@@ -2,6 +2,10 @@
 #include "core/ClangFormatService.h"
 #include "core/ClangFormatTypes.h"
 #include "core/ClangFormatValidator.h"
+#include "core/ClangTidyConfiguration.h"
+#include "core/ClangTidyService.h"
+#include "core/ClangTidyTypes.h"
+#include "core/ClangTidyValidator.h"
 #include "core/CrashRecoveryCoordinator.h"
 #include "core/SessionFile.h"
 #include "core/TestFixtureFoundation.h"
@@ -642,7 +646,7 @@ int main(int argc, char** argv) {
                 vigilio::FormatExecutionStatus::FileNotFound,
                 vigilio::FormatExecutionStatus::ConfigurationError,
                 vigilio::FormatExecutionStatus::ToolUnavailable};
-            for (const auto st : sampleStatuses) {
+            for (const auto& st : sampleStatuses) {
                 const auto statusStr = vigilio::ClangFormatService::executionStatusToString(st);
                 UI_CHECK(statusStr.find("Senior Mode") == std::string::npos,
                          "Public status string must not contain 'Senior Mode'");
@@ -656,6 +660,168 @@ int main(int argc, char** argv) {
                          "Public status string must not contain 'Linter'");
                 UI_CHECK(statusStr.find("Clang-Format") == std::string::npos,
                          "Public status string must not contain 'Clang-Format'");
+            }
+        }
+
+        // Clang-Tidy quality governance and public copy audit in UI context
+        {
+            std::filesystem::path browserRoot;
+#ifdef VIGILIO_BROWSER_ROOT
+            browserRoot = VIGILIO_BROWSER_ROOT;
+#endif
+            if (browserRoot.empty() ||
+                !std::filesystem::exists(browserRoot / "src/ui/BrowserWindow.h")) {
+                for (const auto& candidate :
+                     {std::filesystem::current_path(), std::filesystem::current_path().parent_path(),
+                      std::filesystem::current_path() / "apps/vigilio-browser"}) {
+                    if (std::filesystem::exists(candidate / "src/ui/BrowserWindow.h")) {
+                        browserRoot = candidate;
+                        break;
+                    }
+                }
+            }
+            if (!browserRoot.empty() && std::filesystem::exists(browserRoot)) {
+                browserRoot = std::filesystem::canonical(browserRoot);
+            }
+            UI_CHECK(vigilio::ClangTidyValidator::isSafeConfigPath(browserRoot),
+                     "Resolved browserRoot path must be safe and contained for Clang-Tidy");
+
+            vigilio::ClangTidyService tidyService(vigilio::ClangTidyConfiguration::canonicalConfig());
+            UI_CHECK(tidyService.isConfigured(), "ClangTidyService must be configured");
+
+            vigilio::TidyServiceOptions serviceOptions;
+            serviceOptions.dryRun = true;
+            serviceOptions.maxFileSizeBytes = 10 * 1024 * 1024;
+
+            // TASK-003: Programmatic static inspection (dry-run) for BrowserWindow.h
+            const auto headerInspection =
+                tidyService.inspectFile(browserRoot / "src/ui/BrowserWindow.h");
+            const auto headerStatus = headerInspection.isClean
+                                          ? vigilio::TidyExecutionStatus::Success
+                                          : vigilio::TidyExecutionStatus::IssuesFound;
+            UI_CHECK(headerStatus == vigilio::TidyExecutionStatus::Success,
+                     "BrowserWindow.h must comply with Clang-Tidy canonical rules");
+            UI_CHECK(headerInspection.isClean, "BrowserWindow.h isClean must be true");
+            UI_CHECK(headerInspection.issuesCount == 0,
+                     "BrowserWindow.h must have zero static analysis issues");
+
+            // TASK-004: Programmatic static inspection (dry-run) for BrowserWindow.cpp
+            const auto implInspection =
+                tidyService.inspectFile(browserRoot / "src/ui/BrowserWindow.cpp");
+            const auto implStatus = implInspection.isClean ? vigilio::TidyExecutionStatus::Success
+                                                           : vigilio::TidyExecutionStatus::IssuesFound;
+            UI_CHECK(implStatus == vigilio::TidyExecutionStatus::Success,
+                     "BrowserWindow.cpp must comply with Clang-Tidy canonical rules");
+            UI_CHECK(implInspection.isClean, "BrowserWindow.cpp isClean must be true");
+            UI_CHECK(implInspection.issuesCount == 0,
+                     "BrowserWindow.cpp must have zero static analysis issues");
+
+            // TASK-005: Programmatic static inspection (dry-run) for WindowTests.cpp
+            const auto testsInspection =
+                tidyService.inspectFile(browserRoot / "tests/ui/WindowTests.cpp");
+            const auto testsStatus = testsInspection.isClean ? vigilio::TidyExecutionStatus::Success
+                                                             : vigilio::TidyExecutionStatus::IssuesFound;
+            UI_CHECK(testsStatus == vigilio::TidyExecutionStatus::Success,
+                     "WindowTests.cpp must comply with Clang-Tidy canonical rules");
+            UI_CHECK(testsInspection.isClean, "WindowTests.cpp isClean must be true");
+            UI_CHECK(testsInspection.issuesCount == 0,
+                     "WindowTests.cpp must have zero static analysis issues");
+
+            // TASK-006: Audit of diagnostic and remediation copy in neutral Spanish (UX-COPY-PUBLICO.md)
+            const auto successMsg = vigilio::ClangTidyService::executionStatusToString(
+                vigilio::TidyExecutionStatus::Success);
+            UI_CHECK(!successMsg.empty(), "Success message must not be empty");
+            UI_CHECK(successMsg.find("correctamente") != std::string::npos ||
+                         successMsg.find("éxito") != std::string::npos,
+                     "Success message must be clear natural Spanish");
+
+            const auto issuesMsg = vigilio::ClangTidyService::executionStatusToString(
+                vigilio::TidyExecutionStatus::IssuesFound);
+            UI_CHECK(!issuesMsg.empty(), "IssuesFound message must not be empty");
+            UI_CHECK(issuesMsg.find("mejoras") != std::string::npos ||
+                         issuesMsg.find("inconsistencias") != std::string::npos,
+                     "IssuesFound message must be clear natural Spanish");
+
+            const auto cancelledMsg = vigilio::ClangTidyService::executionStatusToString(
+                vigilio::TidyExecutionStatus::Cancelled);
+            UI_CHECK(!cancelledMsg.empty(), "Cancelled message must not be empty");
+            UI_CHECK(cancelledMsg.find("cancelado") != std::string::npos,
+                     "Cancelled message must be clear natural Spanish");
+
+            const auto lockedMsg = vigilio::ClangTidyService::executionStatusToString(
+                vigilio::TidyExecutionStatus::FileLocked);
+            UI_CHECK(!lockedMsg.empty(), "FileLocked message must not be empty");
+            UI_CHECK(lockedMsg.find("archivo") != std::string::npos,
+                     "FileLocked message must be clear natural Spanish");
+
+            // Remediation hints audit
+            const auto successHint = vigilio::ClangTidyService::generateRemediationHint(
+                vigilio::TidyExecutionStatus::Success, 0);
+            UI_CHECK(!successHint.empty(), "Success remediation hint must not be empty");
+            UI_CHECK(successHint.find("cumple") != std::string::npos,
+                     "Success remediation hint must be clear natural Spanish");
+
+            const auto issuesHint = vigilio::ClangTidyService::generateRemediationHint(
+                vigilio::TidyExecutionStatus::IssuesFound, 3);
+            UI_CHECK(!issuesHint.empty(), "IssuesFound remediation hint must not be empty");
+            UI_CHECK(issuesHint.find("correcciones") != std::string::npos ||
+                         issuesHint.find("recomendaciones") != std::string::npos,
+                     "IssuesFound remediation hint must be clear natural Spanish");
+
+            const auto cancelledHint = vigilio::ClangTidyService::generateRemediationHint(
+                vigilio::TidyExecutionStatus::Cancelled, 0);
+            UI_CHECK(!cancelledHint.empty(), "Cancelled remediation hint must not be empty");
+
+            const auto lockedHint = vigilio::ClangTidyService::generateRemediationHint(
+                vigilio::TidyExecutionStatus::FileLocked, 0);
+            UI_CHECK(!lockedHint.empty(), "FileLocked remediation hint must not be empty");
+
+            // Verify absence of forbidden internal technical jargon across all status strings and hints
+            const std::vector<vigilio::TidyExecutionStatus> sampleStatuses = {
+                vigilio::TidyExecutionStatus::Success,
+                vigilio::TidyExecutionStatus::IssuesFound,
+                vigilio::TidyExecutionStatus::Cancelled,
+                vigilio::TidyExecutionStatus::FileLocked,
+                vigilio::TidyExecutionStatus::PermissionDenied,
+                vigilio::TidyExecutionStatus::ReadError,
+                vigilio::TidyExecutionStatus::WriteError,
+                vigilio::TidyExecutionStatus::FileTooLarge,
+                vigilio::TidyExecutionStatus::UnsafePath,
+                vigilio::TidyExecutionStatus::FileNotFound,
+                vigilio::TidyExecutionStatus::ConfigurationError,
+                vigilio::TidyExecutionStatus::ToolUnavailable};
+            for (const auto& st : sampleStatuses) {
+                const auto statusStr = vigilio::ClangTidyService::executionStatusToString(st);
+                UI_CHECK(statusStr.find("Senior Mode") == std::string::npos,
+                         "Public status string must not contain 'Senior Mode'");
+                UI_CHECK(statusStr.find("Modo Senior") == std::string::npos,
+                         "Public status string must not contain 'Modo Senior'");
+                UI_CHECK(statusStr.find("Prompt Builder") == std::string::npos,
+                         "Public status string must not contain 'Prompt Builder'");
+                UI_CHECK(statusStr.find("OpenSpec") == std::string::npos,
+                         "Public status string must not contain 'OpenSpec'");
+                UI_CHECK(statusStr.find("Linter") == std::string::npos,
+                         "Public status string must not contain 'Linter'");
+                UI_CHECK(statusStr.find("Clang-Tidy") == std::string::npos,
+                         "Public status string must not contain 'Clang-Tidy'");
+                UI_CHECK(statusStr.find("Clang-Format") == std::string::npos,
+                         "Public status string must not contain 'Clang-Format'");
+
+                const auto hintStr = vigilio::ClangTidyService::generateRemediationHint(st, 0);
+                UI_CHECK(hintStr.find("Senior Mode") == std::string::npos,
+                         "Public hint string must not contain 'Senior Mode'");
+                UI_CHECK(hintStr.find("Modo Senior") == std::string::npos,
+                         "Public hint string must not contain 'Modo Senior'");
+                UI_CHECK(hintStr.find("Prompt Builder") == std::string::npos,
+                         "Public hint string must not contain 'Prompt Builder'");
+                UI_CHECK(hintStr.find("OpenSpec") == std::string::npos,
+                         "Public hint string must not contain 'OpenSpec'");
+                UI_CHECK(hintStr.find("Linter") == std::string::npos,
+                         "Public hint string must not contain 'Linter'");
+                UI_CHECK(hintStr.find("Clang-Tidy") == std::string::npos,
+                         "Public hint string must not contain 'Clang-Tidy'");
+                UI_CHECK(hintStr.find("Clang-Format") == std::string::npos,
+                         "Public hint string must not contain 'Clang-Format'");
             }
         }
     }

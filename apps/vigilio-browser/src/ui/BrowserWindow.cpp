@@ -98,14 +98,16 @@ BrowserWindow::BrowserWindow(const vigilio::StartupCommandLine& cmdLine,
                 openTab(QUrl::fromUserInput(QString::fromStdString(rawUrl)));
             }
         }
-        if (tabs_->count() > 0)
+        if (tabs_->count() > 0) {
             tabs_->setCurrentIndex(0);
+        }
     } else {
         if (!crashRecoveryBanner_) {
             restoreSession();
         }
-        if (tabs_->count() == 0)
+        if (tabs_->count() == 0) {
             openTab();
+        }
     }
 
     resize(1200, 780);
@@ -217,19 +219,22 @@ void BrowserWindow::setupUi() {
         "Desplegar las opciones de configuración, tema y accesibilidad");
 
     connect(backAction_, &QAction::triggered, this, [this]() {
-        if (auto* v = currentWebView())
+        if (auto* v = currentWebView()) {
             v->back();
+        }
     });
     connect(forwardAction_, &QAction::triggered, this, [this]() {
-        if (auto* v = currentWebView())
+        if (auto* v = currentWebView()) {
             v->forward();
+        }
     });
     connect(reloadAction_, &QAction::triggered, this, [this]() {
         if (auto* v = currentWebView()) {
             v->reload();
         } else if (auto* current = tabs_->currentWidget()) {
-            if (auto* retry = current->findChild<QPushButton*>("vigilio-error-retry"))
+            if (auto* retry = current->findChild<QPushButton*>("vigilio-error-retry")) {
                 retry->click();
+            }
         }
     });
     connect(homeAction_, &QAction::triggered, this, [this]() { openTab(); });
@@ -693,8 +698,9 @@ QWidget* BrowserWindow::createErrorPageWidget(const QUrl& failedUrl, QWebEngineV
             } else {
                 openTab(failedUrl);
                 const int latest = tabs_->count() - 1;
-                if (index < latest)
+                if (index < latest) {
                     tabs_->tabBar()->moveTab(latest, index);
+                }
                 tabs_->setCurrentIndex(index);
             }
         }
@@ -746,12 +752,14 @@ void BrowserWindow::openTab(const QUrl& url) {
     tabs_->setCurrentIndex(index);
     connect(view, &QWebEngineView::titleChanged, this, [this, view](const QString& title) {
         int i = tabs_->indexOf(view);
-        if (i >= 0)
+        if (i >= 0) {
             tabs_->setTabText(i, title.left(30));
+        }
     });
     connect(view, &QWebEngineView::urlChanged, this, [this, view](const QUrl&) {
-        if (tabs_->currentWidget() == view)
+        if (tabs_->currentWidget() == view) {
             refreshAddressBar();
+        }
     });
     connect(view, &QWebEngineView::loadFinished, this, [this, view](bool ok) {
         if (ok) {
@@ -821,8 +829,9 @@ void BrowserWindow::switchToWebView(const QUrl& url) {
         }
         openTab(url);
         const int latest = tabs_->count() - 1;
-        if (index < latest)
+        if (index < latest) {
             tabs_->tabBar()->moveTab(latest, index);
+        }
         tabs_->setCurrentIndex(index);
     } else {
         openTab(url);
@@ -845,17 +854,19 @@ void BrowserWindow::refreshAddressBar() {
         address_->setText(view->url().toString());
     } else if (auto* current = tabs_->currentWidget()) {
         const auto failed = current->property("failedUrl");
-        if (failed.isValid() && !failed.toUrl().isEmpty())
+        if (failed.isValid() && !failed.toUrl().isEmpty()) {
             address_->setText(failed.toUrl().toString());
-        else
+        } else {
             address_->clear();
+        }
     } else {
         address_->clear();
     }
 }
 void BrowserWindow::closeTab(int index) {
-    if (index < 0 || index >= tabs_->count())
+    if (index < 0 || index >= tabs_->count()) {
         return;
+    }
     auto* widget = tabs_->widget(index);
     if (widget->property("pinned").toBool()) {
         statusBar()->showMessage("La pestaña fijada debe soltarse antes de cerrarla", 3000);
@@ -863,13 +874,15 @@ void BrowserWindow::closeTab(int index) {
     }
     tabs_->removeTab(index);
     widget->deleteLater();
-    if (tabs_->count() == 0)
+    if (tabs_->count() == 0) {
         openTab();
+    }
 }
 void BrowserWindow::makeTabMenu(const QPoint& point) {
     const auto index = tabs_->tabBar()->tabAt(point);
-    if (index < 0)
+    if (index < 0) {
         return;
+    }
     auto* widget = tabs_->widget(index);
     QMenu menu(this);
     auto* newRight = menu.addAction("Nueva pestaña a la derecha");
@@ -882,46 +895,54 @@ void BrowserWindow::makeTabMenu(const QPoint& point) {
     auto* close = menu.addAction("Cerrar pestaña");
     auto* closeOthers = menu.addAction("Cerrar las demás pestañas");
     auto* picked = menu.exec(tabs_->tabBar()->mapToGlobal(point));
-    if (!picked)
+    if (!picked) {
         return;
+    }
     if (picked == newRight) {
         openTab();
         tabs_->tabBar()->moveTab(tabs_->currentIndex(), index + 1);
     } else if (picked == duplicate) {
-        if (auto* web = qobject_cast<QWebEngineView*>(widget))
+        if (auto* web = qobject_cast<QWebEngineView*>(widget)) {
             openTab(web->url());
-        else
+        } else {
             openTab();
+        }
     } else if (picked == pin) {
         widget->setProperty("pinned", !widget->property("pinned").toBool());
     } else if (picked == mute) {
         const bool target = !widget->property("muted").toBool();
         widget->setProperty("muted", target);
-        if (auto* web = qobject_cast<QWebEngineView*>(widget))
+        if (auto* web = qobject_cast<QWebEngineView*>(widget)) {
             web->page()->setAudioMuted(target);
+        }
     } else if (picked == close) {
         closeTab(index);
     } else if (picked == closeOthers) {
-        for (int i = tabs_->count() - 1; i >= 0; --i)
-            if (tabs_->widget(i) != widget)
+        for (int i = tabs_->count() - 1; i >= 0; --i) {
+            if (tabs_->widget(i) != widget) {
                 closeTab(i);
+            }
+        }
     }
 }
 void BrowserWindow::saveBookmark() {
     auto* view = currentWebView();
-    if (!view || !db_ || !db_->valid())
+    if (!view || !db_ || !db_->valid()) {
         return;
+    }
     const bool ok = db_->addBookmark(view->url().toString().toStdString(), view->title().toStdString());
     statusBar()->showMessage(ok ? "Favorito guardado localmente" : "No se pudo guardar el favorito",
                              3000);
 }
 void BrowserWindow::showBookmarks() {
-    if (!db_ || !db_->valid())
+    if (!db_ || !db_->valid()) {
         return;
+    }
     QMenu menu(this);
     const auto items = db_->bookmarks();
-    if (items.empty())
+    if (items.empty()) {
         menu.addAction("Sin favoritos")->setEnabled(false);
+    }
     for (const auto& b : items) {
         auto* action = menu.addAction(QString::fromStdString(b.title));
         connect(action, &QAction::triggered, this,
@@ -932,20 +953,22 @@ void BrowserWindow::showBookmarks() {
 void BrowserWindow::exportSettings() {
     const QString output = QFileDialog::getSaveFileName(
         this, "Exportar datos locales", QDir::homePath() + "/vigilio-settings.json", "JSON (*.json)");
-    if (output.isEmpty())
+    if (output.isEmpty()) {
         return;
+    }
     QJsonObject obj;
     obj["format"] = "vigilio-settings-v1";
     obj["themeDark"] = dark_;
     obj["seniorMode"] = senior_;
     QJsonArray bookmarks;
-    if (db_ && db_->valid())
+    if (db_ && db_->valid()) {
         for (const auto& b : db_->bookmarks()) {
             QJsonObject bm;
             bm["url"] = QString::fromStdString(b.url);
             bm["title"] = QString::fromStdString(b.title);
             bookmarks.append(bm);
         }
+    }
     obj["bookmarks"] = bookmarks;
     QSaveFile file(output);
     if (!file.open(QIODevice::WriteOnly) || file.write(QJsonDocument(obj).toJson()) < 0 ||
@@ -974,12 +997,15 @@ void BrowserWindow::setSeniorMode(bool enabled) {
     qApp->setFont(font);
     // All visible controls inherit a larger font and touch target when 'Interfaz más fácil de usar' is
     // active.
-    for (auto* child : findChildren<QLineEdit*>())
+    for (auto* child : findChildren<QLineEdit*>()) {
         child->setMinimumHeight(enabled ? 48 : 32);
-    for (auto* child : findChildren<QPushButton*>())
+    }
+    for (auto* child : findChildren<QPushButton*>()) {
         child->setMinimumHeight(enabled ? 48 : 32);
-    for (auto* child : findChildren<QToolBar*>())
+    }
+    for (auto* child : findChildren<QToolBar*>()) {
         child->setMinimumHeight(enabled ? 55 : 40);
+    }
     for (auto* dialog : findChildren<QDialog*>()) {
         for (auto* btn : dialog->findChildren<QPushButton*>()) {
             btn->setMinimumHeight(enabled ? 48 : 32);
@@ -1129,14 +1155,16 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QPushButton#vigilio-confirm-close-confirm:hover{background:#1D4ED8;}");
 }
 void BrowserWindow::saveSession() {
-    if (isIncognito_)
+    if (isIncognito_) {
         return;
+    }
     QStringList urls;
     for (int i = 0; i < tabs_->count(); ++i) {
         const auto* widget = tabs_->widget(i);
         if (auto* v = qobject_cast<QWebEngineView*>(widget)) {
-            if (v->url().scheme() == "http" || v->url().scheme() == "https")
+            if (v->url().scheme() == "http" || v->url().scheme() == "https") {
                 urls << v->url().toString();
+            }
         } else if (widget->property("deferredUrl").isValid()) {
             urls << widget->property("deferredUrl").toString();
         }
@@ -1148,8 +1176,9 @@ void BrowserWindow::restoreSession() {
     // Only the first page loads. Other tabs are placeholders and consume no WebEngine instance.
     bool first = true;
     for (const auto& url : urls.mid(0, 100)) {
-        if (QUrl(url).scheme() != "http" && QUrl(url).scheme() != "https")
+        if (QUrl(url).scheme() != "http" && QUrl(url).scheme() != "https") {
             continue;
+        }
         if (first) {
             openTab(QUrl(url));
             first = false;
@@ -1161,16 +1190,19 @@ void BrowserWindow::restoreSession() {
         layout->addWidget(new QLabel("Pestaña en espera. Se cargará al abrirla.", placeholder));
         tabs_->addTab(placeholder, "En espera");
     }
-    if (tabs_->count() > 0)
+    if (tabs_->count() > 0) {
         tabs_->setCurrentIndex(0);
+    }
 }
 void BrowserWindow::activateDeferredTab(int index) {
-    if (index < 0 || index >= tabs_->count() || tabs_->currentIndex() != index)
+    if (index < 0 || index >= tabs_->count() || tabs_->currentIndex() != index) {
         return;
+    }
     auto* old = tabs_->widget(index);
     const auto value = old->property("deferredUrl");
-    if (!value.isValid())
+    if (!value.isValid()) {
         return;
+    }
     const QUrl target(value.toString());
     {
         QSignalBlocker blocker(tabs_);
@@ -1180,8 +1212,9 @@ void BrowserWindow::activateDeferredTab(int index) {
     // openTab wires all events, then return the view to its original position.
     openTab(target);
     const int latest = tabs_->count() - 1;
-    if (index < latest)
+    if (index < latest) {
         tabs_->tabBar()->moveTab(latest, index);
+    }
     tabs_->setCurrentIndex(index);
 }
 bool BrowserWindow::confirmCloseMultipleTabs() {

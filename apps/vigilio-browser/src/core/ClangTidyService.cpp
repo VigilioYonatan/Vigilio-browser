@@ -318,7 +318,8 @@ SourceFileTidyInspection ClangTidyService::inspectSource(std::string_view source
         // bugprone-*
         if (checkBugprone) {
             std::regex assignInIf(R"(\bif\s*\([^=!<>\n]*=[^=!<>\n]*\))");
-            if (std::regex_search(line, assignInIf)) {
+            if (std::regex_search(line, assignInIf) && line.find("auto") == std::string::npos &&
+                line.find('*') == std::string::npos) {
                 ClangTidyIssueInspection issue;
                 issue.filePath = std::string(virtualPath);
                 issue.lineNumber = lineNum;
