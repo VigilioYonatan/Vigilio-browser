@@ -339,6 +339,185 @@ void test_fixture_public_copy_audit() {
     }
 }
 
+// TEST-FIXTURE-UNIT-011: Rechazo riguroso de Directory Traversal profundo
+void test_fixture_deep_path_traversal_rejection() {
+    TestFixtureFoundation fixture;
+    CHECK(fixture.isValid());
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    // 1. Inyección de directory traversal complejo en subdirectorios
+    CHECK(fixture.createSubdirectory("a/../../b").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createSubdirectory("..\\escape").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createSubdirectory("../../../etc/shadow").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createSubdirectory("/etc/passwd").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createSubdirectory("///").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createSubdirectory("").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    // 2. Inyección de directory traversal complejo en archivos de texto
+    CHECK(fixture.createTestFile("../../../etc/shadow", "malicious_content").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createTestFile("a/../../b.txt", "payload").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createTestFile("", "empty_path").empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    // 3. Inyección de directory traversal complejo en archivos binarios
+    const std::vector<uint8_t> binPayload = {0xDE, 0xAD, 0xBE, 0xEF};
+    CHECK(fixture.createTestBinaryFile("..\\escape", binPayload).empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createTestBinaryFile("../outside.bin", binPayload).empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    CHECK(fixture.createTestBinaryFile("", binPayload).empty());
+    CHECK(fixture.lastError() == FixtureError::UnsafePathDetected);
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    // 4. Comprobar que el fixture preserva su validez para operaciones legítimas posteriores
+    const auto validSub = fixture.createSubdirectory("safe_dir/sub");
+    CHECK(!validSub.empty());
+    CHECK(std::filesystem::is_directory(validSub));
+
+    const auto validFile = fixture.createTestFile("safe_dir/sub/valid.txt", "contenido seguro");
+    CHECK(!validFile.empty());
+    CHECK(std::filesystem::is_regular_file(validFile));
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+}
+
+// TEST-FIXTURE-UNIT-012: Cuota de almacenamiento en frontera exacta
+void test_fixture_exact_boundary_quota() {
+    TestEnvironmentConfig cfg;
+    cfg.maxTempDirSizeBytes = 1024; // Límite exacto: 1024 bytes (1 KB)
+    TestFixtureFoundation fixture(cfg);
+    CHECK(fixture.isValid());
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    // 1. Escritura en la frontera exacta (1024 bytes deben tener éxito)
+    const std::string exactPayload(1024, 'X');
+    const auto exactFile = fixture.createTestFile("exact_boundary.dat", exactPayload);
+    CHECK(!exactFile.empty());
+    CHECK(std::filesystem::exists(exactFile));
+    CHECK(fixture.calculateTotalSizeBytes() == 1024);
+    CHECK(fixture.checkQuota());
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+
+    // 2. Intento de escribir 1 byte adicional debe fallar inmediatamente
+    const auto overflowFile = fixture.createTestFile("overflow_byte.dat", "Z");
+    CHECK(overflowFile.empty());
+    CHECK(fixture.lastError() == FixtureError::QuotaExceeded);
+    CHECK(fixture.state() == TestEnvironmentState::Corrupted);
+    CHECK(!fixture.checkQuota());
+
+    // 3. Ningún archivo residual corrupto debe haberse creado
+    CHECK(!std::filesystem::exists(fixture.rootPath() / "overflow_byte.dat"));
+}
+
+// TEST-FIXTURE-UNIT-013: Anidamiento múltiple y reversión LIFO del guardián de entorno
+void test_fixture_nested_environment_guards() {
+    const std::string envKey = "VIGILIO_TEST_NESTED_ENV_KEY";
+
+    // Establecer estado inicial conocido
+#ifdef _WIN32
+    _putenv_s(envKey.c_str(), "ORIGINAL_BASE");
+#else
+    setenv(envKey.c_str(), "ORIGINAL_BASE", 1);
+#endif
+    CHECK(std::string(std::getenv(envKey.c_str())) == "ORIGINAL_BASE");
+
+    {
+        TestEnvironmentGuard guardLevel1;
+        CHECK(guardLevel1.set(envKey, "LEVEL_1_VALUE"));
+        CHECK(std::string(std::getenv(envKey.c_str())) == "LEVEL_1_VALUE");
+
+        {
+            TestEnvironmentGuard guardLevel2;
+            CHECK(guardLevel2.set(envKey, "LEVEL_2_VALUE"));
+            CHECK(std::string(std::getenv(envKey.c_str())) == "LEVEL_2_VALUE");
+
+            {
+                TestEnvironmentGuard guardLevel3;
+                CHECK(guardLevel3.set(envKey, "LEVEL_3_VALUE"));
+                CHECK(std::string(std::getenv(envKey.c_str())) == "LEVEL_3_VALUE");
+
+                // Unset temporal dentro del ámbito más profundo
+                CHECK(guardLevel3.unset(envKey));
+                CHECK(std::getenv(envKey.c_str()) == nullptr);
+
+                CHECK(guardLevel3.set(envKey, "LEVEL_3_REESTABLISHED"));
+                CHECK(std::string(std::getenv(envKey.c_str())) == "LEVEL_3_REESTABLISHED");
+            } // Destrucción de guardLevel3 -> debe restaurar LEVEL_2_VALUE
+
+            const char* valAfterL3 = std::getenv(envKey.c_str());
+            CHECK(valAfterL3 != nullptr);
+            CHECK(std::string(valAfterL3) == "LEVEL_2_VALUE");
+        } // Destrucción de guardLevel2 -> debe restaurar LEVEL_1_VALUE
+
+        const char* valAfterL2 = std::getenv(envKey.c_str());
+        CHECK(valAfterL2 != nullptr);
+        CHECK(std::string(valAfterL2) == "LEVEL_1_VALUE");
+    } // Destrucción de guardLevel1 -> debe restaurar ORIGINAL_BASE
+
+    const char* valFinal = std::getenv(envKey.c_str());
+    CHECK(valFinal != nullptr);
+    CHECK(std::string(valFinal) == "ORIGINAL_BASE");
+
+    // Limpieza final de la variable
+#ifdef _WIN32
+    _putenv_s(envKey.c_str(), "");
+#else
+    unsetenv(envKey.c_str());
+#endif
+    CHECK(std::getenv(envKey.c_str()) == nullptr);
+}
+
+// TEST-FIXTURE-UNIT-015: Saneamiento de ficheros SQLite WAL/SHM ante casos de frontera
+void test_fixture_sqlite_cleanup_edge_cases() {
+    TestFixtureFoundation fixture;
+    CHECK(fixture.isValid());
+
+    // 1. Fichero inexistente debe retornar false de forma limpia sin lanzar excepciones
+    CHECK(!fixture.cleanupSqliteWalShm("non_existent_database.sqlite"));
+
+    // 2. Ruta con secuencias relativas hacia fuera (path traversal) debe retornar false
+    CHECK(!fixture.cleanupSqliteWalShm("../malicious_external.sqlite"));
+    CHECK(!fixture.cleanupSqliteWalShm("a/../../escaped.sqlite"));
+
+    // 3. Ruta vacía debe retornar false
+    CHECK(!fixture.cleanupSqliteWalShm(""));
+
+    // 4. Ruta que corresponde a un directorio en lugar de fichero SQLite debe retornar false
+    const auto dirPath = fixture.createSubdirectory("not_a_sqlite_file.db");
+    CHECK(!dirPath.empty());
+    CHECK(!fixture.cleanupSqliteWalShm("not_a_sqlite_file.db"));
+
+    // 5. El estado del fixture debe preservarse activo
+    CHECK(fixture.state() == TestEnvironmentState::Active);
+}
+
 } // namespace
 
 int main() {
@@ -353,8 +532,12 @@ int main() {
         test_fixture_concurrency_isolation();
         test_fixture_permission_resilience();
         test_fixture_public_copy_audit();
+        test_fixture_deep_path_traversal_rejection();
+        test_fixture_exact_boundary_quota();
+        test_fixture_nested_environment_guards();
+        test_fixture_sqlite_cleanup_edge_cases();
 
-        std::cout << "TestFixtureFoundationTests: ALL 10 TESTS PASSED\n";
+        std::cout << "TestFixtureFoundationTests: ALL 14 TESTS PASSED\n";
         return 0;
     } catch (const std::exception& ex) {
         std::cerr << "TestFixtureFoundationTests FAILED: " << ex.what() << '\n';

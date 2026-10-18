@@ -116,7 +116,6 @@ std::filesystem::path TestFixtureFoundation::createSubdirectory(const std::strin
     }
     if (relPath.empty() || relPath.find("..") != std::string::npos || relPath.starts_with('/') ||
         relPath.starts_with('\\')) {
-        m_state = TestEnvironmentState::Corrupted;
         m_lastError = FixtureError::UnsafePathDetected;
         m_diagnosticMessage =
             TestFixtureValidator::fixtureErrorToString(FixtureError::UnsafePathDetected);
@@ -124,7 +123,6 @@ std::filesystem::path TestFixtureFoundation::createSubdirectory(const std::strin
     }
     const auto fullPath = m_rootPath / relPath;
     if (!TestFixtureValidator::isWithinTempRoot(fullPath, m_rootPath)) {
-        m_state = TestEnvironmentState::Corrupted;
         m_lastError = FixtureError::UnsafePathDetected;
         m_diagnosticMessage =
             TestFixtureValidator::fixtureErrorToString(FixtureError::UnsafePathDetected);
@@ -149,7 +147,6 @@ std::filesystem::path TestFixtureFoundation::createTestFile(const std::string& r
     }
     if (relPath.empty() || relPath.find("..") != std::string::npos || relPath.starts_with('/') ||
         relPath.starts_with('\\')) {
-        m_state = TestEnvironmentState::Corrupted;
         m_lastError = FixtureError::UnsafePathDetected;
         m_diagnosticMessage =
             TestFixtureValidator::fixtureErrorToString(FixtureError::UnsafePathDetected);
@@ -164,7 +161,6 @@ std::filesystem::path TestFixtureFoundation::createTestFile(const std::string& r
     }
     const auto fullPath = m_rootPath / relPath;
     if (!TestFixtureValidator::isWithinTempRoot(fullPath, m_rootPath)) {
-        m_state = TestEnvironmentState::Corrupted;
         m_lastError = FixtureError::UnsafePathDetected;
         m_diagnosticMessage =
             TestFixtureValidator::fixtureErrorToString(FixtureError::UnsafePathDetected);
@@ -203,7 +199,6 @@ std::filesystem::path TestFixtureFoundation::createTestBinaryFile(const std::str
     }
     if (relPath.empty() || relPath.find("..") != std::string::npos || relPath.starts_with('/') ||
         relPath.starts_with('\\')) {
-        m_state = TestEnvironmentState::Corrupted;
         m_lastError = FixtureError::UnsafePathDetected;
         m_diagnosticMessage =
             TestFixtureValidator::fixtureErrorToString(FixtureError::UnsafePathDetected);
@@ -218,7 +213,6 @@ std::filesystem::path TestFixtureFoundation::createTestBinaryFile(const std::str
     }
     const auto fullPath = m_rootPath / relPath;
     if (!TestFixtureValidator::isWithinTempRoot(fullPath, m_rootPath)) {
-        m_state = TestEnvironmentState::Corrupted;
         m_lastError = FixtureError::UnsafePathDetected;
         m_diagnosticMessage =
             TestFixtureValidator::fixtureErrorToString(FixtureError::UnsafePathDetected);
@@ -261,12 +255,17 @@ bool TestFixtureFoundation::cleanupSqliteWalShm(const std::filesystem::path& dbP
         fullDbPath = dbPath;
     }
 
-    if (!TestFixtureValidator::isWithinTempRoot(fullDbPath, m_rootPath) &&
-        fullDbPath.parent_path() != m_rootPath) {
-        m_state = TestEnvironmentState::Corrupted;
+    if (dbPath.string().find("..") != std::string::npos ||
+        (!TestFixtureValidator::isWithinTempRoot(fullDbPath, m_rootPath) &&
+         fullDbPath.parent_path() != m_rootPath)) {
         m_lastError = FixtureError::UnsafePathDetected;
         m_diagnosticMessage =
             TestFixtureValidator::fixtureErrorToString(FixtureError::UnsafePathDetected);
+        return false;
+    }
+
+    std::error_code ec;
+    if (std::filesystem::is_directory(fullDbPath, ec)) {
         return false;
     }
 
@@ -281,12 +280,26 @@ bool TestFixtureFoundation::cleanupSqliteWalShm(const std::filesystem::path& dbP
     const std::filesystem::path walFile{basePathStr + "-wal"};
     const std::filesystem::path shmFile{basePathStr + "-shm"};
 
-    std::error_code ec;
-    std::filesystem::remove(mainDb, ec);
-    std::filesystem::remove(walFile, ec);
-    std::filesystem::remove(shmFile, ec);
+    bool mainExists = std::filesystem::exists(mainDb, ec);
+    bool walExists = std::filesystem::exists(walFile, ec);
+    bool shmExists = std::filesystem::exists(shmFile, ec);
 
-    return true;
+    if (!mainExists && !walExists && !shmExists) {
+        return false;
+    }
+
+    bool anyRemoved = false;
+    if (mainExists) {
+        anyRemoved |= std::filesystem::remove(mainDb, ec);
+    }
+    if (walExists) {
+        anyRemoved |= std::filesystem::remove(walFile, ec);
+    }
+    if (shmExists) {
+        anyRemoved |= std::filesystem::remove(shmFile, ec);
+    }
+
+    return anyRemoved;
 }
 
 std::size_t TestFixtureFoundation::calculateTotalSizeBytes() const {

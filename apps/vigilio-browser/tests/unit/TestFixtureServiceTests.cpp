@@ -7,11 +7,19 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <mutex>
+#include <set>
 #include <sqlite3.h>
 #include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
+
+#ifdef _WIN32
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
 
 using namespace vigilio;
 
@@ -293,6 +301,330 @@ void test_fixture_service_public_copy_audit() {
     }
 }
 
+// TEST-FIXTURE-SRV-013: Ciclo de vida integral y persistencia SQLite sintética E2E
+void test_fixture_service_full_lifecycle_e2e() {
+    TestFixtureService service;
+    auto* fixture = service.createManagedFixture();
+    CHECK(fixture != nullptr);
+    CHECK(fixture->isValid());
+    const auto root = fixture->rootPath();
+    const std::string fId = fixture->fixtureId();
+
+    // 1. Sembrado de perfil sintético
+    BrowserProfileSeedOptions opts;
+    opts.profileName = "e2e_user";
+    opts.includePreferences = true;
+    opts.includeHistoryDb = true;
+    opts.includeCache = true;
+    auto seedRes = service.seedBrowserProfile(*fixture, opts, nullptr);
+    CHECK(seedRes.isSuccess());
+    CHECK(std::filesystem::exists(root / "profiles" / "e2e_user" / "preferences.json"));
+
+    // 2. Sembrado de base de datos SQLite sintética con datos simulados
+    auto dbRes = service.seedMockDatabase(*fixture, "e2e_database.sqlite", "", nullptr);
+    CHECK(dbRes.isSuccess());
+    const auto dbPath = root / "e2e_database.sqlite";
+    CHECK(std::filesystem::exists(dbPath));
+
+    // 3. Creación de snapshot atómico
+    auto snapRes = service.createSnapshot(*fixture, "checkpoint_full_e2e", nullptr);
+    CHECK(snapRes.isSuccess());
+    CHECK(std::filesystem::exists(root / "_snapshots" / "checkpoint_full_e2e"));
+
+    // 4. Mutación destructiva
+    fixture->createTestFile("profiles/e2e_user/preferences.json", "CORRUPTED_PREFERENCES_OVERWRITTEN");
+    fixture->createTestFile("rogue_file.tmp", "DATOS_BASURA");
+    std::error_code ec;
+    std::filesystem::remove(dbPath, ec);
+    CHECK(!std::filesystem::exists(dbPath));
+
+    // 5. Rollback atómico al snapshot
+    auto rbRes = service.rollbackToSnapshot(*fixture, "checkpoint_full_e2e", nullptr);
+    CHECK(rbRes.isSuccess());
+
+    // 6. Verificación de consistencia
+    CHECK(!std::filesystem::exists(root / "rogue_file.tmp"));
+    CHECK(std::filesystem::exists(dbPath));
+
+    std::ifstream prefIn(root / "profiles" / "e2e_user" / "preferences.json");
+    std::string prefContent((std::istreambuf_iterator<char>(prefIn)), std::istreambuf_iterator<char>());
+    CHECK(prefContent.find("\"name\": \"e2e_user\"") != std::string::npos);
+    CHECK(prefContent.find("CORRUPTED") == std::string::npos);
+
+    // Verificar integridad de la base SQLite restaurada
+    sqlite3* db = nullptr;
+    CHECK(sqlite3_open_v2(dbPath.string().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK);
+    sqlite3_stmt* stmt = nullptr;
+    CHECK(sqlite3_prepare_v2(db, "SELECT count(*) FROM test_history;", -1, &stmt, nullptr) == SQLITE_OK);
+    CHECK(sqlite3_step(stmt) == SQLITE_ROW);
+    int count = sqlite3_column_int(stmt, 0);
+    CHECK(count == 2);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    // 7. Limpieza completa sin residuos en disco
+    CHECK(service.releaseFixture(fId));
+    CHECK(service.activeFixtureCount() == 0);
+    CHECK(!std::filesystem::exists(root));
+}
+
+// TEST-FIXTURE-SRV-014: Validación de entradas inválidas en snapshots y perfiles
+void test_fixture_service_invalid_snapshot_and_profile_inputs() {
+    TestFixtureService service;
+    auto* fixture = service.createManagedFixture();
+    CHECK(fixture != nullptr);
+    CHECK(fixture->isValid());
+
+    // 1. Rollback a snapshot inexistente debe retornar NotFound
+    auto rbNotFound = service.rollbackToSnapshot(*fixture, "snapshot_que_no_existe_xyz", nullptr);
+    CHECK(rbNotFound.status == FixtureOperationStatus::NotFound);
+
+    // 2. Creación de snapshot con nombres vacíos o caracteres de escape debe retornar PathUnsafe
+    CHECK(service.createSnapshot(*fixture, "", nullptr).status == FixtureOperationStatus::PathUnsafe);
+    CHECK(service.createSnapshot(*fixture, "../escape", nullptr).status ==
+          FixtureOperationStatus::PathUnsafe);
+    CHECK(service.createSnapshot(*fixture, "a/../../b", nullptr).status ==
+          FixtureOperationStatus::PathUnsafe);
+    CHECK(service.createSnapshot(*fixture, "sub/dir", nullptr).status ==
+          FixtureOperationStatus::PathUnsafe);
+    CHECK(service.createSnapshot(*fixture, "sub\\dir", nullptr).status ==
+          FixtureOperationStatus::PathUnsafe);
+
+    // 3. Rollback con nombres no seguros
+    CHECK(service.rollbackToSnapshot(*fixture, "", nullptr).status ==
+          FixtureOperationStatus::PathUnsafe);
+    CHECK(service.rollbackToSnapshot(*fixture, "../escape", nullptr).status ==
+          FixtureOperationStatus::PathUnsafe);
+
+    // 4. Rollback con token cancelado
+    CancellationToken cancelToken;
+    cancelToken.requestCancellation();
+    CHECK(cancelToken.isCancelled());
+    auto rbCancel = service.rollbackToSnapshot(*fixture, "any_snapshot", &cancelToken);
+    CHECK(rbCancel.status == FixtureOperationStatus::Cancelled);
+
+    // 5. Sembrado de base de datos con ruta insegura
+    auto dbUnsafe = service.seedMockDatabase(*fixture, "../escaped_db.sqlite", "", nullptr);
+    CHECK(dbUnsafe.status == FixtureOperationStatus::PathUnsafe);
+
+    CHECK(service.releaseFixture(fixture->fixtureId()));
+}
+
+// TEST-FIXTURE-SRV-015: Concurrencia masiva multihilo (16 hilos) e inmunidad a colisiones de IDs
+void test_fixture_service_massive_concurrency_stress() {
+    TestFixtureService service;
+    const int threadCount = 16;
+    const int iterationsPerThread = 4;
+    std::vector<std::thread> threads;
+    std::vector<std::string> allCreatedIds;
+    std::mutex idsMutex;
+
+    for (int t = 0; t < threadCount; ++t) {
+        threads.emplace_back([&service, &allCreatedIds, &idsMutex, t, iterationsPerThread]() {
+            for (int i = 0; i < iterationsPerThread; ++i) {
+                auto* f = service.createManagedFixture();
+                if (f != nullptr && f->isValid()) {
+                    std::string id = f->fixtureId();
+                    {
+                        std::lock_guard<std::mutex> lock(idsMutex);
+                        allCreatedIds.push_back(id);
+                    }
+
+                    f->createTestFile("data_thread_" + std::to_string(t) + ".txt",
+                                      "payload_iter_" + std::to_string(i));
+                    auto snapRes = service.createSnapshot(*f, "snap_thread", nullptr);
+                    CHECK(snapRes.isSuccess());
+
+                    f->createTestFile("after_snap.txt", "temp");
+                    auto rbRes = service.rollbackToSnapshot(*f, "snap_thread", nullptr);
+                    CHECK(rbRes.isSuccess());
+
+                    bool released = service.releaseFixture(id);
+                    CHECK(released);
+                }
+            }
+        });
+    }
+
+    for (auto& th : threads) {
+        th.join();
+    }
+
+    // Comprobar unicidad absoluta de fixtureId entre todos los hilos
+    CHECK(allCreatedIds.size() == static_cast<std::size_t>(threadCount * iterationsPerThread));
+    std::set<std::string> uniqueIds(allCreatedIds.begin(), allCreatedIds.end());
+    CHECK(uniqueIds.size() == allCreatedIds.size());
+
+    // Convergencia del conteo de fixtures activos a cero
+    CHECK(service.activeFixtureCount() == 0);
+}
+
+// TEST-FIXTURE-SRV-016: Estrés de cancelación cooperativa multihilo en operaciones del servicio
+void test_fixture_service_cancellation_token_stress() {
+    TestFixtureService service;
+    auto* fixture = service.createManagedFixture();
+    CHECK(fixture != nullptr);
+
+    // 1. Token pre-cancelado
+    CancellationToken token;
+    token.requestCancellation();
+    CHECK(token.isCancelled());
+    // Idempotencia ante múltiples llamadas consecutivas
+    token.requestCancellation();
+    token.requestCancellation();
+    CHECK(token.isCancelled());
+
+    // seedBrowserProfile debe retornar Cancelled
+    BrowserProfileSeedOptions opts;
+    opts.profileName = "cancel_prof";
+    auto seedRes = service.seedBrowserProfile(*fixture, opts, &token);
+    CHECK(seedRes.status == FixtureOperationStatus::Cancelled);
+
+    // cleanWithRetry debe retornar Cancelled
+    auto cleanRes = service.cleanWithRetry(*fixture, 3, 50, &token);
+    CHECK(cleanRes.status == FixtureOperationStatus::Cancelled);
+
+    // scanAndPurgeOrphanFixtures debe retornar Cancelled en el mensaje diagnóstico
+    auto orphanRep = service.scanAndPurgeOrphanFixtures(3600, &token);
+    CHECK(orphanRep.diagnosticMessage ==
+          TestFixtureService::operationStatusToString(FixtureOperationStatus::Cancelled));
+
+    // createSnapshot y rollbackToSnapshot deben retornar Cancelled
+    auto snapRes = service.createSnapshot(*fixture, "snap_cancel", &token);
+    CHECK(snapRes.status == FixtureOperationStatus::Cancelled);
+    auto rbRes = service.rollbackToSnapshot(*fixture, "snap_cancel", &token);
+    CHECK(rbRes.status == FixtureOperationStatus::Cancelled);
+
+    // seedMockDatabase debe retornar Cancelled
+    auto dbRes = service.seedMockDatabase(*fixture, "cancel.db", "", &token);
+    CHECK(dbRes.status == FixtureOperationStatus::Cancelled);
+
+    // releaseAllFixtures debe responder a la cancelación
+    auto relRes = service.releaseAllFixtures(&token);
+    CHECK(relRes.status == FixtureOperationStatus::Cancelled);
+
+    // Limpieza posterior con token válido
+    CHECK(service.releaseFixture(fixture->fixtureId()));
+    CHECK(service.activeFixtureCount() == 0);
+}
+
+// TEST-FIXTURE-SRV-017: Recuperación ante bloqueos transitorios e inyección de fallos con backoff
+void test_fixture_service_transient_lock_and_retry_recovery() {
+    TestFixtureService service;
+
+    // Caso 1: Limpieza inmediata sin bloqueo
+    {
+        TestFixtureFoundation cleanFixture;
+        CHECK(cleanFixture.isValid());
+        cleanFixture.createTestFile("sample.txt", "data");
+        auto res = service.cleanWithRetry(cleanFixture, 3, 5, nullptr);
+        CHECK(res.isSuccess());
+        CHECK(res.status == FixtureOperationStatus::Success);
+        CHECK(!std::filesystem::exists(cleanFixture.rootPath()));
+    }
+
+    // Caso 2: Recuperación ante bloqueo transitorio que se libera en segundo plano
+    {
+        TestFixtureFoundation lockedFixture;
+        CHECK(lockedFixture.isValid());
+        auto sub = lockedFixture.createSubdirectory("transient_locked_sub");
+        CHECK(!sub.empty());
+        lockedFixture.createTestFile("transient_locked_sub/locked.txt", "locked_content");
+
+#ifndef _WIN32
+        const bool isRoot = (geteuid() == 0);
+#else
+        const bool isRoot = false;
+#endif
+
+        if (!isRoot) {
+            std::error_code ec;
+            std::filesystem::permissions(sub, std::filesystem::perms::owner_read,
+                                         std::filesystem::perm_options::replace, ec);
+
+            // Hilo auxiliar que libera el bloqueo tras un pequeño retraso (30 ms)
+            std::thread unlocker([sub]() {
+                std::this_thread::sleep_for(std::chrono::milliseconds(30));
+                std::error_code thEc;
+                std::filesystem::permissions(sub, std::filesystem::perms::owner_all,
+                                             std::filesystem::perm_options::replace, thEc);
+            });
+
+            // cleanWithRetry con 4 reintentos y 20 ms de backoff base (20ms, 40ms, 80ms)
+            auto res = service.cleanWithRetry(lockedFixture, 4, 20, nullptr);
+            unlocker.join();
+
+            CHECK(res.isSuccess());
+            CHECK(!std::filesystem::exists(lockedFixture.rootPath()));
+        }
+    }
+
+    // Caso 3: Diagnóstico limpio de LockContention ante bloqueo persistente
+    {
+        TestFixtureFoundation permLockFixture;
+        CHECK(permLockFixture.isValid());
+        auto sub = permLockFixture.createSubdirectory("perm_locked_sub");
+        CHECK(!sub.empty());
+        permLockFixture.createTestFile("perm_locked_sub/file.txt", "content");
+
+#ifndef _WIN32
+        const bool isRoot = (geteuid() == 0);
+#else
+        const bool isRoot = false;
+#endif
+
+        if (!isRoot) {
+            std::error_code ec;
+            std::filesystem::permissions(sub, std::filesystem::perms::owner_read,
+                                         std::filesystem::perm_options::replace, ec);
+
+            // Reintentos mínimos sin desbloqueo
+            auto res = service.cleanWithRetry(permLockFixture, 2, 5, nullptr);
+            CHECK(res.status == FixtureOperationStatus::LockContention);
+            CHECK(res.remediationHint ==
+                  TestFixtureService::operationStatusToString(FixtureOperationStatus::LockContention));
+
+            // Restaurar permisos para evitar residuales
+            std::filesystem::permissions(sub, std::filesystem::perms::owner_all,
+                                         std::filesystem::perm_options::replace, ec);
+            std::filesystem::remove_all(permLockFixture.rootPath(), ec);
+        }
+    }
+}
+
+// TEST-FIXTURE-SRV-018: Escáner de huérfanos con casos de frontera y límites temporales
+void test_fixture_service_orphan_purge_boundary_conditions() {
+    TestFixtureService service;
+    auto tempDir = std::filesystem::temp_directory_path();
+    std::error_code ec;
+
+    // 1. Crear carpeta que NO pertenece a Vigilio (prefijo ajeno)
+    auto foreignDir = tempDir / "other_application_directory_not_vigilio_9999";
+    std::filesystem::create_directories(foreignDir, ec);
+    std::ofstream(foreignDir / "foreign.txt") << "datos de otra aplicacion";
+    CHECK(std::filesystem::exists(foreignDir));
+
+    // 2. Crear carpeta de fixture de Vigilio recién creada
+    auto recentFixtureDir = tempDir / "vigilio_test_recent_boundary_fixture_8888";
+    std::filesystem::create_directories(recentFixtureDir, ec);
+    std::ofstream(recentFixtureDir / "recent.txt") << "fixture reciente";
+    CHECK(std::filesystem::exists(recentFixtureDir));
+
+    // 3. Purga con umbral positivo (1 hora): el fixture reciente NO debe ser eliminado
+    auto reportThreshold = service.scanAndPurgeOrphanFixtures(3600, nullptr);
+    CHECK(std::filesystem::exists(recentFixtureDir));
+    CHECK(std::filesystem::exists(foreignDir));
+
+    // 4. Purga con umbral 0: el fixture de Vigilio debe ser purgado, pero la carpeta ajena JAMÁS
+    auto reportZero = service.scanAndPurgeOrphanFixtures(0, nullptr);
+    CHECK(!std::filesystem::exists(recentFixtureDir));
+    CHECK(std::filesystem::exists(foreignDir)); // Preservación incondicional de directorios ajenos
+
+    // 5. Limpieza segura de la carpeta ajena de prueba
+    std::filesystem::remove_all(foreignDir, ec);
+    CHECK(!std::filesystem::exists(foreignDir));
+}
+
 } // namespace
 
 int main() {
@@ -309,8 +641,14 @@ int main() {
         test_fixture_service_concurrency();
         test_fixture_service_unsafe_path_rejection();
         test_fixture_service_public_copy_audit();
+        test_fixture_service_full_lifecycle_e2e();
+        test_fixture_service_invalid_snapshot_and_profile_inputs();
+        test_fixture_service_massive_concurrency_stress();
+        test_fixture_service_cancellation_token_stress();
+        test_fixture_service_transient_lock_and_retry_recovery();
+        test_fixture_service_orphan_purge_boundary_conditions();
 
-        std::cout << "TestFixtureServiceTests: ALL 12 TESTS PASSED\n";
+        std::cout << "TestFixtureServiceTests: ALL 18 TESTS PASSED\n";
         return 0;
     } catch (const std::exception& ex) {
         std::cerr << "TestFixtureServiceTests FAILED: " << ex.what() << '\n';
