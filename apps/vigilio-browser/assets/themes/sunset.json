@@ -1,0 +1,15 @@
+{
+  "id": "sunset",
+  "color": {
+    "background": "#241A23",
+    "surface": "#352632",
+    "text": "#FFF2F1",
+    "accent": "#EA6A45",
+    "border": "#513944"
+  },
+  "radii": {
+    "control": 8,
+    "panel": 12
+  },
+  "spacingBase": 4
+}

@@ -1,0 +1,43 @@
+schema_version: 2
+id: module.split-view.task0524
+version: 1
+status: active
+kind: use-case
+module: split-view
+use_case: split-vertical-resize-tests
+depends_on:
+- module.split-view.task0523
+execution:
+  enabled: true
+  order: 524
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/split-view/micro/0524-split-vertical-resize/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync

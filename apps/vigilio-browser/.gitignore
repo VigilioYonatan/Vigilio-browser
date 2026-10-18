@@ -1,0 +1,21 @@
+_build/
+build/
+out/
+.vscode/
+*.db
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.bak
+*.tmp
+*.log
+*.dmg
+*.exe
+*.AppImage
+.DS_Store
+
+# Outputs never included in repository
+/generated/
+**/generated/
+/build*/
+CMakeUserPresets.json

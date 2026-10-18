@@ -1,0 +1,42 @@
+schema_version: 2
+id: module.foundations.task0001
+version: 1
+status: active
+kind: use-case
+module: foundations
+use_case: cmake-targets-domain
+depends_on: []
+execution:
+  enabled: true
+  order: 1
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/foundations/micro/0001-cmake-targets/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync

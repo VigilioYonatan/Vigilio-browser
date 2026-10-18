@@ -1,0 +1,15 @@
+{
+  "id": "midnight",
+  "color": {
+    "background": "#0B1220",
+    "surface": "#121F30",
+    "text": "#F1F5F9",
+    "accent": "#3B82F6",
+    "border": "#293649"
+  },
+  "radii": {
+    "control": 8,
+    "panel": 12
+  },
+  "spacingBase": 4
+}

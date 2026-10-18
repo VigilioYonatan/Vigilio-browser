@@ -1,0 +1,2 @@
+# Estados de validación
+STRUCTURAL_PASS: YAML/JSON parse y links internos existentes. SCHEMA_PASS: jsonschema del pack y plan verificado con schemas adjuntos; no implica resolver. RESOLVER_PASS: resoluciones de paths y dependencias con herramienta oficial. CLI_PASS: comandos CLI reales. PROJECT_PASS: CMake/Qt/WebEngine/tests específicos de módulo. PUBLICATION_READY: licencia, firmas, permisos, QA final, todas preguntas material closed. Sin evidencia declarar NOT_EXECUTED. Estado actual en AUDIT.md.

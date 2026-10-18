@@ -1,0 +1,43 @@
+schema_version: 2
+id: module.mcp.task0772
+version: 1
+status: active
+kind: use-case
+module: mcp
+use_case: capture-page-tool-implementation
+depends_on:
+- module.mcp.task0771
+execution:
+  enabled: true
+  order: 772
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/mcp/micro/0772-capture-page-tool/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync

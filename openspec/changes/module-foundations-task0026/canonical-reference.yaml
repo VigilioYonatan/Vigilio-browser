@@ -1,0 +1,5 @@
+schema_version: 1
+authority: docs-rules
+mode: reference-only
+pack: module.foundations.task0026
+pack_version: 1

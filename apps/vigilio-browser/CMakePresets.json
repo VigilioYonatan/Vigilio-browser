@@ -1,0 +1,216 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "core-debug",
+      "displayName": "Core Debug",
+      "description": "Desarrollo diario headless C++20 con SQLite3 y suite de pruebas unitarias",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-core-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VIGILIO_BUILD_GUI": "OFF",
+        "BUILD_TESTING": "ON"
+      }
+    },
+    {
+      "name": "core-release",
+      "displayName": "Core Release",
+      "description": "Compilación optimizada del núcleo headless para benchmarks y pruebas de estrés",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-core-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VIGILIO_BUILD_GUI": "OFF",
+        "BUILD_TESTING": "ON"
+      }
+    },
+    {
+      "name": "desktop-debug",
+      "displayName": "Desktop Debug",
+      "description": "Desarrollo y depuración de la aplicación de escritorio con GUI Qt6 y Chromium WebEngine",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-desktop-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VIGILIO_BUILD_GUI": "ON",
+        "BUILD_TESTING": "ON",
+        "VIGILIO_ENABLE_E2E": "OFF"
+      }
+    },
+    {
+      "name": "desktop-release",
+      "displayName": "Desktop Release",
+      "description": "Compilación optimizada para distribución final y empaquetado de producción",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-desktop-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VIGILIO_BUILD_GUI": "ON",
+        "BUILD_TESTING": "OFF",
+        "VIGILIO_ENABLE_E2E": "OFF"
+      }
+    },
+    {
+      "name": "desktop-e2e",
+      "displayName": "Desktop E2E",
+      "description": "Batería de pruebas de humo end-to-end nativas con interfaz gráfica completa",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-desktop-e2e",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VIGILIO_BUILD_GUI": "ON",
+        "BUILD_TESTING": "ON",
+        "VIGILIO_ENABLE_E2E": "ON"
+      }
+    },
+    {
+      "name": "ci-linux-debug",
+      "displayName": "CI Linux Debug",
+      "description": "Pipeline automatizado de integración continua en Linux con advertencias como errores",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-ci-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VIGILIO_BUILD_GUI": "OFF",
+        "BUILD_TESTING": "ON",
+        "VIGILIO_WARNINGS_AS_ERRORS": "ON"
+      }
+    },
+    {
+      "name": "ci-linux-release",
+      "displayName": "CI Linux Release",
+      "description": "Pipeline de validación de empaquetado y release en CI Linux",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-ci-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VIGILIO_BUILD_GUI": "OFF",
+        "BUILD_TESTING": "ON",
+        "VIGILIO_WARNINGS_AS_ERRORS": "ON"
+      }
+    },
+    {
+      "name": "sanitizer-asan",
+      "displayName": "Sanitizer Address (ASan)",
+      "description": "Instrumentación AddressSanitizer para detección de fugas y corrupción de memoria",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-asan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VIGILIO_BUILD_GUI": "OFF",
+        "BUILD_TESTING": "ON",
+        "CMAKE_CXX_FLAGS": "-fsanitize=address"
+      }
+    },
+    {
+      "name": "sanitizer-ubsan",
+      "displayName": "Sanitizer UndefinedBehavior (UBSan)",
+      "description": "Instrumentación UndefinedBehaviorSanitizer para certificación aritmética y alineación",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-ubsan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VIGILIO_BUILD_GUI": "OFF",
+        "BUILD_TESTING": "ON",
+        "CMAKE_CXX_FLAGS": "-fsanitize=undefined"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "core-debug",
+      "configurePreset": "core-debug"
+    },
+    {
+      "name": "core-release",
+      "configurePreset": "core-release"
+    },
+    {
+      "name": "desktop-debug",
+      "configurePreset": "desktop-debug"
+    },
+    {
+      "name": "desktop-release",
+      "configurePreset": "desktop-release"
+    },
+    {
+      "name": "desktop-e2e",
+      "configurePreset": "desktop-e2e"
+    },
+    {
+      "name": "ci-linux-debug",
+      "configurePreset": "ci-linux-debug"
+    },
+    {
+      "name": "ci-linux-release",
+      "configurePreset": "ci-linux-release"
+    },
+    {
+      "name": "sanitizer-asan",
+      "configurePreset": "sanitizer-asan"
+    },
+    {
+      "name": "sanitizer-ubsan",
+      "configurePreset": "sanitizer-ubsan"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "core-debug",
+      "configurePreset": "core-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "core-release",
+      "configurePreset": "core-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "desktop-debug",
+      "configurePreset": "desktop-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "desktop-e2e",
+      "configurePreset": "desktop-e2e",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "ci-linux-debug",
+      "configurePreset": "ci-linux-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "ci-linux-release",
+      "configurePreset": "ci-linux-release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "sanitizer-asan",
+      "configurePreset": "sanitizer-asan",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "sanitizer-ubsan",
+      "configurePreset": "sanitizer-ubsan",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

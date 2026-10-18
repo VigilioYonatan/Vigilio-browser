@@ -1,0 +1,43 @@
+schema_version: 2
+id: module.accessibility.task0889
+version: 1
+status: active
+kind: use-case
+module: accessibility
+use_case: wcag-contrast-audit-domain
+depends_on:
+- module.installer.task0888
+execution:
+  enabled: true
+  order: 889
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/accessibility/micro/0889-wcag-contrast-audit/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync

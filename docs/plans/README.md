@@ -1,0 +1,2 @@
+# Planificación incremental
+`first-vertical-slice.yaml` compila seis micro-packs (3 módulos × 2 pasos); `full-project.yaml` enumera 56 micro-packs, cada uno con un objetivo y commit independiente. Cada pack contiene `execution.enabled`, documentos propios, rutas permitidas y gates. Antes de ejecutar: verificar toolchain oficial en Node24, resolver registry/paths y consultar `docs/prompts/<id>/` correspondiente. Un pack no garantiza un commit válido hasta que pase los tests reales y la REVIEW.

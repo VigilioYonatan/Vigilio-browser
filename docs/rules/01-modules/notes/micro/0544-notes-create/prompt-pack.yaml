@@ -1,0 +1,43 @@
+schema_version: 2
+id: module.notes.task0544
+version: 1
+status: active
+kind: use-case
+module: notes
+use_case: notes-create-tests
+depends_on:
+- module.notes.task0543
+execution:
+  enabled: true
+  order: 544
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/notes/micro/0544-notes-create/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync

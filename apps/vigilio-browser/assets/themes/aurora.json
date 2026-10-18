@@ -1,0 +1,15 @@
+{
+  "id": "aurora",
+  "color": {
+    "background": "#11172A",
+    "surface": "#20243B",
+    "text": "#F4F3FF",
+    "accent": "#8B5CF6",
+    "border": "#414360"
+  },
+  "radii": {
+    "control": 8,
+    "panel": 12
+  },
+  "spacingBase": 4
+}

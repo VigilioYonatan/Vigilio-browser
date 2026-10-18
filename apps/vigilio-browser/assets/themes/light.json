@@ -1,0 +1,15 @@
+{
+  "id": "light",
+  "color": {
+    "background": "#F7F9FC",
+    "surface": "#FFFFFF",
+    "text": "#172033",
+    "accent": "#2563EB",
+    "border": "#DCE3ED"
+  },
+  "radii": {
+    "control": 8,
+    "panel": 12
+  },
+  "spacingBase": 4
+}

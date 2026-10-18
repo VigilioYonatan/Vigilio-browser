@@ -1,0 +1,43 @@
+schema_version: 2
+id: module.performance-testing.task0977
+version: 1
+status: active
+kind: use-case
+module: performance-testing
+use_case: e2e-permission-flow-implementation
+depends_on:
+- module.performance-testing.task0976
+execution:
+  enabled: true
+  order: 977
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/performance-testing/micro/0977-e2e-permission-flow/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync

@@ -1,0 +1,43 @@
+schema_version: 2
+id: module.ux-shell.task0085
+version: 1
+status: active
+kind: use-case
+module: ux-shell
+use_case: sidebar-collapsed-implementation
+depends_on:
+- module.ux-shell.task0084
+execution:
+  enabled: true
+  order: 85
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/ux-shell/micro/0085-sidebar-collapsed/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync

@@ -1,0 +1,15 @@
+{
+  "id": "forest",
+  "color": {
+    "background": "#10201C",
+    "surface": "#1A3029",
+    "text": "#F2F7F4",
+    "accent": "#10B981",
+    "border": "#35564B"
+  },
+  "radii": {
+    "control": 8,
+    "panel": 12
+  },
+  "spacingBase": 4
+}

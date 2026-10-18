@@ -1,0 +1,62 @@
+# Prerequisites / Compiled Binaries
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+a.out
+
+# Build directories
+build/
+_build/
+build-*/
+out/
+bin/
+cmake-build-*/
+apps/vigilio-browser/_build/
+apps/vigilio-browser/build-*/
+
+# CMake
+CMakeUserPresets.json
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+# Logs, databases and temporary files
+*.log
+*.db
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.bak
+*.tmp
+*.swp
+*~
+
+# Automation runner artifacts
+.prompt-runner/
+
+# OS and Editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!scripts/*.env

@@ -1,0 +1,15 @@
+{
+  "id": "dark",
+  "color": {
+    "background": "#111827",
+    "surface": "#1B2535",
+    "text": "#EEF2FF",
+    "accent": "#3B82F6",
+    "border": "#344257"
+  },
+  "radii": {
+    "control": 8,
+    "panel": 12
+  },
+  "spacingBase": 4
+}

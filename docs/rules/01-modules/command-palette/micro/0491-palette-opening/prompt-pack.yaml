@@ -1,0 +1,43 @@
+schema_version: 2
+id: module.command-palette.task0491
+version: 1
+status: active
+kind: use-case
+module: command-palette
+use_case: palette-opening-domain
+depends_on:
+- module.senior-mode.task0490
+execution:
+  enabled: true
+  order: 491
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/command-palette/micro/0491-palette-opening/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync

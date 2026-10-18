@@ -1,0 +1,19 @@
+id,tipo,prioridad,estado,modulo,verificacion,resultado
+RF-001,bar_de_direcciones,P0,parcial,core/UrlInput,UNIT-URL,PASS_core_GUI_NOT_RUN
+RF-002,pestanas_basicas,P0,parcial,core/TabModel + ui/BrowserWindow,UNIT-TAB,PASS_core_GUI_NOT_RUN
+RF-003,marcadores_locales,P0,parcial,storage/LocalRepository,INT-SQLITE,PASS_core_GUI_NOT_RUN
+RF-004,historial_local,P1,parcial,storage/LocalRepository,INT-SQLITE,PASS_core_GUI_NOT_RUN
+RF-005,exportar_configuracion,P0,parcial,ui/BrowserWindow,GUI-E2E-export,NOT_RUN
+RF-006,modo_senior,P1,parcial,ui/BrowserWindow,ACCESSIBILITY-E2E,NOT_RUN
+RF-007,tema_claro_oscuro,P1,parcial,ui/BrowserWindow,GUI-visual,NOT_RUN
+RF-008,restauracion_diferida,P1,parcial,ui/BrowserWindow,GUI-E2E-restore,NOT_RUN
+RF-009,adblock,P1,pendiente,privacy/VigilioShields,SEC-integration,NOT_RUN
+RF-010,visores,P1,pendiente,readers,PARSE-fuzz,NOT_RUN
+RF-011,extensiones_MV3,P1,pendiente,engine,GUI-integration,NOT_RUN
+RF-012,MCP_local_opt_in,P2,pendiente,mcp,SEC-agent-gates,NOT_RUN
+RF-013,exportacion_desinstalador,P1,pendiente,packaging,E2E-installer,NOT_RUN
+RF-014,importar_configuracion,P1,pendiente,storage/ImportExport,E2E-import,NOT_RUN
+RNF-001,cuentas_y_cloud_prohibidos,P0,parcial,architecture,PRIV-review,CORE_PASS_GUI_NOT_RUN
+RNF-002,RAM_medida_total,P0,pendiente,benchmark,PERF-OS-matrix,NOT_RUN
+RNF-003,compatibilidad_windows_linux_macos,P0,pendiente,packaging,E2E-platform-matrix,NOT_RUN
+RNF-004,observabilidad_local_sin_secretos,P1,parcial,app,PRIV-log-review,NOT_RUN

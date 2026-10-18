@@ -1,0 +1,12 @@
+profiles:
+- id: vigilio-desktop
+  platforms:
+  - windows-x64
+  - linux-x64
+  - macos-x64
+  - macos-arm64
+  languages:
+  - cpp20
+  ui: qt-widgets
+  engine: qt-webengine
+  data: sqlite-local

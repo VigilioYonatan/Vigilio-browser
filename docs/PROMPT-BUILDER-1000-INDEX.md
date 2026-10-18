@@ -1,0 +1,1006 @@
+# Índice de 1000 micro-packs para Prompt Builder 0.6.3
+
+**1000 packs de tareas**, ordenados y enlazados por dependencias; no equivalen a 1000 ejecuciones verificadas.
+
+Cada pack contiene su `prompt-pack.yaml` compatible con el esquema v2 y un `task.md` propio con alcance, diseño, casos negativos, testing y commit sugerido. El plan completo está en `plans/full-project.yaml`; los lotes de 50 están en `plans/batches/`. **No crear `openspec/`.** La fuente de verdad es cada módulo y su microtarea.
+
+- `0001` — foundations: Definir el comportamiento y las invariantes: cmake targets — `docs/rules/01-modules/foundations/micro/0001-cmake-targets/task.md`
+- `0002` — foundations: Implementar la operación en una capa propietaria: cmake targets — `docs/rules/01-modules/foundations/micro/0002-cmake-targets/task.md`
+- `0003` — foundations: Implementar la interacción y estados visuales en Qt: cmake targets — `docs/rules/01-modules/foundations/micro/0003-cmake-targets/task.md`
+- `0004` — foundations: Probar casos positivos, negativos y recuperación: cmake targets — `docs/rules/01-modules/foundations/micro/0004-cmake-targets/task.md`
+- `0005` — foundations: Definir el comportamiento y las invariantes: compiler warnings — `docs/rules/01-modules/foundations/micro/0005-compiler-warnings/task.md`
+- `0006` — foundations: Implementar la operación en una capa propietaria: compiler warnings — `docs/rules/01-modules/foundations/micro/0006-compiler-warnings/task.md`
+- `0007` — foundations: Implementar la interacción y estados visuales en Qt: compiler warnings — `docs/rules/01-modules/foundations/micro/0007-compiler-warnings/task.md`
+- `0008` — foundations: Probar casos positivos, negativos y recuperación: compiler warnings — `docs/rules/01-modules/foundations/micro/0008-compiler-warnings/task.md`
+- `0009` — foundations: Definir el comportamiento y las invariantes: Qt dependency validation — `docs/rules/01-modules/foundations/micro/0009-qt-dependency-validation/task.md`
+- `0010` — foundations: Implementar la operación en una capa propietaria: Qt dependency validation — `docs/rules/01-modules/foundations/micro/0010-qt-dependency-validation/task.md`
+- `0011` — foundations: Implementar la interacción y estados visuales en Qt: Qt dependency validation — `docs/rules/01-modules/foundations/micro/0011-qt-dependency-validation/task.md`
+- `0012` — foundations: Probar casos positivos, negativos y recuperación: Qt dependency validation — `docs/rules/01-modules/foundations/micro/0012-qt-dependency-validation/task.md`
+- `0013` — foundations: Definir el comportamiento y las invariantes: WebEngine version compatibility — `docs/rules/01-modules/foundations/micro/0013-webengine-version-compatibility/task.md`
+- `0014` — foundations: Implementar la operación en una capa propietaria: WebEngine version compatibility — `docs/rules/01-modules/foundations/micro/0014-webengine-version-compatibility/task.md`
+- `0015` — foundations: Implementar la interacción y estados visuales en Qt: WebEngine version compatibility — `docs/rules/01-modules/foundations/micro/0015-webengine-version-compatibility/task.md`
+- `0016` — foundations: Probar casos positivos, negativos y recuperación: WebEngine version compatibility — `docs/rules/01-modules/foundations/micro/0016-webengine-version-compatibility/task.md`
+- `0017` — foundations: Definir el comportamiento y las invariantes: resource qrc inclusion — `docs/rules/01-modules/foundations/micro/0017-resource-qrc-inclusion/task.md`
+- `0018` — foundations: Implementar la operación en una capa propietaria: resource qrc inclusion — `docs/rules/01-modules/foundations/micro/0018-resource-qrc-inclusion/task.md`
+- `0019` — foundations: Implementar la interacción y estados visuales en Qt: resource qrc inclusion — `docs/rules/01-modules/foundations/micro/0019-resource-qrc-inclusion/task.md`
+- `0020` — foundations: Probar casos positivos, negativos y recuperación: resource qrc inclusion — `docs/rules/01-modules/foundations/micro/0020-resource-qrc-inclusion/task.md`
+- `0021` — foundations: Definir el comportamiento y las invariantes: startup bootstrap — `docs/rules/01-modules/foundations/micro/0021-startup-bootstrap/task.md`
+- `0022` — foundations: Implementar la operación en una capa propietaria: startup bootstrap — `docs/rules/01-modules/foundations/micro/0022-startup-bootstrap/task.md`
+- `0023` — foundations: Implementar la interacción y estados visuales en Qt: startup bootstrap — `docs/rules/01-modules/foundations/micro/0023-startup-bootstrap/task.md`
+- `0024` — foundations: Probar casos positivos, negativos y recuperación: startup bootstrap — `docs/rules/01-modules/foundations/micro/0024-startup-bootstrap/task.md`
+- `0025` — foundations: Definir el comportamiento y las invariantes: application lifetime — `docs/rules/01-modules/foundations/micro/0025-application-lifetime/task.md`
+- `0026` — foundations: Implementar la operación en una capa propietaria: application lifetime — `docs/rules/01-modules/foundations/micro/0026-application-lifetime/task.md`
+- `0027` — foundations: Implementar la interacción y estados visuales en Qt: application lifetime — `docs/rules/01-modules/foundations/micro/0027-application-lifetime/task.md`
+- `0028` — foundations: Probar casos positivos, negativos y recuperación: application lifetime — `docs/rules/01-modules/foundations/micro/0028-application-lifetime/task.md`
+- `0029` — foundations: Definir el comportamiento y las invariantes: crash recovery policy — `docs/rules/01-modules/foundations/micro/0029-crash-recovery-policy/task.md`
+- `0030` — foundations: Implementar la operación en una capa propietaria: crash recovery policy — `docs/rules/01-modules/foundations/micro/0030-crash-recovery-policy/task.md`
+- `0031` — foundations: Implementar la interacción y estados visuales en Qt: crash recovery policy — `docs/rules/01-modules/foundations/micro/0031-crash-recovery-policy/task.md`
+- `0032` — foundations: Probar casos positivos, negativos y recuperación: crash recovery policy — `docs/rules/01-modules/foundations/micro/0032-crash-recovery-policy/task.md`
+- `0033` — foundations: Definir el comportamiento y las invariantes: CMake presets — `docs/rules/01-modules/foundations/micro/0033-cmake-presets/task.md`
+- `0034` — foundations: Implementar la operación en una capa propietaria: CMake presets — `docs/rules/01-modules/foundations/micro/0034-cmake-presets/task.md`
+- `0035` — foundations: Implementar la interacción y estados visuales en Qt: CMake presets — `docs/rules/01-modules/foundations/micro/0035-cmake-presets/task.md`
+- `0036` — foundations: Probar casos positivos, negativos y recuperación: CMake presets — `docs/rules/01-modules/foundations/micro/0036-cmake-presets/task.md`
+- `0037` — foundations: Definir el comportamiento y las invariantes: test fixture foundation — `docs/rules/01-modules/foundations/micro/0037-test-fixture-foundation/task.md`
+- `0038` — foundations: Implementar la operación en una capa propietaria: test fixture foundation — `docs/rules/01-modules/foundations/micro/0038-test-fixture-foundation/task.md`
+- `0039` — foundations: Implementar la interacción y estados visuales en Qt: test fixture foundation — `docs/rules/01-modules/foundations/micro/0039-test-fixture-foundation/task.md`
+- `0040` — foundations: Probar casos positivos, negativos y recuperación: test fixture foundation — `docs/rules/01-modules/foundations/micro/0040-test-fixture-foundation/task.md`
+- `0041` — foundations: Definir el comportamiento y las invariantes: clang-format configuration — `docs/rules/01-modules/foundations/micro/0041-clang-format-configuration/task.md`
+- `0042` — foundations: Implementar la operación en una capa propietaria: clang-format configuration — `docs/rules/01-modules/foundations/micro/0042-clang-format-configuration/task.md`
+- `0043` — foundations: Implementar la interacción y estados visuales en Qt: clang-format configuration — `docs/rules/01-modules/foundations/micro/0043-clang-format-configuration/task.md`
+- `0044` — foundations: Probar casos positivos, negativos y recuperación: clang-format configuration — `docs/rules/01-modules/foundations/micro/0044-clang-format-configuration/task.md`
+- `0045` — foundations: Definir el comportamiento y las invariantes: clang-tidy configuration — `docs/rules/01-modules/foundations/micro/0045-clang-tidy-configuration/task.md`
+- `0046` — foundations: Implementar la operación en una capa propietaria: clang-tidy configuration — `docs/rules/01-modules/foundations/micro/0046-clang-tidy-configuration/task.md`
+- `0047` — foundations: Implementar la interacción y estados visuales en Qt: clang-tidy configuration — `docs/rules/01-modules/foundations/micro/0047-clang-tidy-configuration/task.md`
+- `0048` — foundations: Probar casos positivos, negativos y recuperación: clang-tidy configuration — `docs/rules/01-modules/foundations/micro/0048-clang-tidy-configuration/task.md`
+- `0049` — foundations: Definir el comportamiento y las invariantes: CI Linux job — `docs/rules/01-modules/foundations/micro/0049-ci-linux-job/task.md`
+- `0050` — foundations: Implementar la operación en una capa propietaria: CI Linux job — `docs/rules/01-modules/foundations/micro/0050-ci-linux-job/task.md`
+- `0051` — foundations: Implementar la interacción y estados visuales en Qt: CI Linux job — `docs/rules/01-modules/foundations/micro/0051-ci-linux-job/task.md`
+- `0052` — foundations: Probar casos positivos, negativos y recuperación: CI Linux job — `docs/rules/01-modules/foundations/micro/0052-ci-linux-job/task.md`
+- `0053` — foundations: Definir el comportamiento y las invariantes: CI Windows job — `docs/rules/01-modules/foundations/micro/0053-ci-windows-job/task.md`
+- `0054` — foundations: Implementar la operación en una capa propietaria: CI Windows job — `docs/rules/01-modules/foundations/micro/0054-ci-windows-job/task.md`
+- `0055` — foundations: Implementar la interacción y estados visuales en Qt: CI Windows job — `docs/rules/01-modules/foundations/micro/0055-ci-windows-job/task.md`
+- `0056` — foundations: Probar casos positivos, negativos y recuperación: CI Windows job — `docs/rules/01-modules/foundations/micro/0056-ci-windows-job/task.md`
+- `0057` — foundations: Definir el comportamiento y las invariantes: CI macOS job — `docs/rules/01-modules/foundations/micro/0057-ci-macos-job/task.md`
+- `0058` — foundations: Implementar la operación en una capa propietaria: CI macOS job — `docs/rules/01-modules/foundations/micro/0058-ci-macos-job/task.md`
+- `0059` — foundations: Implementar la interacción y estados visuales en Qt: CI macOS job — `docs/rules/01-modules/foundations/micro/0059-ci-macos-job/task.md`
+- `0060` — ux-shell: Definir el comportamiento y las invariantes: main window layout — `docs/rules/01-modules/ux-shell/micro/0060-main-window-layout/task.md`
+- `0061` — ux-shell: Implementar la operación en una capa propietaria: main window layout — `docs/rules/01-modules/ux-shell/micro/0061-main-window-layout/task.md`
+- `0062` — ux-shell: Implementar la interacción y estados visuales en Qt: main window layout — `docs/rules/01-modules/ux-shell/micro/0062-main-window-layout/task.md`
+- `0063` — ux-shell: Probar casos positivos, negativos y recuperación: main window layout — `docs/rules/01-modules/ux-shell/micro/0063-main-window-layout/task.md`
+- `0064` — ux-shell: Definir el comportamiento y las invariantes: title bar integration — `docs/rules/01-modules/ux-shell/micro/0064-title-bar-integration/task.md`
+- `0065` — ux-shell: Implementar la operación en una capa propietaria: title bar integration — `docs/rules/01-modules/ux-shell/micro/0065-title-bar-integration/task.md`
+- `0066` — ux-shell: Implementar la interacción y estados visuales en Qt: title bar integration — `docs/rules/01-modules/ux-shell/micro/0066-title-bar-integration/task.md`
+- `0067` — ux-shell: Probar casos positivos, negativos y recuperación: title bar integration — `docs/rules/01-modules/ux-shell/micro/0067-title-bar-integration/task.md`
+- `0068` — ux-shell: Definir el comportamiento y las invariantes: tab strip density — `docs/rules/01-modules/ux-shell/micro/0068-tab-strip-density/task.md`
+- `0069` — ux-shell: Implementar la operación en una capa propietaria: tab strip density — `docs/rules/01-modules/ux-shell/micro/0069-tab-strip-density/task.md`
+- `0070` — ux-shell: Implementar la interacción y estados visuales en Qt: tab strip density — `docs/rules/01-modules/ux-shell/micro/0070-tab-strip-density/task.md`
+- `0071` — ux-shell: Probar casos positivos, negativos y recuperación: tab strip density — `docs/rules/01-modules/ux-shell/micro/0071-tab-strip-density/task.md`
+- `0072` — ux-shell: Definir el comportamiento y las invariantes: toolbar layout — `docs/rules/01-modules/ux-shell/micro/0072-toolbar-layout/task.md`
+- `0073` — ux-shell: Implementar la operación en una capa propietaria: toolbar layout — `docs/rules/01-modules/ux-shell/micro/0073-toolbar-layout/task.md`
+- `0074` — ux-shell: Implementar la interacción y estados visuales en Qt: toolbar layout — `docs/rules/01-modules/ux-shell/micro/0074-toolbar-layout/task.md`
+- `0075` — ux-shell: Probar casos positivos, negativos y recuperación: toolbar layout — `docs/rules/01-modules/ux-shell/micro/0075-toolbar-layout/task.md`
+- `0076` — ux-shell: Definir el comportamiento y las invariantes: omnibox focus — `docs/rules/01-modules/ux-shell/micro/0076-omnibox-focus/task.md`
+- `0077` — ux-shell: Implementar la operación en una capa propietaria: omnibox focus — `docs/rules/01-modules/ux-shell/micro/0077-omnibox-focus/task.md`
+- `0078` — ux-shell: Implementar la interacción y estados visuales en Qt: omnibox focus — `docs/rules/01-modules/ux-shell/micro/0078-omnibox-focus/task.md`
+- `0079` — ux-shell: Probar casos positivos, negativos y recuperación: omnibox focus — `docs/rules/01-modules/ux-shell/micro/0079-omnibox-focus/task.md`
+- `0080` — ux-shell: Definir el comportamiento y las invariantes: navigation buttons — `docs/rules/01-modules/ux-shell/micro/0080-navigation-buttons/task.md`
+- `0081` — ux-shell: Implementar la operación en una capa propietaria: navigation buttons — `docs/rules/01-modules/ux-shell/micro/0081-navigation-buttons/task.md`
+- `0082` — ux-shell: Implementar la interacción y estados visuales en Qt: navigation buttons — `docs/rules/01-modules/ux-shell/micro/0082-navigation-buttons/task.md`
+- `0083` — ux-shell: Probar casos positivos, negativos y recuperación: navigation buttons — `docs/rules/01-modules/ux-shell/micro/0083-navigation-buttons/task.md`
+- `0084` — ux-shell: Definir el comportamiento y las invariantes: sidebar collapsed — `docs/rules/01-modules/ux-shell/micro/0084-sidebar-collapsed/task.md`
+- `0085` — ux-shell: Implementar la operación en una capa propietaria: sidebar collapsed — `docs/rules/01-modules/ux-shell/micro/0085-sidebar-collapsed/task.md`
+- `0086` — ux-shell: Implementar la interacción y estados visuales en Qt: sidebar collapsed — `docs/rules/01-modules/ux-shell/micro/0086-sidebar-collapsed/task.md`
+- `0087` — ux-shell: Probar casos positivos, negativos y recuperación: sidebar collapsed — `docs/rules/01-modules/ux-shell/micro/0087-sidebar-collapsed/task.md`
+- `0088` — ux-shell: Definir el comportamiento y las invariantes: sidebar expanded — `docs/rules/01-modules/ux-shell/micro/0088-sidebar-expanded/task.md`
+- `0089` — ux-shell: Implementar la operación en una capa propietaria: sidebar expanded — `docs/rules/01-modules/ux-shell/micro/0089-sidebar-expanded/task.md`
+- `0090` — ux-shell: Implementar la interacción y estados visuales en Qt: sidebar expanded — `docs/rules/01-modules/ux-shell/micro/0090-sidebar-expanded/task.md`
+- `0091` — ux-shell: Probar casos positivos, negativos y recuperación: sidebar expanded — `docs/rules/01-modules/ux-shell/micro/0091-sidebar-expanded/task.md`
+- `0092` — ux-shell: Definir el comportamiento y las invariantes: responsive window minimum — `docs/rules/01-modules/ux-shell/micro/0092-responsive-window-minimum/task.md`
+- `0093` — ux-shell: Implementar la operación en una capa propietaria: responsive window minimum — `docs/rules/01-modules/ux-shell/micro/0093-responsive-window-minimum/task.md`
+- `0094` — ux-shell: Implementar la interacción y estados visuales en Qt: responsive window minimum — `docs/rules/01-modules/ux-shell/micro/0094-responsive-window-minimum/task.md`
+- `0095` — ux-shell: Probar casos positivos, negativos y recuperación: responsive window minimum — `docs/rules/01-modules/ux-shell/micro/0095-responsive-window-minimum/task.md`
+- `0096` — ux-shell: Definir el comportamiento y las invariantes: context menu styling — `docs/rules/01-modules/ux-shell/micro/0096-context-menu-styling/task.md`
+- `0097` — ux-shell: Implementar la operación en una capa propietaria: context menu styling — `docs/rules/01-modules/ux-shell/micro/0097-context-menu-styling/task.md`
+- `0098` — ux-shell: Implementar la interacción y estados visuales en Qt: context menu styling — `docs/rules/01-modules/ux-shell/micro/0098-context-menu-styling/task.md`
+- `0099` — ux-shell: Probar casos positivos, negativos y recuperación: context menu styling — `docs/rules/01-modules/ux-shell/micro/0099-context-menu-styling/task.md`
+- `0100` — ux-shell: Definir el comportamiento y las invariantes: modal focus restore — `docs/rules/01-modules/ux-shell/micro/0100-modal-focus-restore/task.md`
+- `0101` — ux-shell: Implementar la operación en una capa propietaria: modal focus restore — `docs/rules/01-modules/ux-shell/micro/0101-modal-focus-restore/task.md`
+- `0102` — ux-shell: Implementar la interacción y estados visuales en Qt: modal focus restore — `docs/rules/01-modules/ux-shell/micro/0102-modal-focus-restore/task.md`
+- `0103` — ux-shell: Probar casos positivos, negativos y recuperación: modal focus restore — `docs/rules/01-modules/ux-shell/micro/0103-modal-focus-restore/task.md`
+- `0104` — ux-shell: Definir el comportamiento y las invariantes: toast notifications — `docs/rules/01-modules/ux-shell/micro/0104-toast-notifications/task.md`
+- `0105` — ux-shell: Implementar la operación en una capa propietaria: toast notifications — `docs/rules/01-modules/ux-shell/micro/0105-toast-notifications/task.md`
+- `0106` — ux-shell: Implementar la interacción y estados visuales en Qt: toast notifications — `docs/rules/01-modules/ux-shell/micro/0106-toast-notifications/task.md`
+- `0107` — ux-shell: Probar casos positivos, negativos y recuperación: toast notifications — `docs/rules/01-modules/ux-shell/micro/0107-toast-notifications/task.md`
+- `0108` — ux-shell: Definir el comportamiento y las invariantes: tooltips and labels — `docs/rules/01-modules/ux-shell/micro/0108-tooltips-and-labels/task.md`
+- `0109` — ux-shell: Implementar la operación en una capa propietaria: tooltips and labels — `docs/rules/01-modules/ux-shell/micro/0109-tooltips-and-labels/task.md`
+- `0110` — ux-shell: Implementar la interacción y estados visuales en Qt: tooltips and labels — `docs/rules/01-modules/ux-shell/micro/0110-tooltips-and-labels/task.md`
+- `0111` — ux-shell: Probar casos positivos, negativos y recuperación: tooltips and labels — `docs/rules/01-modules/ux-shell/micro/0111-tooltips-and-labels/task.md`
+- `0112` — ux-shell: Definir el comportamiento y las invariantes: empty state views — `docs/rules/01-modules/ux-shell/micro/0112-empty-state-views/task.md`
+- `0113` — ux-shell: Implementar la operación en una capa propietaria: empty state views — `docs/rules/01-modules/ux-shell/micro/0113-empty-state-views/task.md`
+- `0114` — ux-shell: Implementar la interacción y estados visuales en Qt: empty state views — `docs/rules/01-modules/ux-shell/micro/0114-empty-state-views/task.md`
+- `0115` — ux-shell: Probar casos positivos, negativos y recuperación: empty state views — `docs/rules/01-modules/ux-shell/micro/0115-empty-state-views/task.md`
+- `0116` — ux-shell: Definir el comportamiento y las invariantes: loading and error states — `docs/rules/01-modules/ux-shell/micro/0116-loading-and-error-states/task.md`
+- `0117` — navigation: Definir el comportamiento y las invariantes: URL scheme validation — `docs/rules/01-modules/navigation/micro/0117-url-scheme-validation/task.md`
+- `0118` — navigation: Implementar la operación en una capa propietaria: URL scheme validation — `docs/rules/01-modules/navigation/micro/0118-url-scheme-validation/task.md`
+- `0119` — navigation: Implementar la interacción y estados visuales en Qt: URL scheme validation — `docs/rules/01-modules/navigation/micro/0119-url-scheme-validation/task.md`
+- `0120` — navigation: Probar casos positivos, negativos y recuperación: URL scheme validation — `docs/rules/01-modules/navigation/micro/0120-url-scheme-validation/task.md`
+- `0121` — navigation: Definir el comportamiento y las invariantes: search query conversion — `docs/rules/01-modules/navigation/micro/0121-search-query-conversion/task.md`
+- `0122` — navigation: Implementar la operación en una capa propietaria: search query conversion — `docs/rules/01-modules/navigation/micro/0122-search-query-conversion/task.md`
+- `0123` — navigation: Implementar la interacción y estados visuales en Qt: search query conversion — `docs/rules/01-modules/navigation/micro/0123-search-query-conversion/task.md`
+- `0124` — navigation: Probar casos positivos, negativos y recuperación: search query conversion — `docs/rules/01-modules/navigation/micro/0124-search-query-conversion/task.md`
+- `0125` — navigation: Definir el comportamiento y las invariantes: omnibox suggestions — `docs/rules/01-modules/navigation/micro/0125-omnibox-suggestions/task.md`
+- `0126` — navigation: Implementar la operación en una capa propietaria: omnibox suggestions — `docs/rules/01-modules/navigation/micro/0126-omnibox-suggestions/task.md`
+- `0127` — navigation: Implementar la interacción y estados visuales en Qt: omnibox suggestions — `docs/rules/01-modules/navigation/micro/0127-omnibox-suggestions/task.md`
+- `0128` — navigation: Probar casos positivos, negativos y recuperación: omnibox suggestions — `docs/rules/01-modules/navigation/micro/0128-omnibox-suggestions/task.md`
+- `0129` — navigation: Definir el comportamiento y las invariantes: search provider prefixes — `docs/rules/01-modules/navigation/micro/0129-search-provider-prefixes/task.md`
+- `0130` — navigation: Implementar la operación en una capa propietaria: search provider prefixes — `docs/rules/01-modules/navigation/micro/0130-search-provider-prefixes/task.md`
+- `0131` — navigation: Implementar la interacción y estados visuales en Qt: search provider prefixes — `docs/rules/01-modules/navigation/micro/0131-search-provider-prefixes/task.md`
+- `0132` — navigation: Probar casos positivos, negativos y recuperación: search provider prefixes — `docs/rules/01-modules/navigation/micro/0132-search-provider-prefixes/task.md`
+- `0133` — navigation: Definir el comportamiento y las invariantes: back navigation — `docs/rules/01-modules/navigation/micro/0133-back-navigation/task.md`
+- `0134` — navigation: Implementar la operación en una capa propietaria: back navigation — `docs/rules/01-modules/navigation/micro/0134-back-navigation/task.md`
+- `0135` — navigation: Implementar la interacción y estados visuales en Qt: back navigation — `docs/rules/01-modules/navigation/micro/0135-back-navigation/task.md`
+- `0136` — navigation: Probar casos positivos, negativos y recuperación: back navigation — `docs/rules/01-modules/navigation/micro/0136-back-navigation/task.md`
+- `0137` — navigation: Definir el comportamiento y las invariantes: forward navigation — `docs/rules/01-modules/navigation/micro/0137-forward-navigation/task.md`
+- `0138` — navigation: Implementar la operación en una capa propietaria: forward navigation — `docs/rules/01-modules/navigation/micro/0138-forward-navigation/task.md`
+- `0139` — navigation: Implementar la interacción y estados visuales en Qt: forward navigation — `docs/rules/01-modules/navigation/micro/0139-forward-navigation/task.md`
+- `0140` — navigation: Probar casos positivos, negativos y recuperación: forward navigation — `docs/rules/01-modules/navigation/micro/0140-forward-navigation/task.md`
+- `0141` — navigation: Definir el comportamiento y las invariantes: reload stop state — `docs/rules/01-modules/navigation/micro/0141-reload-stop-state/task.md`
+- `0142` — navigation: Implementar la operación en una capa propietaria: reload stop state — `docs/rules/01-modules/navigation/micro/0142-reload-stop-state/task.md`
+- `0143` — navigation: Implementar la interacción y estados visuales en Qt: reload stop state — `docs/rules/01-modules/navigation/micro/0143-reload-stop-state/task.md`
+- `0144` — navigation: Probar casos positivos, negativos y recuperación: reload stop state — `docs/rules/01-modules/navigation/micro/0144-reload-stop-state/task.md`
+- `0145` — navigation: Definir el comportamiento y las invariantes: redirect handling — `docs/rules/01-modules/navigation/micro/0145-redirect-handling/task.md`
+- `0146` — navigation: Implementar la operación en una capa propietaria: redirect handling — `docs/rules/01-modules/navigation/micro/0146-redirect-handling/task.md`
+- `0147` — navigation: Implementar la interacción y estados visuales en Qt: redirect handling — `docs/rules/01-modules/navigation/micro/0147-redirect-handling/task.md`
+- `0148` — navigation: Probar casos positivos, negativos y recuperación: redirect handling — `docs/rules/01-modules/navigation/micro/0148-redirect-handling/task.md`
+- `0149` — navigation: Definir el comportamiento y las invariantes: failed navigation UI — `docs/rules/01-modules/navigation/micro/0149-failed-navigation-ui/task.md`
+- `0150` — navigation: Implementar la operación en una capa propietaria: failed navigation UI — `docs/rules/01-modules/navigation/micro/0150-failed-navigation-ui/task.md`
+- `0151` — navigation: Implementar la interacción y estados visuales en Qt: failed navigation UI — `docs/rules/01-modules/navigation/micro/0151-failed-navigation-ui/task.md`
+- `0152` — navigation: Probar casos positivos, negativos y recuperación: failed navigation UI — `docs/rules/01-modules/navigation/micro/0152-failed-navigation-ui/task.md`
+- `0153` — navigation: Definir el comportamiento y las invariantes: TLS information display — `docs/rules/01-modules/navigation/micro/0153-tls-information-display/task.md`
+- `0154` — navigation: Implementar la operación en una capa propietaria: TLS information display — `docs/rules/01-modules/navigation/micro/0154-tls-information-display/task.md`
+- `0155` — navigation: Implementar la interacción y estados visuales en Qt: TLS information display — `docs/rules/01-modules/navigation/micro/0155-tls-information-display/task.md`
+- `0156` — navigation: Probar casos positivos, negativos y recuperación: TLS information display — `docs/rules/01-modules/navigation/micro/0156-tls-information-display/task.md`
+- `0157` — navigation: Definir el comportamiento y las invariantes: external protocol handoff — `docs/rules/01-modules/navigation/micro/0157-external-protocol-handoff/task.md`
+- `0158` — navigation: Implementar la operación en una capa propietaria: external protocol handoff — `docs/rules/01-modules/navigation/micro/0158-external-protocol-handoff/task.md`
+- `0159` — navigation: Implementar la interacción y estados visuales en Qt: external protocol handoff — `docs/rules/01-modules/navigation/micro/0159-external-protocol-handoff/task.md`
+- `0160` — navigation: Probar casos positivos, negativos y recuperación: external protocol handoff — `docs/rules/01-modules/navigation/micro/0160-external-protocol-handoff/task.md`
+- `0161` — navigation: Definir el comportamiento y las invariantes: file URL policies — `docs/rules/01-modules/navigation/micro/0161-file-url-policies/task.md`
+- `0162` — navigation: Implementar la operación en una capa propietaria: file URL policies — `docs/rules/01-modules/navigation/micro/0162-file-url-policies/task.md`
+- `0163` — navigation: Implementar la interacción y estados visuales en Qt: file URL policies — `docs/rules/01-modules/navigation/micro/0163-file-url-policies/task.md`
+- `0164` — tabs: Definir el comportamiento y las invariantes: tab creation — `docs/rules/01-modules/tabs/micro/0164-tab-creation/task.md`
+- `0165` — tabs: Implementar la operación en una capa propietaria: tab creation — `docs/rules/01-modules/tabs/micro/0165-tab-creation/task.md`
+- `0166` — tabs: Implementar la interacción y estados visuales en Qt: tab creation — `docs/rules/01-modules/tabs/micro/0166-tab-creation/task.md`
+- `0167` — tabs: Probar casos positivos, negativos y recuperación: tab creation — `docs/rules/01-modules/tabs/micro/0167-tab-creation/task.md`
+- `0168` — tabs: Definir el comportamiento y las invariantes: tab close — `docs/rules/01-modules/tabs/micro/0168-tab-close/task.md`
+- `0169` — tabs: Implementar la operación en una capa propietaria: tab close — `docs/rules/01-modules/tabs/micro/0169-tab-close/task.md`
+- `0170` — tabs: Implementar la interacción y estados visuales en Qt: tab close — `docs/rules/01-modules/tabs/micro/0170-tab-close/task.md`
+- `0171` — tabs: Probar casos positivos, negativos y recuperación: tab close — `docs/rules/01-modules/tabs/micro/0171-tab-close/task.md`
+- `0172` — tabs: Definir el comportamiento y las invariantes: tab undo close — `docs/rules/01-modules/tabs/micro/0172-tab-undo-close/task.md`
+- `0173` — tabs: Implementar la operación en una capa propietaria: tab undo close — `docs/rules/01-modules/tabs/micro/0173-tab-undo-close/task.md`
+- `0174` — tabs: Implementar la interacción y estados visuales en Qt: tab undo close — `docs/rules/01-modules/tabs/micro/0174-tab-undo-close/task.md`
+- `0175` — tabs: Probar casos positivos, negativos y recuperación: tab undo close — `docs/rules/01-modules/tabs/micro/0175-tab-undo-close/task.md`
+- `0176` — tabs: Definir el comportamiento y las invariantes: tab duplicate — `docs/rules/01-modules/tabs/micro/0176-tab-duplicate/task.md`
+- `0177` — tabs: Implementar la operación en una capa propietaria: tab duplicate — `docs/rules/01-modules/tabs/micro/0177-tab-duplicate/task.md`
+- `0178` — tabs: Implementar la interacción y estados visuales en Qt: tab duplicate — `docs/rules/01-modules/tabs/micro/0178-tab-duplicate/task.md`
+- `0179` — tabs: Probar casos positivos, negativos y recuperación: tab duplicate — `docs/rules/01-modules/tabs/micro/0179-tab-duplicate/task.md`
+- `0180` — tabs: Definir el comportamiento y las invariantes: tab pin — `docs/rules/01-modules/tabs/micro/0180-tab-pin/task.md`
+- `0181` — tabs: Implementar la operación en una capa propietaria: tab pin — `docs/rules/01-modules/tabs/micro/0181-tab-pin/task.md`
+- `0182` — tabs: Implementar la interacción y estados visuales en Qt: tab pin — `docs/rules/01-modules/tabs/micro/0182-tab-pin/task.md`
+- `0183` — tabs: Probar casos positivos, negativos y recuperación: tab pin — `docs/rules/01-modules/tabs/micro/0183-tab-pin/task.md`
+- `0184` — tabs: Definir el comportamiento y las invariantes: tab mute — `docs/rules/01-modules/tabs/micro/0184-tab-mute/task.md`
+- `0185` — tabs: Implementar la operación en una capa propietaria: tab mute — `docs/rules/01-modules/tabs/micro/0185-tab-mute/task.md`
+- `0186` — tabs: Implementar la interacción y estados visuales en Qt: tab mute — `docs/rules/01-modules/tabs/micro/0186-tab-mute/task.md`
+- `0187` — tabs: Probar casos positivos, negativos y recuperación: tab mute — `docs/rules/01-modules/tabs/micro/0187-tab-mute/task.md`
+- `0188` — tabs: Definir el comportamiento y las invariantes: tab move — `docs/rules/01-modules/tabs/micro/0188-tab-move/task.md`
+- `0189` — tabs: Implementar la operación en una capa propietaria: tab move — `docs/rules/01-modules/tabs/micro/0189-tab-move/task.md`
+- `0190` — tabs: Implementar la interacción y estados visuales en Qt: tab move — `docs/rules/01-modules/tabs/micro/0190-tab-move/task.md`
+- `0191` — tabs: Probar casos positivos, negativos y recuperación: tab move — `docs/rules/01-modules/tabs/micro/0191-tab-move/task.md`
+- `0192` — tabs: Definir el comportamiento y las invariantes: tab reorder — `docs/rules/01-modules/tabs/micro/0192-tab-reorder/task.md`
+- `0193` — tabs: Implementar la operación en una capa propietaria: tab reorder — `docs/rules/01-modules/tabs/micro/0193-tab-reorder/task.md`
+- `0194` — tabs: Implementar la interacción y estados visuales en Qt: tab reorder — `docs/rules/01-modules/tabs/micro/0194-tab-reorder/task.md`
+- `0195` — tabs: Probar casos positivos, negativos y recuperación: tab reorder — `docs/rules/01-modules/tabs/micro/0195-tab-reorder/task.md`
+- `0196` — tabs: Definir el comportamiento y las invariantes: tab group create — `docs/rules/01-modules/tabs/micro/0196-tab-group-create/task.md`
+- `0197` — tabs: Implementar la operación en una capa propietaria: tab group create — `docs/rules/01-modules/tabs/micro/0197-tab-group-create/task.md`
+- `0198` — tabs: Implementar la interacción y estados visuales en Qt: tab group create — `docs/rules/01-modules/tabs/micro/0198-tab-group-create/task.md`
+- `0199` — tabs: Probar casos positivos, negativos y recuperación: tab group create — `docs/rules/01-modules/tabs/micro/0199-tab-group-create/task.md`
+- `0200` — tabs: Definir el comportamiento y las invariantes: tab group rename — `docs/rules/01-modules/tabs/micro/0200-tab-group-rename/task.md`
+- `0201` — tabs: Implementar la operación en una capa propietaria: tab group rename — `docs/rules/01-modules/tabs/micro/0201-tab-group-rename/task.md`
+- `0202` — tabs: Implementar la interacción y estados visuales en Qt: tab group rename — `docs/rules/01-modules/tabs/micro/0202-tab-group-rename/task.md`
+- `0203` — tabs: Probar casos positivos, negativos y recuperación: tab group rename — `docs/rules/01-modules/tabs/micro/0203-tab-group-rename/task.md`
+- `0204` — tabs: Definir el comportamiento y las invariantes: tab group collapse — `docs/rules/01-modules/tabs/micro/0204-tab-group-collapse/task.md`
+- `0205` — tabs: Implementar la operación en una capa propietaria: tab group collapse — `docs/rules/01-modules/tabs/micro/0205-tab-group-collapse/task.md`
+- `0206` — tabs: Implementar la interacción y estados visuales en Qt: tab group collapse — `docs/rules/01-modules/tabs/micro/0206-tab-group-collapse/task.md`
+- `0207` — tabs: Probar casos positivos, negativos y recuperación: tab group collapse — `docs/rules/01-modules/tabs/micro/0207-tab-group-collapse/task.md`
+- `0208` — tabs: Definir el comportamiento y las invariantes: tab group move — `docs/rules/01-modules/tabs/micro/0208-tab-group-move/task.md`
+- `0209` — tabs: Implementar la operación en una capa propietaria: tab group move — `docs/rules/01-modules/tabs/micro/0209-tab-group-move/task.md`
+- `0210` — tabs: Implementar la interacción y estados visuales en Qt: tab group move — `docs/rules/01-modules/tabs/micro/0210-tab-group-move/task.md`
+- `0211` — tabs: Probar casos positivos, negativos y recuperación: tab group move — `docs/rules/01-modules/tabs/micro/0211-tab-group-move/task.md`
+- `0212` — tabs: Definir el comportamiento y las invariantes: tab close duplicates — `docs/rules/01-modules/tabs/micro/0212-tab-close-duplicates/task.md`
+- `0213` — tabs: Implementar la operación en una capa propietaria: tab close duplicates — `docs/rules/01-modules/tabs/micro/0213-tab-close-duplicates/task.md`
+- `0214` — tabs: Implementar la interacción y estados visuales en Qt: tab close duplicates — `docs/rules/01-modules/tabs/micro/0214-tab-close-duplicates/task.md`
+- `0215` — tabs: Probar casos positivos, negativos y recuperación: tab close duplicates — `docs/rules/01-modules/tabs/micro/0215-tab-close-duplicates/task.md`
+- `0216` — tabs: Definir el comportamiento y las invariantes: tab close others — `docs/rules/01-modules/tabs/micro/0216-tab-close-others/task.md`
+- `0217` — tabs: Implementar la operación en una capa propietaria: tab close others — `docs/rules/01-modules/tabs/micro/0217-tab-close-others/task.md`
+- `0218` — tabs: Implementar la interacción y estados visuales en Qt: tab close others — `docs/rules/01-modules/tabs/micro/0218-tab-close-others/task.md`
+- `0219` — tabs: Probar casos positivos, negativos y recuperación: tab close others — `docs/rules/01-modules/tabs/micro/0219-tab-close-others/task.md`
+- `0220` — tabs: Definir el comportamiento y las invariantes: tab close right — `docs/rules/01-modules/tabs/micro/0220-tab-close-right/task.md`
+- `0221` — workspaces: Definir el comportamiento y las invariantes: workspace create — `docs/rules/01-modules/workspaces/micro/0221-workspace-create/task.md`
+- `0222` — workspaces: Implementar la operación en una capa propietaria: workspace create — `docs/rules/01-modules/workspaces/micro/0222-workspace-create/task.md`
+- `0223` — workspaces: Implementar la interacción y estados visuales en Qt: workspace create — `docs/rules/01-modules/workspaces/micro/0223-workspace-create/task.md`
+- `0224` — workspaces: Probar casos positivos, negativos y recuperación: workspace create — `docs/rules/01-modules/workspaces/micro/0224-workspace-create/task.md`
+- `0225` — workspaces: Definir el comportamiento y las invariantes: workspace rename — `docs/rules/01-modules/workspaces/micro/0225-workspace-rename/task.md`
+- `0226` — workspaces: Implementar la operación en una capa propietaria: workspace rename — `docs/rules/01-modules/workspaces/micro/0226-workspace-rename/task.md`
+- `0227` — workspaces: Implementar la interacción y estados visuales en Qt: workspace rename — `docs/rules/01-modules/workspaces/micro/0227-workspace-rename/task.md`
+- `0228` — workspaces: Probar casos positivos, negativos y recuperación: workspace rename — `docs/rules/01-modules/workspaces/micro/0228-workspace-rename/task.md`
+- `0229` — workspaces: Definir el comportamiento y las invariantes: workspace delete — `docs/rules/01-modules/workspaces/micro/0229-workspace-delete/task.md`
+- `0230` — workspaces: Implementar la operación en una capa propietaria: workspace delete — `docs/rules/01-modules/workspaces/micro/0230-workspace-delete/task.md`
+- `0231` — workspaces: Implementar la interacción y estados visuales en Qt: workspace delete — `docs/rules/01-modules/workspaces/micro/0231-workspace-delete/task.md`
+- `0232` — workspaces: Probar casos positivos, negativos y recuperación: workspace delete — `docs/rules/01-modules/workspaces/micro/0232-workspace-delete/task.md`
+- `0233` — workspaces: Definir el comportamiento y las invariantes: workspace tabs association — `docs/rules/01-modules/workspaces/micro/0233-workspace-tabs-association/task.md`
+- `0234` — workspaces: Implementar la operación en una capa propietaria: workspace tabs association — `docs/rules/01-modules/workspaces/micro/0234-workspace-tabs-association/task.md`
+- `0235` — workspaces: Implementar la interacción y estados visuales en Qt: workspace tabs association — `docs/rules/01-modules/workspaces/micro/0235-workspace-tabs-association/task.md`
+- `0236` — workspaces: Probar casos positivos, negativos y recuperación: workspace tabs association — `docs/rules/01-modules/workspaces/micro/0236-workspace-tabs-association/task.md`
+- `0237` — workspaces: Definir el comportamiento y las invariantes: workspace switch — `docs/rules/01-modules/workspaces/micro/0237-workspace-switch/task.md`
+- `0238` — workspaces: Implementar la operación en una capa propietaria: workspace switch — `docs/rules/01-modules/workspaces/micro/0238-workspace-switch/task.md`
+- `0239` — workspaces: Implementar la interacción y estados visuales en Qt: workspace switch — `docs/rules/01-modules/workspaces/micro/0239-workspace-switch/task.md`
+- `0240` — workspaces: Probar casos positivos, negativos y recuperación: workspace switch — `docs/rules/01-modules/workspaces/micro/0240-workspace-switch/task.md`
+- `0241` — workspaces: Definir el comportamiento y las invariantes: workspace restore — `docs/rules/01-modules/workspaces/micro/0241-workspace-restore/task.md`
+- `0242` — workspaces: Implementar la operación en una capa propietaria: workspace restore — `docs/rules/01-modules/workspaces/micro/0242-workspace-restore/task.md`
+- `0243` — workspaces: Implementar la interacción y estados visuales en Qt: workspace restore — `docs/rules/01-modules/workspaces/micro/0243-workspace-restore/task.md`
+- `0244` — workspaces: Probar casos positivos, negativos y recuperación: workspace restore — `docs/rules/01-modules/workspaces/micro/0244-workspace-restore/task.md`
+- `0245` — profiles: Definir el comportamiento y las invariantes: profile create — `docs/rules/01-modules/profiles/micro/0245-profile-create/task.md`
+- `0246` — profiles: Implementar la operación en una capa propietaria: profile create — `docs/rules/01-modules/profiles/micro/0246-profile-create/task.md`
+- `0247` — profiles: Implementar la interacción y estados visuales en Qt: profile create — `docs/rules/01-modules/profiles/micro/0247-profile-create/task.md`
+- `0248` — profiles: Probar casos positivos, negativos y recuperación: profile create — `docs/rules/01-modules/profiles/micro/0248-profile-create/task.md`
+- `0249` — profiles: Definir el comportamiento y las invariantes: profile naming — `docs/rules/01-modules/profiles/micro/0249-profile-naming/task.md`
+- `0250` — profiles: Implementar la operación en una capa propietaria: profile naming — `docs/rules/01-modules/profiles/micro/0250-profile-naming/task.md`
+- `0251` — profiles: Implementar la interacción y estados visuales en Qt: profile naming — `docs/rules/01-modules/profiles/micro/0251-profile-naming/task.md`
+- `0252` — profiles: Probar casos positivos, negativos y recuperación: profile naming — `docs/rules/01-modules/profiles/micro/0252-profile-naming/task.md`
+- `0253` — profiles: Definir el comportamiento y las invariantes: profile persistence — `docs/rules/01-modules/profiles/micro/0253-profile-persistence/task.md`
+- `0254` — profiles: Implementar la operación en una capa propietaria: profile persistence — `docs/rules/01-modules/profiles/micro/0254-profile-persistence/task.md`
+- `0255` — profiles: Implementar la interacción y estados visuales en Qt: profile persistence — `docs/rules/01-modules/profiles/micro/0255-profile-persistence/task.md`
+- `0256` — profiles: Probar casos positivos, negativos y recuperación: profile persistence — `docs/rules/01-modules/profiles/micro/0256-profile-persistence/task.md`
+- `0257` — profiles: Definir el comportamiento y las invariantes: profile isolation — `docs/rules/01-modules/profiles/micro/0257-profile-isolation/task.md`
+- `0258` — profiles: Implementar la operación en una capa propietaria: profile isolation — `docs/rules/01-modules/profiles/micro/0258-profile-isolation/task.md`
+- `0259` — profiles: Implementar la interacción y estados visuales en Qt: profile isolation — `docs/rules/01-modules/profiles/micro/0259-profile-isolation/task.md`
+- `0260` — profiles: Probar casos positivos, negativos y recuperación: profile isolation — `docs/rules/01-modules/profiles/micro/0260-profile-isolation/task.md`
+- `0261` — profiles: Definir el comportamiento y las invariantes: profile storage path — `docs/rules/01-modules/profiles/micro/0261-profile-storage-path/task.md`
+- `0262` — profiles: Implementar la operación en una capa propietaria: profile storage path — `docs/rules/01-modules/profiles/micro/0262-profile-storage-path/task.md`
+- `0263` — profiles: Implementar la interacción y estados visuales en Qt: profile storage path — `docs/rules/01-modules/profiles/micro/0263-profile-storage-path/task.md`
+- `0264` — profiles: Probar casos positivos, negativos y recuperación: profile storage path — `docs/rules/01-modules/profiles/micro/0264-profile-storage-path/task.md`
+- `0265` — profiles: Definir el comportamiento y las invariantes: profile cookie separation — `docs/rules/01-modules/profiles/micro/0265-profile-cookie-separation/task.md`
+- `0266` — profiles: Implementar la operación en una capa propietaria: profile cookie separation — `docs/rules/01-modules/profiles/micro/0266-profile-cookie-separation/task.md`
+- `0267` — profiles: Implementar la interacción y estados visuales en Qt: profile cookie separation — `docs/rules/01-modules/profiles/micro/0267-profile-cookie-separation/task.md`
+- `0268` — profiles: Probar casos positivos, negativos y recuperación: profile cookie separation — `docs/rules/01-modules/profiles/micro/0268-profile-cookie-separation/task.md`
+- `0269` — profiles: Definir el comportamiento y las invariantes: profile switching — `docs/rules/01-modules/profiles/micro/0269-profile-switching/task.md`
+- `0270` — profiles: Implementar la operación en una capa propietaria: profile switching — `docs/rules/01-modules/profiles/micro/0270-profile-switching/task.md`
+- `0271` — profiles: Implementar la interacción y estados visuales en Qt: profile switching — `docs/rules/01-modules/profiles/micro/0271-profile-switching/task.md`
+- `0272` — profiles: Probar casos positivos, negativos y recuperación: profile switching — `docs/rules/01-modules/profiles/micro/0272-profile-switching/task.md`
+- `0273` — profiles: Definir el comportamiento y las invariantes: private profile — `docs/rules/01-modules/profiles/micro/0273-private-profile/task.md`
+- `0274` — profiles: Implementar la operación en una capa propietaria: private profile — `docs/rules/01-modules/profiles/micro/0274-private-profile/task.md`
+- `0275` — profiles: Implementar la interacción y estados visuales en Qt: private profile — `docs/rules/01-modules/profiles/micro/0275-private-profile/task.md`
+- `0276` — bookmarks: Definir el comportamiento y las invariantes: bookmark add — `docs/rules/01-modules/bookmarks/micro/0276-bookmark-add/task.md`
+- `0277` — bookmarks: Implementar la operación en una capa propietaria: bookmark add — `docs/rules/01-modules/bookmarks/micro/0277-bookmark-add/task.md`
+- `0278` — bookmarks: Implementar la interacción y estados visuales en Qt: bookmark add — `docs/rules/01-modules/bookmarks/micro/0278-bookmark-add/task.md`
+- `0279` — bookmarks: Probar casos positivos, negativos y recuperación: bookmark add — `docs/rules/01-modules/bookmarks/micro/0279-bookmark-add/task.md`
+- `0280` — bookmarks: Definir el comportamiento y las invariantes: bookmark edit — `docs/rules/01-modules/bookmarks/micro/0280-bookmark-edit/task.md`
+- `0281` — bookmarks: Implementar la operación en una capa propietaria: bookmark edit — `docs/rules/01-modules/bookmarks/micro/0281-bookmark-edit/task.md`
+- `0282` — bookmarks: Implementar la interacción y estados visuales en Qt: bookmark edit — `docs/rules/01-modules/bookmarks/micro/0282-bookmark-edit/task.md`
+- `0283` — bookmarks: Probar casos positivos, negativos y recuperación: bookmark edit — `docs/rules/01-modules/bookmarks/micro/0283-bookmark-edit/task.md`
+- `0284` — bookmarks: Definir el comportamiento y las invariantes: bookmark delete — `docs/rules/01-modules/bookmarks/micro/0284-bookmark-delete/task.md`
+- `0285` — bookmarks: Implementar la operación en una capa propietaria: bookmark delete — `docs/rules/01-modules/bookmarks/micro/0285-bookmark-delete/task.md`
+- `0286` — bookmarks: Implementar la interacción y estados visuales en Qt: bookmark delete — `docs/rules/01-modules/bookmarks/micro/0286-bookmark-delete/task.md`
+- `0287` — bookmarks: Probar casos positivos, negativos y recuperación: bookmark delete — `docs/rules/01-modules/bookmarks/micro/0287-bookmark-delete/task.md`
+- `0288` — bookmarks: Definir el comportamiento y las invariantes: bookmark folders — `docs/rules/01-modules/bookmarks/micro/0288-bookmark-folders/task.md`
+- `0289` — bookmarks: Implementar la operación en una capa propietaria: bookmark folders — `docs/rules/01-modules/bookmarks/micro/0289-bookmark-folders/task.md`
+- `0290` — bookmarks: Implementar la interacción y estados visuales en Qt: bookmark folders — `docs/rules/01-modules/bookmarks/micro/0290-bookmark-folders/task.md`
+- `0291` — bookmarks: Probar casos positivos, negativos y recuperación: bookmark folders — `docs/rules/01-modules/bookmarks/micro/0291-bookmark-folders/task.md`
+- `0292` — bookmarks: Definir el comportamiento y las invariantes: bookmark search — `docs/rules/01-modules/bookmarks/micro/0292-bookmark-search/task.md`
+- `0293` — bookmarks: Implementar la operación en una capa propietaria: bookmark search — `docs/rules/01-modules/bookmarks/micro/0293-bookmark-search/task.md`
+- `0294` — bookmarks: Implementar la interacción y estados visuales en Qt: bookmark search — `docs/rules/01-modules/bookmarks/micro/0294-bookmark-search/task.md`
+- `0295` — bookmarks: Probar casos positivos, negativos y recuperación: bookmark search — `docs/rules/01-modules/bookmarks/micro/0295-bookmark-search/task.md`
+- `0296` — bookmarks: Definir el comportamiento y las invariantes: bookmark manager UI — `docs/rules/01-modules/bookmarks/micro/0296-bookmark-manager-ui/task.md`
+- `0297` — bookmarks: Implementar la operación en una capa propietaria: bookmark manager UI — `docs/rules/01-modules/bookmarks/micro/0297-bookmark-manager-ui/task.md`
+- `0298` — bookmarks: Implementar la interacción y estados visuales en Qt: bookmark manager UI — `docs/rules/01-modules/bookmarks/micro/0298-bookmark-manager-ui/task.md`
+- `0299` — bookmarks: Probar casos positivos, negativos y recuperación: bookmark manager UI — `docs/rules/01-modules/bookmarks/micro/0299-bookmark-manager-ui/task.md`
+- `0300` — bookmarks: Definir el comportamiento y las invariantes: bookmarks bar toggle — `docs/rules/01-modules/bookmarks/micro/0300-bookmarks-bar-toggle/task.md`
+- `0301` — bookmarks: Implementar la operación en una capa propietaria: bookmarks bar toggle — `docs/rules/01-modules/bookmarks/micro/0301-bookmarks-bar-toggle/task.md`
+- `0302` — history: Definir el comportamiento y las invariantes: history visit write — `docs/rules/01-modules/history/micro/0302-history-visit-write/task.md`
+- `0303` — history: Implementar la operación en una capa propietaria: history visit write — `docs/rules/01-modules/history/micro/0303-history-visit-write/task.md`
+- `0304` — history: Implementar la interacción y estados visuales en Qt: history visit write — `docs/rules/01-modules/history/micro/0304-history-visit-write/task.md`
+- `0305` — history: Probar casos positivos, negativos y recuperación: history visit write — `docs/rules/01-modules/history/micro/0305-history-visit-write/task.md`
+- `0306` — history: Definir el comportamiento y las invariantes: history visit query — `docs/rules/01-modules/history/micro/0306-history-visit-query/task.md`
+- `0307` — history: Implementar la operación en una capa propietaria: history visit query — `docs/rules/01-modules/history/micro/0307-history-visit-query/task.md`
+- `0308` — history: Implementar la interacción y estados visuales en Qt: history visit query — `docs/rules/01-modules/history/micro/0308-history-visit-query/task.md`
+- `0309` — history: Probar casos positivos, negativos y recuperación: history visit query — `docs/rules/01-modules/history/micro/0309-history-visit-query/task.md`
+- `0310` — history: Definir el comportamiento y las invariantes: history tree view — `docs/rules/01-modules/history/micro/0310-history-tree-view/task.md`
+- `0311` — history: Implementar la operación en una capa propietaria: history tree view — `docs/rules/01-modules/history/micro/0311-history-tree-view/task.md`
+- `0312` — history: Implementar la interacción y estados visuales en Qt: history tree view — `docs/rules/01-modules/history/micro/0312-history-tree-view/task.md`
+- `0313` — history: Probar casos positivos, negativos y recuperación: history tree view — `docs/rules/01-modules/history/micro/0313-history-tree-view/task.md`
+- `0314` — history: Definir el comportamiento y las invariantes: history search — `docs/rules/01-modules/history/micro/0314-history-search/task.md`
+- `0315` — history: Implementar la operación en una capa propietaria: history search — `docs/rules/01-modules/history/micro/0315-history-search/task.md`
+- `0316` — history: Implementar la interacción y estados visuales en Qt: history search — `docs/rules/01-modules/history/micro/0316-history-search/task.md`
+- `0317` — history: Probar casos positivos, negativos y recuperación: history search — `docs/rules/01-modules/history/micro/0317-history-search/task.md`
+- `0318` — history: Definir el comportamiento y las invariantes: history deletion — `docs/rules/01-modules/history/micro/0318-history-deletion/task.md`
+- `0319` — history: Implementar la operación en una capa propietaria: history deletion — `docs/rules/01-modules/history/micro/0319-history-deletion/task.md`
+- `0320` — history: Implementar la interacción y estados visuales en Qt: history deletion — `docs/rules/01-modules/history/micro/0320-history-deletion/task.md`
+- `0321` — history: Probar casos positivos, negativos y recuperación: history deletion — `docs/rules/01-modules/history/micro/0321-history-deletion/task.md`
+- `0322` — history: Definir el comportamiento y las invariantes: clear by period — `docs/rules/01-modules/history/micro/0322-clear-by-period/task.md`
+- `0323` — history: Implementar la operación en una capa propietaria: clear by period — `docs/rules/01-modules/history/micro/0323-clear-by-period/task.md`
+- `0324` — history: Implementar la interacción y estados visuales en Qt: clear by period — `docs/rules/01-modules/history/micro/0324-clear-by-period/task.md`
+- `0325` — history: Probar casos positivos, negativos y recuperación: clear by period — `docs/rules/01-modules/history/micro/0325-clear-by-period/task.md`
+- `0326` — downloads: Definir el comportamiento y las invariantes: download create — `docs/rules/01-modules/downloads/micro/0326-download-create/task.md`
+- `0327` — downloads: Implementar la operación en una capa propietaria: download create — `docs/rules/01-modules/downloads/micro/0327-download-create/task.md`
+- `0328` — downloads: Implementar la interacción y estados visuales en Qt: download create — `docs/rules/01-modules/downloads/micro/0328-download-create/task.md`
+- `0329` — downloads: Probar casos positivos, negativos y recuperación: download create — `docs/rules/01-modules/downloads/micro/0329-download-create/task.md`
+- `0330` — downloads: Definir el comportamiento y las invariantes: download progress — `docs/rules/01-modules/downloads/micro/0330-download-progress/task.md`
+- `0331` — downloads: Implementar la operación en una capa propietaria: download progress — `docs/rules/01-modules/downloads/micro/0331-download-progress/task.md`
+- `0332` — downloads: Implementar la interacción y estados visuales en Qt: download progress — `docs/rules/01-modules/downloads/micro/0332-download-progress/task.md`
+- `0333` — downloads: Probar casos positivos, negativos y recuperación: download progress — `docs/rules/01-modules/downloads/micro/0333-download-progress/task.md`
+- `0334` — downloads: Definir el comportamiento y las invariantes: download pause resume — `docs/rules/01-modules/downloads/micro/0334-download-pause-resume/task.md`
+- `0335` — downloads: Implementar la operación en una capa propietaria: download pause resume — `docs/rules/01-modules/downloads/micro/0335-download-pause-resume/task.md`
+- `0336` — downloads: Implementar la interacción y estados visuales en Qt: download pause resume — `docs/rules/01-modules/downloads/micro/0336-download-pause-resume/task.md`
+- `0337` — downloads: Probar casos positivos, negativos y recuperación: download pause resume — `docs/rules/01-modules/downloads/micro/0337-download-pause-resume/task.md`
+- `0338` — downloads: Definir el comportamiento y las invariantes: download cancel — `docs/rules/01-modules/downloads/micro/0338-download-cancel/task.md`
+- `0339` — downloads: Implementar la operación en una capa propietaria: download cancel — `docs/rules/01-modules/downloads/micro/0339-download-cancel/task.md`
+- `0340` — downloads: Implementar la interacción y estados visuales en Qt: download cancel — `docs/rules/01-modules/downloads/micro/0340-download-cancel/task.md`
+- `0341` — downloads: Probar casos positivos, negativos y recuperación: download cancel — `docs/rules/01-modules/downloads/micro/0341-download-cancel/task.md`
+- `0342` — downloads: Definir el comportamiento y las invariantes: download retry — `docs/rules/01-modules/downloads/micro/0342-download-retry/task.md`
+- `0343` — downloads: Implementar la operación en una capa propietaria: download retry — `docs/rules/01-modules/downloads/micro/0343-download-retry/task.md`
+- `0344` — downloads: Implementar la interacción y estados visuales en Qt: download retry — `docs/rules/01-modules/downloads/micro/0344-download-retry/task.md`
+- `0345` — downloads: Probar casos positivos, negativos y recuperación: download retry — `docs/rules/01-modules/downloads/micro/0345-download-retry/task.md`
+- `0346` — downloads: Definir el comportamiento y las invariantes: download destination — `docs/rules/01-modules/downloads/micro/0346-download-destination/task.md`
+- `0347` — downloads: Implementar la operación en una capa propietaria: download destination — `docs/rules/01-modules/downloads/micro/0347-download-destination/task.md`
+- `0348` — downloads: Implementar la interacción y estados visuales en Qt: download destination — `docs/rules/01-modules/downloads/micro/0348-download-destination/task.md`
+- `0349` — downloads: Probar casos positivos, negativos y recuperación: download destination — `docs/rules/01-modules/downloads/micro/0349-download-destination/task.md`
+- `0350` — downloads: Definir el comportamiento y las invariantes: download filename collision — `docs/rules/01-modules/downloads/micro/0350-download-filename-collision/task.md`
+- `0351` — downloads: Implementar la operación en una capa propietaria: download filename collision — `docs/rules/01-modules/downloads/micro/0351-download-filename-collision/task.md`
+- `0352` — shields: Definir el comportamiento y las invariantes: request interception — `docs/rules/01-modules/shields/micro/0352-request-interception/task.md`
+- `0353` — shields: Implementar la operación en una capa propietaria: request interception — `docs/rules/01-modules/shields/micro/0353-request-interception/task.md`
+- `0354` — shields: Implementar la interacción y estados visuales en Qt: request interception — `docs/rules/01-modules/shields/micro/0354-request-interception/task.md`
+- `0355` — shields: Probar casos positivos, negativos y recuperación: request interception — `docs/rules/01-modules/shields/micro/0355-request-interception/task.md`
+- `0356` — shields: Definir el comportamiento y las invariantes: filter list parser — `docs/rules/01-modules/shields/micro/0356-filter-list-parser/task.md`
+- `0357` — shields: Implementar la operación en una capa propietaria: filter list parser — `docs/rules/01-modules/shields/micro/0357-filter-list-parser/task.md`
+- `0358` — shields: Implementar la interacción y estados visuales en Qt: filter list parser — `docs/rules/01-modules/shields/micro/0358-filter-list-parser/task.md`
+- `0359` — shields: Probar casos positivos, negativos y recuperación: filter list parser — `docs/rules/01-modules/shields/micro/0359-filter-list-parser/task.md`
+- `0360` — shields: Definir el comportamiento y las invariantes: filter updates — `docs/rules/01-modules/shields/micro/0360-filter-updates/task.md`
+- `0361` — shields: Implementar la operación en una capa propietaria: filter updates — `docs/rules/01-modules/shields/micro/0361-filter-updates/task.md`
+- `0362` — shields: Implementar la interacción y estados visuales en Qt: filter updates — `docs/rules/01-modules/shields/micro/0362-filter-updates/task.md`
+- `0363` — shields: Probar casos positivos, negativos y recuperación: filter updates — `docs/rules/01-modules/shields/micro/0363-filter-updates/task.md`
+- `0364` — shields: Definir el comportamiento y las invariantes: filter compilation — `docs/rules/01-modules/shields/micro/0364-filter-compilation/task.md`
+- `0365` — shields: Implementar la operación en una capa propietaria: filter compilation — `docs/rules/01-modules/shields/micro/0365-filter-compilation/task.md`
+- `0366` — shields: Implementar la interacción y estados visuales en Qt: filter compilation — `docs/rules/01-modules/shields/micro/0366-filter-compilation/task.md`
+- `0367` — shields: Probar casos positivos, negativos y recuperación: filter compilation — `docs/rules/01-modules/shields/micro/0367-filter-compilation/task.md`
+- `0368` — shields: Definir el comportamiento y las invariantes: EasyList rules — `docs/rules/01-modules/shields/micro/0368-easylist-rules/task.md`
+- `0369` — shields: Implementar la operación en una capa propietaria: EasyList rules — `docs/rules/01-modules/shields/micro/0369-easylist-rules/task.md`
+- `0370` — shields: Implementar la interacción y estados visuales en Qt: EasyList rules — `docs/rules/01-modules/shields/micro/0370-easylist-rules/task.md`
+- `0371` — shields: Probar casos positivos, negativos y recuperación: EasyList rules — `docs/rules/01-modules/shields/micro/0371-easylist-rules/task.md`
+- `0372` — shields: Definir el comportamiento y las invariantes: EasyPrivacy rules — `docs/rules/01-modules/shields/micro/0372-easyprivacy-rules/task.md`
+- `0373` — shields: Implementar la operación en una capa propietaria: EasyPrivacy rules — `docs/rules/01-modules/shields/micro/0373-easyprivacy-rules/task.md`
+- `0374` — shields: Implementar la interacción y estados visuales en Qt: EasyPrivacy rules — `docs/rules/01-modules/shields/micro/0374-easyprivacy-rules/task.md`
+- `0375` — shields: Probar casos positivos, negativos y recuperación: EasyPrivacy rules — `docs/rules/01-modules/shields/micro/0375-easyprivacy-rules/task.md`
+- `0376` — shields: Definir el comportamiento y las invariantes: cosmetic filters — `docs/rules/01-modules/shields/micro/0376-cosmetic-filters/task.md`
+- `0377` — shields: Implementar la operación en una capa propietaria: cosmetic filters — `docs/rules/01-modules/shields/micro/0377-cosmetic-filters/task.md`
+- `0378` — shields: Implementar la interacción y estados visuales en Qt: cosmetic filters — `docs/rules/01-modules/shields/micro/0378-cosmetic-filters/task.md`
+- `0379` — shields: Probar casos positivos, negativos y recuperación: cosmetic filters — `docs/rules/01-modules/shields/micro/0379-cosmetic-filters/task.md`
+- `0380` — shields: Definir el comportamiento y las invariantes: tracker classification — `docs/rules/01-modules/shields/micro/0380-tracker-classification/task.md`
+- `0381` — shields: Implementar la operación en una capa propietaria: tracker classification — `docs/rules/01-modules/shields/micro/0381-tracker-classification/task.md`
+- `0382` — shields: Implementar la interacción y estados visuales en Qt: tracker classification — `docs/rules/01-modules/shields/micro/0382-tracker-classification/task.md`
+- `0383` — shields: Probar casos positivos, negativos y recuperación: tracker classification — `docs/rules/01-modules/shields/micro/0383-tracker-classification/task.md`
+- `0384` — shields: Definir el comportamiento y las invariantes: site allowlist — `docs/rules/01-modules/shields/micro/0384-site-allowlist/task.md`
+- `0385` — shields: Implementar la operación en una capa propietaria: site allowlist — `docs/rules/01-modules/shields/micro/0385-site-allowlist/task.md`
+- `0386` — shields: Implementar la interacción y estados visuales en Qt: site allowlist — `docs/rules/01-modules/shields/micro/0386-site-allowlist/task.md`
+- `0387` — shields: Probar casos positivos, negativos y recuperación: site allowlist — `docs/rules/01-modules/shields/micro/0387-site-allowlist/task.md`
+- `0388` — shields: Definir el comportamiento y las invariantes: temporary bypass — `docs/rules/01-modules/shields/micro/0388-temporary-bypass/task.md`
+- `0389` — shields: Implementar la operación en una capa propietaria: temporary bypass — `docs/rules/01-modules/shields/micro/0389-temporary-bypass/task.md`
+- `0390` — memory: Definir el comportamiento y las invariantes: recommended tab lifecycle — `docs/rules/01-modules/memory/micro/0390-recommended-tab-lifecycle/task.md`
+- `0391` — memory: Implementar la operación en una capa propietaria: recommended tab lifecycle — `docs/rules/01-modules/memory/micro/0391-recommended-tab-lifecycle/task.md`
+- `0392` — memory: Implementar la interacción y estados visuales en Qt: recommended tab lifecycle — `docs/rules/01-modules/memory/micro/0392-recommended-tab-lifecycle/task.md`
+- `0393` — memory: Probar casos positivos, negativos y recuperación: recommended tab lifecycle — `docs/rules/01-modules/memory/micro/0393-recommended-tab-lifecycle/task.md`
+- `0394` — memory: Definir el comportamiento y las invariantes: tab active state — `docs/rules/01-modules/memory/micro/0394-tab-active-state/task.md`
+- `0395` — memory: Implementar la operación en una capa propietaria: tab active state — `docs/rules/01-modules/memory/micro/0395-tab-active-state/task.md`
+- `0396` — memory: Implementar la interacción y estados visuales en Qt: tab active state — `docs/rules/01-modules/memory/micro/0396-tab-active-state/task.md`
+- `0397` — memory: Probar casos positivos, negativos y recuperación: tab active state — `docs/rules/01-modules/memory/micro/0397-tab-active-state/task.md`
+- `0398` — memory: Definir el comportamiento y las invariantes: tab frozen state — `docs/rules/01-modules/memory/micro/0398-tab-frozen-state/task.md`
+- `0399` — memory: Implementar la operación en una capa propietaria: tab frozen state — `docs/rules/01-modules/memory/micro/0399-tab-frozen-state/task.md`
+- `0400` — memory: Implementar la interacción y estados visuales en Qt: tab frozen state — `docs/rules/01-modules/memory/micro/0400-tab-frozen-state/task.md`
+- `0401` — memory: Probar casos positivos, negativos y recuperación: tab frozen state — `docs/rules/01-modules/memory/micro/0401-tab-frozen-state/task.md`
+- `0402` — memory: Definir el comportamiento y las invariantes: tab discarded state — `docs/rules/01-modules/memory/micro/0402-tab-discarded-state/task.md`
+- `0403` — memory: Implementar la operación en una capa propietaria: tab discarded state — `docs/rules/01-modules/memory/micro/0403-tab-discarded-state/task.md`
+- `0404` — memory: Implementar la interacción y estados visuales en Qt: tab discarded state — `docs/rules/01-modules/memory/micro/0404-tab-discarded-state/task.md`
+- `0405` — memory: Probar casos positivos, negativos y recuperación: tab discarded state — `docs/rules/01-modules/memory/micro/0405-tab-discarded-state/task.md`
+- `0406` — memory: Definir el comportamiento y las invariantes: audio exemption — `docs/rules/01-modules/memory/micro/0406-audio-exemption/task.md`
+- `0407` — memory: Implementar la operación en una capa propietaria: audio exemption — `docs/rules/01-modules/memory/micro/0407-audio-exemption/task.md`
+- `0408` — memory: Implementar la interacción y estados visuales en Qt: audio exemption — `docs/rules/01-modules/memory/micro/0408-audio-exemption/task.md`
+- `0409` — memory: Probar casos positivos, negativos y recuperación: audio exemption — `docs/rules/01-modules/memory/micro/0409-audio-exemption/task.md`
+- `0410` — memory: Definir el comportamiento y las invariantes: call exemption — `docs/rules/01-modules/memory/micro/0410-call-exemption/task.md`
+- `0411` — memory: Implementar la operación en una capa propietaria: call exemption — `docs/rules/01-modules/memory/micro/0411-call-exemption/task.md`
+- `0412` — memory: Implementar la interacción y estados visuales en Qt: call exemption — `docs/rules/01-modules/memory/micro/0412-call-exemption/task.md`
+- `0413` — memory: Probar casos positivos, negativos y recuperación: call exemption — `docs/rules/01-modules/memory/micro/0413-call-exemption/task.md`
+- `0414` — memory: Definir el comportamiento y las invariantes: download exemption — `docs/rules/01-modules/memory/micro/0414-download-exemption/task.md`
+- `0415` — memory: Implementar la operación en una capa propietaria: download exemption — `docs/rules/01-modules/memory/micro/0415-download-exemption/task.md`
+- `0416` — memory: Implementar la interacción y estados visuales en Qt: download exemption — `docs/rules/01-modules/memory/micro/0416-download-exemption/task.md`
+- `0417` — memory: Probar casos positivos, negativos y recuperación: download exemption — `docs/rules/01-modules/memory/micro/0417-download-exemption/task.md`
+- `0418` — memory: Definir el comportamiento y las invariantes: memory pressure response — `docs/rules/01-modules/memory/micro/0418-memory-pressure-response/task.md`
+- `0419` — memory: Implementar la operación en una capa propietaria: memory pressure response — `docs/rules/01-modules/memory/micro/0419-memory-pressure-response/task.md`
+- `0420` — memory: Implementar la interacción y estados visuales en Qt: memory pressure response — `docs/rules/01-modules/memory/micro/0420-memory-pressure-response/task.md`
+- `0421` — memory: Probar casos positivos, negativos y recuperación: memory pressure response — `docs/rules/01-modules/memory/micro/0421-memory-pressure-response/task.md`
+- `0422` — memory: Definir el comportamiento y las invariantes: lazy background tabs — `docs/rules/01-modules/memory/micro/0422-lazy-background-tabs/task.md`
+- `0423` — memory: Implementar la operación en una capa propietaria: lazy background tabs — `docs/rules/01-modules/memory/micro/0423-lazy-background-tabs/task.md`
+- `0424` — memory: Implementar la interacción y estados visuales en Qt: lazy background tabs — `docs/rules/01-modules/memory/micro/0424-lazy-background-tabs/task.md`
+- `0425` — memory: Probar casos positivos, negativos y recuperación: lazy background tabs — `docs/rules/01-modules/memory/micro/0425-lazy-background-tabs/task.md`
+- `0426` — themes: Definir el comportamiento y las invariantes: light theme — `docs/rules/01-modules/themes/micro/0426-light-theme/task.md`
+- `0427` — themes: Implementar la operación en una capa propietaria: light theme — `docs/rules/01-modules/themes/micro/0427-light-theme/task.md`
+- `0428` — themes: Implementar la interacción y estados visuales en Qt: light theme — `docs/rules/01-modules/themes/micro/0428-light-theme/task.md`
+- `0429` — themes: Probar casos positivos, negativos y recuperación: light theme — `docs/rules/01-modules/themes/micro/0429-light-theme/task.md`
+- `0430` — themes: Definir el comportamiento y las invariantes: dark theme — `docs/rules/01-modules/themes/micro/0430-dark-theme/task.md`
+- `0431` — themes: Implementar la operación en una capa propietaria: dark theme — `docs/rules/01-modules/themes/micro/0431-dark-theme/task.md`
+- `0432` — themes: Implementar la interacción y estados visuales en Qt: dark theme — `docs/rules/01-modules/themes/micro/0432-dark-theme/task.md`
+- `0433` — themes: Probar casos positivos, negativos y recuperación: dark theme — `docs/rules/01-modules/themes/micro/0433-dark-theme/task.md`
+- `0434` — themes: Definir el comportamiento y las invariantes: midnight theme — `docs/rules/01-modules/themes/micro/0434-midnight-theme/task.md`
+- `0435` — themes: Implementar la operación en una capa propietaria: midnight theme — `docs/rules/01-modules/themes/micro/0435-midnight-theme/task.md`
+- `0436` — themes: Implementar la interacción y estados visuales en Qt: midnight theme — `docs/rules/01-modules/themes/micro/0436-midnight-theme/task.md`
+- `0437` — themes: Probar casos positivos, negativos y recuperación: midnight theme — `docs/rules/01-modules/themes/micro/0437-midnight-theme/task.md`
+- `0438` — themes: Definir el comportamiento y las invariantes: aurora theme — `docs/rules/01-modules/themes/micro/0438-aurora-theme/task.md`
+- `0439` — themes: Implementar la operación en una capa propietaria: aurora theme — `docs/rules/01-modules/themes/micro/0439-aurora-theme/task.md`
+- `0440` — themes: Implementar la interacción y estados visuales en Qt: aurora theme — `docs/rules/01-modules/themes/micro/0440-aurora-theme/task.md`
+- `0441` — themes: Probar casos positivos, negativos y recuperación: aurora theme — `docs/rules/01-modules/themes/micro/0441-aurora-theme/task.md`
+- `0442` — themes: Definir el comportamiento y las invariantes: forest theme — `docs/rules/01-modules/themes/micro/0442-forest-theme/task.md`
+- `0443` — themes: Implementar la operación en una capa propietaria: forest theme — `docs/rules/01-modules/themes/micro/0443-forest-theme/task.md`
+- `0444` — themes: Implementar la interacción y estados visuales en Qt: forest theme — `docs/rules/01-modules/themes/micro/0444-forest-theme/task.md`
+- `0445` — themes: Probar casos positivos, negativos y recuperación: forest theme — `docs/rules/01-modules/themes/micro/0445-forest-theme/task.md`
+- `0446` — themes: Definir el comportamiento y las invariantes: sunset theme — `docs/rules/01-modules/themes/micro/0446-sunset-theme/task.md`
+- `0447` — themes: Implementar la operación en una capa propietaria: sunset theme — `docs/rules/01-modules/themes/micro/0447-sunset-theme/task.md`
+- `0448` — themes: Implementar la interacción y estados visuales en Qt: sunset theme — `docs/rules/01-modules/themes/micro/0448-sunset-theme/task.md`
+- `0449` — themes: Probar casos positivos, negativos y recuperación: sunset theme — `docs/rules/01-modules/themes/micro/0449-sunset-theme/task.md`
+- `0450` — themes: Definir el comportamiento y las invariantes: custom accent — `docs/rules/01-modules/themes/micro/0450-custom-accent/task.md`
+- `0451` — themes: Implementar la operación en una capa propietaria: custom accent — `docs/rules/01-modules/themes/micro/0451-custom-accent/task.md`
+- `0452` — themes: Implementar la interacción y estados visuales en Qt: custom accent — `docs/rules/01-modules/themes/micro/0452-custom-accent/task.md`
+- `0453` — themes: Probar casos positivos, negativos y recuperación: custom accent — `docs/rules/01-modules/themes/micro/0453-custom-accent/task.md`
+- `0454` — themes: Definir el comportamiento y las invariantes: theme persistence — `docs/rules/01-modules/themes/micro/0454-theme-persistence/task.md`
+- `0455` — senior-mode: Definir el comportamiento y las invariantes: first-run opt in — `docs/rules/01-modules/senior-mode/micro/0455-first-run-opt-in/task.md`
+- `0456` — senior-mode: Implementar la operación en una capa propietaria: first-run opt in — `docs/rules/01-modules/senior-mode/micro/0456-first-run-opt-in/task.md`
+- `0457` — senior-mode: Implementar la interacción y estados visuales en Qt: first-run opt in — `docs/rules/01-modules/senior-mode/micro/0457-first-run-opt-in/task.md`
+- `0458` — senior-mode: Probar casos positivos, negativos y recuperación: first-run opt in — `docs/rules/01-modules/senior-mode/micro/0458-first-run-opt-in/task.md`
+- `0459` — senior-mode: Definir el comportamiento y las invariantes: Senior Mode toggle — `docs/rules/01-modules/senior-mode/micro/0459-senior-mode-toggle/task.md`
+- `0460` — senior-mode: Implementar la operación en una capa propietaria: Senior Mode toggle — `docs/rules/01-modules/senior-mode/micro/0460-senior-mode-toggle/task.md`
+- `0461` — senior-mode: Implementar la interacción y estados visuales en Qt: Senior Mode toggle — `docs/rules/01-modules/senior-mode/micro/0461-senior-mode-toggle/task.md`
+- `0462` — senior-mode: Probar casos positivos, negativos y recuperación: Senior Mode toggle — `docs/rules/01-modules/senior-mode/micro/0462-senior-mode-toggle/task.md`
+- `0463` — senior-mode: Definir el comportamiento y las invariantes: large labels — `docs/rules/01-modules/senior-mode/micro/0463-large-labels/task.md`
+- `0464` — senior-mode: Implementar la operación en una capa propietaria: large labels — `docs/rules/01-modules/senior-mode/micro/0464-large-labels/task.md`
+- `0465` — senior-mode: Implementar la interacción y estados visuales en Qt: large labels — `docs/rules/01-modules/senior-mode/micro/0465-large-labels/task.md`
+- `0466` — senior-mode: Probar casos positivos, negativos y recuperación: large labels — `docs/rules/01-modules/senior-mode/micro/0466-large-labels/task.md`
+- `0467` — senior-mode: Definir el comportamiento y las invariantes: large hit targets — `docs/rules/01-modules/senior-mode/micro/0467-large-hit-targets/task.md`
+- `0468` — senior-mode: Implementar la operación en una capa propietaria: large hit targets — `docs/rules/01-modules/senior-mode/micro/0468-large-hit-targets/task.md`
+- `0469` — senior-mode: Implementar la interacción y estados visuales en Qt: large hit targets — `docs/rules/01-modules/senior-mode/micro/0469-large-hit-targets/task.md`
+- `0470` — senior-mode: Probar casos positivos, negativos y recuperación: large hit targets — `docs/rules/01-modules/senior-mode/micro/0470-large-hit-targets/task.md`
+- `0471` — senior-mode: Definir el comportamiento y las invariantes: simple navigation labels — `docs/rules/01-modules/senior-mode/micro/0471-simple-navigation-labels/task.md`
+- `0472` — senior-mode: Implementar la operación en una capa propietaria: simple navigation labels — `docs/rules/01-modules/senior-mode/micro/0472-simple-navigation-labels/task.md`
+- `0473` — senior-mode: Implementar la interacción y estados visuales en Qt: simple navigation labels — `docs/rules/01-modules/senior-mode/micro/0473-simple-navigation-labels/task.md`
+- `0474` — senior-mode: Probar casos positivos, negativos y recuperación: simple navigation labels — `docs/rules/01-modules/senior-mode/micro/0474-simple-navigation-labels/task.md`
+- `0475` — senior-mode: Definir el comportamiento y las invariantes: reader support — `docs/rules/01-modules/senior-mode/micro/0475-reader-support/task.md`
+- `0476` — senior-mode: Implementar la operación en una capa propietaria: reader support — `docs/rules/01-modules/senior-mode/micro/0476-reader-support/task.md`
+- `0477` — senior-mode: Implementar la interacción y estados visuales en Qt: reader support — `docs/rules/01-modules/senior-mode/micro/0477-reader-support/task.md`
+- `0478` — senior-mode: Probar casos positivos, negativos y recuperación: reader support — `docs/rules/01-modules/senior-mode/micro/0478-reader-support/task.md`
+- `0479` — senior-mode: Definir el comportamiento y las invariantes: contrast presets — `docs/rules/01-modules/senior-mode/micro/0479-contrast-presets/task.md`
+- `0480` — senior-mode: Implementar la operación en una capa propietaria: contrast presets — `docs/rules/01-modules/senior-mode/micro/0480-contrast-presets/task.md`
+- `0481` — senior-mode: Implementar la interacción y estados visuales en Qt: contrast presets — `docs/rules/01-modules/senior-mode/micro/0481-contrast-presets/task.md`
+- `0482` — senior-mode: Probar casos positivos, negativos y recuperación: contrast presets — `docs/rules/01-modules/senior-mode/micro/0482-contrast-presets/task.md`
+- `0483` — senior-mode: Definir el comportamiento y las invariantes: keyboard traversal — `docs/rules/01-modules/senior-mode/micro/0483-keyboard-traversal/task.md`
+- `0484` — senior-mode: Implementar la operación en una capa propietaria: keyboard traversal — `docs/rules/01-modules/senior-mode/micro/0484-keyboard-traversal/task.md`
+- `0485` — senior-mode: Implementar la interacción y estados visuales en Qt: keyboard traversal — `docs/rules/01-modules/senior-mode/micro/0485-keyboard-traversal/task.md`
+- `0486` — senior-mode: Probar casos positivos, negativos y recuperación: keyboard traversal — `docs/rules/01-modules/senior-mode/micro/0486-keyboard-traversal/task.md`
+- `0487` — senior-mode: Definir el comportamiento y las invariantes: screenreader names — `docs/rules/01-modules/senior-mode/micro/0487-screenreader-names/task.md`
+- `0488` — senior-mode: Implementar la operación en una capa propietaria: screenreader names — `docs/rules/01-modules/senior-mode/micro/0488-screenreader-names/task.md`
+- `0489` — senior-mode: Implementar la interacción y estados visuales en Qt: screenreader names — `docs/rules/01-modules/senior-mode/micro/0489-screenreader-names/task.md`
+- `0490` — senior-mode: Probar casos positivos, negativos y recuperación: screenreader names — `docs/rules/01-modules/senior-mode/micro/0490-screenreader-names/task.md`
+- `0491` — command-palette: Definir el comportamiento y las invariantes: palette opening — `docs/rules/01-modules/command-palette/micro/0491-palette-opening/task.md`
+- `0492` — command-palette: Implementar la operación en una capa propietaria: palette opening — `docs/rules/01-modules/command-palette/micro/0492-palette-opening/task.md`
+- `0493` — command-palette: Implementar la interacción y estados visuales en Qt: palette opening — `docs/rules/01-modules/command-palette/micro/0493-palette-opening/task.md`
+- `0494` — command-palette: Probar casos positivos, negativos y recuperación: palette opening — `docs/rules/01-modules/command-palette/micro/0494-palette-opening/task.md`
+- `0495` — command-palette: Definir el comportamiento y las invariantes: command search — `docs/rules/01-modules/command-palette/micro/0495-command-search/task.md`
+- `0496` — command-palette: Implementar la operación en una capa propietaria: command search — `docs/rules/01-modules/command-palette/micro/0496-command-search/task.md`
+- `0497` — command-palette: Implementar la interacción y estados visuales en Qt: command search — `docs/rules/01-modules/command-palette/micro/0497-command-search/task.md`
+- `0498` — command-palette: Probar casos positivos, negativos y recuperación: command search — `docs/rules/01-modules/command-palette/micro/0498-command-search/task.md`
+- `0499` — command-palette: Definir el comportamiento y las invariantes: tabs prefix — `docs/rules/01-modules/command-palette/micro/0499-tabs-prefix/task.md`
+- `0500` — command-palette: Implementar la operación en una capa propietaria: tabs prefix — `docs/rules/01-modules/command-palette/micro/0500-tabs-prefix/task.md`
+- `0501` — command-palette: Implementar la interacción y estados visuales en Qt: tabs prefix — `docs/rules/01-modules/command-palette/micro/0501-tabs-prefix/task.md`
+- `0502` — command-palette: Probar casos positivos, negativos y recuperación: tabs prefix — `docs/rules/01-modules/command-palette/micro/0502-tabs-prefix/task.md`
+- `0503` — command-palette: Definir el comportamiento y las invariantes: history prefix — `docs/rules/01-modules/command-palette/micro/0503-history-prefix/task.md`
+- `0504` — command-palette: Implementar la operación en una capa propietaria: history prefix — `docs/rules/01-modules/command-palette/micro/0504-history-prefix/task.md`
+- `0505` — command-palette: Implementar la interacción y estados visuales en Qt: history prefix — `docs/rules/01-modules/command-palette/micro/0505-history-prefix/task.md`
+- `0506` — command-palette: Probar casos positivos, negativos y recuperación: history prefix — `docs/rules/01-modules/command-palette/micro/0506-history-prefix/task.md`
+- `0507` — command-palette: Definir el comportamiento y las invariantes: bookmarks prefix — `docs/rules/01-modules/command-palette/micro/0507-bookmarks-prefix/task.md`
+- `0508` — command-palette: Implementar la operación en una capa propietaria: bookmarks prefix — `docs/rules/01-modules/command-palette/micro/0508-bookmarks-prefix/task.md`
+- `0509` — command-palette: Implementar la interacción y estados visuales en Qt: bookmarks prefix — `docs/rules/01-modules/command-palette/micro/0509-bookmarks-prefix/task.md`
+- `0510` — command-palette: Probar casos positivos, negativos y recuperación: bookmarks prefix — `docs/rules/01-modules/command-palette/micro/0510-bookmarks-prefix/task.md`
+- `0511` — command-palette: Definir el comportamiento y las invariantes: settings prefix — `docs/rules/01-modules/command-palette/micro/0511-settings-prefix/task.md`
+- `0512` — command-palette: Implementar la operación en una capa propietaria: settings prefix — `docs/rules/01-modules/command-palette/micro/0512-settings-prefix/task.md`
+- `0513` — command-palette: Implementar la interacción y estados visuales en Qt: settings prefix — `docs/rules/01-modules/command-palette/micro/0513-settings-prefix/task.md`
+- `0514` — command-palette: Probar casos positivos, negativos y recuperación: settings prefix — `docs/rules/01-modules/command-palette/micro/0514-settings-prefix/task.md`
+- `0515` — command-palette: Definir el comportamiento y las invariantes: fuzzy matching — `docs/rules/01-modules/command-palette/micro/0515-fuzzy-matching/task.md`
+- `0516` — command-palette: Implementar la operación en una capa propietaria: fuzzy matching — `docs/rules/01-modules/command-palette/micro/0516-fuzzy-matching/task.md`
+- `0517` — split-view: Definir el comportamiento y las invariantes: split create — `docs/rules/01-modules/split-view/micro/0517-split-create/task.md`
+- `0518` — split-view: Implementar la operación en una capa propietaria: split create — `docs/rules/01-modules/split-view/micro/0518-split-create/task.md`
+- `0519` — split-view: Implementar la interacción y estados visuales en Qt: split create — `docs/rules/01-modules/split-view/micro/0519-split-create/task.md`
+- `0520` — split-view: Probar casos positivos, negativos y recuperación: split create — `docs/rules/01-modules/split-view/micro/0520-split-create/task.md`
+- `0521` — split-view: Definir el comportamiento y las invariantes: split vertical resize — `docs/rules/01-modules/split-view/micro/0521-split-vertical-resize/task.md`
+- `0522` — split-view: Implementar la operación en una capa propietaria: split vertical resize — `docs/rules/01-modules/split-view/micro/0522-split-vertical-resize/task.md`
+- `0523` — split-view: Implementar la interacción y estados visuales en Qt: split vertical resize — `docs/rules/01-modules/split-view/micro/0523-split-vertical-resize/task.md`
+- `0524` — split-view: Probar casos positivos, negativos y recuperación: split vertical resize — `docs/rules/01-modules/split-view/micro/0524-split-vertical-resize/task.md`
+- `0525` — split-view: Definir el comportamiento y las invariantes: split horizontal resize — `docs/rules/01-modules/split-view/micro/0525-split-horizontal-resize/task.md`
+- `0526` — split-view: Implementar la operación en una capa propietaria: split horizontal resize — `docs/rules/01-modules/split-view/micro/0526-split-horizontal-resize/task.md`
+- `0527` — split-view: Implementar la interacción y estados visuales en Qt: split horizontal resize — `docs/rules/01-modules/split-view/micro/0527-split-horizontal-resize/task.md`
+- `0528` — split-view: Probar casos positivos, negativos y recuperación: split horizontal resize — `docs/rules/01-modules/split-view/micro/0528-split-horizontal-resize/task.md`
+- `0529` — split-view: Definir el comportamiento y las invariantes: split four pane — `docs/rules/01-modules/split-view/micro/0529-split-four-pane/task.md`
+- `0530` — split-view: Implementar la operación en una capa propietaria: split four pane — `docs/rules/01-modules/split-view/micro/0530-split-four-pane/task.md`
+- `0531` — split-view: Implementar la interacción y estados visuales en Qt: split four pane — `docs/rules/01-modules/split-view/micro/0531-split-four-pane/task.md`
+- `0532` — split-view: Probar casos positivos, negativos y recuperación: split four pane — `docs/rules/01-modules/split-view/micro/0532-split-four-pane/task.md`
+- `0533` — split-view: Definir el comportamiento y las invariantes: split collapse — `docs/rules/01-modules/split-view/micro/0533-split-collapse/task.md`
+- `0534` — split-view: Implementar la operación en una capa propietaria: split collapse — `docs/rules/01-modules/split-view/micro/0534-split-collapse/task.md`
+- `0535` — split-view: Implementar la interacción y estados visuales en Qt: split collapse — `docs/rules/01-modules/split-view/micro/0535-split-collapse/task.md`
+- `0536` — split-view: Probar casos positivos, negativos y recuperación: split collapse — `docs/rules/01-modules/split-view/micro/0536-split-collapse/task.md`
+- `0537` — split-view: Definir el comportamiento y las invariantes: split focus management — `docs/rules/01-modules/split-view/micro/0537-split-focus-management/task.md`
+- `0538` — split-view: Implementar la operación en una capa propietaria: split focus management — `docs/rules/01-modules/split-view/micro/0538-split-focus-management/task.md`
+- `0539` — split-view: Implementar la interacción y estados visuales en Qt: split focus management — `docs/rules/01-modules/split-view/micro/0539-split-focus-management/task.md`
+- `0540` — split-view: Probar casos positivos, negativos y recuperación: split focus management — `docs/rules/01-modules/split-view/micro/0540-split-focus-management/task.md`
+- `0541` — notes: Definir el comportamiento y las invariantes: notes create — `docs/rules/01-modules/notes/micro/0541-notes-create/task.md`
+- `0542` — notes: Implementar la operación en una capa propietaria: notes create — `docs/rules/01-modules/notes/micro/0542-notes-create/task.md`
+- `0543` — notes: Implementar la interacción y estados visuales en Qt: notes create — `docs/rules/01-modules/notes/micro/0543-notes-create/task.md`
+- `0544` — notes: Probar casos positivos, negativos y recuperación: notes create — `docs/rules/01-modules/notes/micro/0544-notes-create/task.md`
+- `0545` — notes: Definir el comportamiento y las invariantes: notes edit — `docs/rules/01-modules/notes/micro/0545-notes-edit/task.md`
+- `0546` — notes: Implementar la operación en una capa propietaria: notes edit — `docs/rules/01-modules/notes/micro/0546-notes-edit/task.md`
+- `0547` — notes: Implementar la interacción y estados visuales en Qt: notes edit — `docs/rules/01-modules/notes/micro/0547-notes-edit/task.md`
+- `0548` — notes: Probar casos positivos, negativos y recuperación: notes edit — `docs/rules/01-modules/notes/micro/0548-notes-edit/task.md`
+- `0549` — notes: Definir el comportamiento y las invariantes: notes delete — `docs/rules/01-modules/notes/micro/0549-notes-delete/task.md`
+- `0550` — notes: Implementar la operación en una capa propietaria: notes delete — `docs/rules/01-modules/notes/micro/0550-notes-delete/task.md`
+- `0551` — notes: Implementar la interacción y estados visuales en Qt: notes delete — `docs/rules/01-modules/notes/micro/0551-notes-delete/task.md`
+- `0552` — notes: Probar casos positivos, negativos y recuperación: notes delete — `docs/rules/01-modules/notes/micro/0552-notes-delete/task.md`
+- `0553` — notes: Definir el comportamiento y las invariantes: notes page link — `docs/rules/01-modules/notes/micro/0553-notes-page-link/task.md`
+- `0554` — notes: Implementar la operación en una capa propietaria: notes page link — `docs/rules/01-modules/notes/micro/0554-notes-page-link/task.md`
+- `0555` — notes: Implementar la interacción y estados visuales en Qt: notes page link — `docs/rules/01-modules/notes/micro/0555-notes-page-link/task.md`
+- `0556` — notes: Probar casos positivos, negativos y recuperación: notes page link — `docs/rules/01-modules/notes/micro/0556-notes-page-link/task.md`
+- `0557` — notes: Definir el comportamiento y las invariantes: notes search — `docs/rules/01-modules/notes/micro/0557-notes-search/task.md`
+- `0558` — notes: Implementar la operación en una capa propietaria: notes search — `docs/rules/01-modules/notes/micro/0558-notes-search/task.md`
+- `0559` — notes: Implementar la interacción y estados visuales en Qt: notes search — `docs/rules/01-modules/notes/micro/0559-notes-search/task.md`
+- `0560` — notes: Probar casos positivos, negativos y recuperación: notes search — `docs/rules/01-modules/notes/micro/0560-notes-search/task.md`
+- `0561` — notes: Definir el comportamiento y las invariantes: notes autosave — `docs/rules/01-modules/notes/micro/0561-notes-autosave/task.md`
+- `0562` — notes: Implementar la operación en una capa propietaria: notes autosave — `docs/rules/01-modules/notes/micro/0562-notes-autosave/task.md`
+- `0563` — screenshots: Definir el comportamiento y las invariantes: capture visible viewport — `docs/rules/01-modules/screenshots/micro/0563-capture-visible-viewport/task.md`
+- `0564` — screenshots: Implementar la operación en una capa propietaria: capture visible viewport — `docs/rules/01-modules/screenshots/micro/0564-capture-visible-viewport/task.md`
+- `0565` — screenshots: Implementar la interacción y estados visuales en Qt: capture visible viewport — `docs/rules/01-modules/screenshots/micro/0565-capture-visible-viewport/task.md`
+- `0566` — screenshots: Probar casos positivos, negativos y recuperación: capture visible viewport — `docs/rules/01-modules/screenshots/micro/0566-capture-visible-viewport/task.md`
+- `0567` — screenshots: Definir el comportamiento y las invariantes: capture region — `docs/rules/01-modules/screenshots/micro/0567-capture-region/task.md`
+- `0568` — screenshots: Implementar la operación en una capa propietaria: capture region — `docs/rules/01-modules/screenshots/micro/0568-capture-region/task.md`
+- `0569` — screenshots: Implementar la interacción y estados visuales en Qt: capture region — `docs/rules/01-modules/screenshots/micro/0569-capture-region/task.md`
+- `0570` — screenshots: Probar casos positivos, negativos y recuperación: capture region — `docs/rules/01-modules/screenshots/micro/0570-capture-region/task.md`
+- `0571` — screenshots: Definir el comportamiento y las invariantes: capture full page — `docs/rules/01-modules/screenshots/micro/0571-capture-full-page/task.md`
+- `0572` — screenshots: Implementar la operación en una capa propietaria: capture full page — `docs/rules/01-modules/screenshots/micro/0572-capture-full-page/task.md`
+- `0573` — screenshots: Implementar la interacción y estados visuales en Qt: capture full page — `docs/rules/01-modules/screenshots/micro/0573-capture-full-page/task.md`
+- `0574` — screenshots: Probar casos positivos, negativos y recuperación: capture full page — `docs/rules/01-modules/screenshots/micro/0574-capture-full-page/task.md`
+- `0575` — screenshots: Definir el comportamiento y las invariantes: capture save dialog — `docs/rules/01-modules/screenshots/micro/0575-capture-save-dialog/task.md`
+- `0576` — screenshots: Implementar la operación en una capa propietaria: capture save dialog — `docs/rules/01-modules/screenshots/micro/0576-capture-save-dialog/task.md`
+- `0577` — screenshots: Implementar la interacción y estados visuales en Qt: capture save dialog — `docs/rules/01-modules/screenshots/micro/0577-capture-save-dialog/task.md`
+- `0578` — screenshots: Probar casos positivos, negativos y recuperación: capture save dialog — `docs/rules/01-modules/screenshots/micro/0578-capture-save-dialog/task.md`
+- `0579` — screenshots: Definir el comportamiento y las invariantes: capture filename — `docs/rules/01-modules/screenshots/micro/0579-capture-filename/task.md`
+- `0580` — screenshots: Implementar la operación en una capa propietaria: capture filename — `docs/rules/01-modules/screenshots/micro/0580-capture-filename/task.md`
+- `0581` — screenshots: Implementar la interacción y estados visuales en Qt: capture filename — `docs/rules/01-modules/screenshots/micro/0581-capture-filename/task.md`
+- `0582` — qr: Definir el comportamiento y las invariantes: QR from URL — `docs/rules/01-modules/qr/micro/0582-qr-from-url/task.md`
+- `0583` — qr: Implementar la operación en una capa propietaria: QR from URL — `docs/rules/01-modules/qr/micro/0583-qr-from-url/task.md`
+- `0584` — qr: Implementar la interacción y estados visuales en Qt: QR from URL — `docs/rules/01-modules/qr/micro/0584-qr-from-url/task.md`
+- `0585` — qr: Probar casos positivos, negativos y recuperación: QR from URL — `docs/rules/01-modules/qr/micro/0585-qr-from-url/task.md`
+- `0586` — qr: Definir el comportamiento y las invariantes: QR from text — `docs/rules/01-modules/qr/micro/0586-qr-from-text/task.md`
+- `0587` — qr: Implementar la operación en una capa propietaria: QR from text — `docs/rules/01-modules/qr/micro/0587-qr-from-text/task.md`
+- `0588` — qr: Implementar la interacción y estados visuales en Qt: QR from text — `docs/rules/01-modules/qr/micro/0588-qr-from-text/task.md`
+- `0589` — qr: Probar casos positivos, negativos y recuperación: QR from text — `docs/rules/01-modules/qr/micro/0589-qr-from-text/task.md`
+- `0590` — qr: Definir el comportamiento y las invariantes: QR vector export — `docs/rules/01-modules/qr/micro/0590-qr-vector-export/task.md`
+- `0591` — qr: Implementar la operación en una capa propietaria: QR vector export — `docs/rules/01-modules/qr/micro/0591-qr-vector-export/task.md`
+- `0592` — qr: Implementar la interacción y estados visuales en Qt: QR vector export — `docs/rules/01-modules/qr/micro/0592-qr-vector-export/task.md`
+- `0593` — qr: Probar casos positivos, negativos y recuperación: QR vector export — `docs/rules/01-modules/qr/micro/0593-qr-vector-export/task.md`
+- `0594` — qr: Definir el comportamiento y las invariantes: QR raster export — `docs/rules/01-modules/qr/micro/0594-qr-raster-export/task.md`
+- `0595` — qr: Implementar la operación en una capa propietaria: QR raster export — `docs/rules/01-modules/qr/micro/0595-qr-raster-export/task.md`
+- `0596` — qr: Implementar la interacción y estados visuales en Qt: QR raster export — `docs/rules/01-modules/qr/micro/0596-qr-raster-export/task.md`
+- `0597` — passwords: Definir el comportamiento y las invariantes: secure random generation — `docs/rules/01-modules/passwords/micro/0597-secure-random-generation/task.md`
+- `0598` — passwords: Implementar la operación en una capa propietaria: secure random generation — `docs/rules/01-modules/passwords/micro/0598-secure-random-generation/task.md`
+- `0599` — passwords: Implementar la interacción y estados visuales en Qt: secure random generation — `docs/rules/01-modules/passwords/micro/0599-secure-random-generation/task.md`
+- `0600` — passwords: Probar casos positivos, negativos y recuperación: secure random generation — `docs/rules/01-modules/passwords/micro/0600-secure-random-generation/task.md`
+- `0601` — passwords: Definir el comportamiento y las invariantes: password strength settings — `docs/rules/01-modules/passwords/micro/0601-password-strength-settings/task.md`
+- `0602` — passwords: Implementar la operación en una capa propietaria: password strength settings — `docs/rules/01-modules/passwords/micro/0602-password-strength-settings/task.md`
+- `0603` — passwords: Implementar la interacción y estados visuales en Qt: password strength settings — `docs/rules/01-modules/passwords/micro/0603-password-strength-settings/task.md`
+- `0604` — passwords: Probar casos positivos, negativos y recuperación: password strength settings — `docs/rules/01-modules/passwords/micro/0604-password-strength-settings/task.md`
+- `0605` — passwords: Definir el comportamiento y las invariantes: password clipboard clearing — `docs/rules/01-modules/passwords/micro/0605-password-clipboard-clearing/task.md`
+- `0606` — passwords: Implementar la operación en una capa propietaria: password clipboard clearing — `docs/rules/01-modules/passwords/micro/0606-password-clipboard-clearing/task.md`
+- `0607` — passwords: Implementar la interacción y estados visuales en Qt: password clipboard clearing — `docs/rules/01-modules/passwords/micro/0607-password-clipboard-clearing/task.md`
+- `0608` — passwords: Probar casos positivos, negativos y recuperación: password clipboard clearing — `docs/rules/01-modules/passwords/micro/0608-password-clipboard-clearing/task.md`
+- `0609` — passwords: Definir el comportamiento y las invariantes: password reveal controls — `docs/rules/01-modules/passwords/micro/0609-password-reveal-controls/task.md`
+- `0610` — passwords: Implementar la operación en una capa propietaria: password reveal controls — `docs/rules/01-modules/passwords/micro/0610-password-reveal-controls/task.md`
+- `0611` — passwords: Implementar la interacción y estados visuales en Qt: password reveal controls — `docs/rules/01-modules/passwords/micro/0611-password-reveal-controls/task.md`
+- `0612` — passwords: Probar casos positivos, negativos y recuperación: password reveal controls — `docs/rules/01-modules/passwords/micro/0612-password-reveal-controls/task.md`
+- `0613` — passwords: Definir el comportamiento y las invariantes: OS credential storage — `docs/rules/01-modules/passwords/micro/0613-os-credential-storage/task.md`
+- `0614` — translation: Definir el comportamiento y las invariantes: selected text translation — `docs/rules/01-modules/translation/micro/0614-selected-text-translation/task.md`
+- `0615` — translation: Implementar la operación en una capa propietaria: selected text translation — `docs/rules/01-modules/translation/micro/0615-selected-text-translation/task.md`
+- `0616` — translation: Implementar la interacción y estados visuales en Qt: selected text translation — `docs/rules/01-modules/translation/micro/0616-selected-text-translation/task.md`
+- `0617` — translation: Probar casos positivos, negativos y recuperación: selected text translation — `docs/rules/01-modules/translation/micro/0617-selected-text-translation/task.md`
+- `0618` — translation: Definir el comportamiento y las invariantes: page translation opt in — `docs/rules/01-modules/translation/micro/0618-page-translation-opt-in/task.md`
+- `0619` — translation: Implementar la operación en una capa propietaria: page translation opt in — `docs/rules/01-modules/translation/micro/0619-page-translation-opt-in/task.md`
+- `0620` — translation: Implementar la interacción y estados visuales en Qt: page translation opt in — `docs/rules/01-modules/translation/micro/0620-page-translation-opt-in/task.md`
+- `0621` — translation: Probar casos positivos, negativos y recuperación: page translation opt in — `docs/rules/01-modules/translation/micro/0621-page-translation-opt-in/task.md`
+- `0622` — translation: Definir el comportamiento y las invariantes: provider privacy warning — `docs/rules/01-modules/translation/micro/0622-provider-privacy-warning/task.md`
+- `0623` — translation: Implementar la operación en una capa propietaria: provider privacy warning — `docs/rules/01-modules/translation/micro/0623-provider-privacy-warning/task.md`
+- `0624` — translation: Implementar la interacción y estados visuales en Qt: provider privacy warning — `docs/rules/01-modules/translation/micro/0624-provider-privacy-warning/task.md`
+- `0625` — translation: Probar casos positivos, negativos y recuperación: provider privacy warning — `docs/rules/01-modules/translation/micro/0625-provider-privacy-warning/task.md`
+- `0626` — translation: Definir el comportamiento y las invariantes: translation failure UI — `docs/rules/01-modules/translation/micro/0626-translation-failure-ui/task.md`
+- `0627` — translation: Implementar la operación en una capa propietaria: translation failure UI — `docs/rules/01-modules/translation/micro/0627-translation-failure-ui/task.md`
+- `0628` — translation: Implementar la interacción y estados visuales en Qt: translation failure UI — `docs/rules/01-modules/translation/micro/0628-translation-failure-ui/task.md`
+- `0629` — readers: Definir el comportamiento y las invariantes: markdown renderer — `docs/rules/01-modules/readers/micro/0629-markdown-renderer/task.md`
+- `0630` — readers: Implementar la operación en una capa propietaria: markdown renderer — `docs/rules/01-modules/readers/micro/0630-markdown-renderer/task.md`
+- `0631` — readers: Implementar la interacción y estados visuales en Qt: markdown renderer — `docs/rules/01-modules/readers/micro/0631-markdown-renderer/task.md`
+- `0632` — readers: Probar casos positivos, negativos y recuperación: markdown renderer — `docs/rules/01-modules/readers/micro/0632-markdown-renderer/task.md`
+- `0633` — readers: Definir el comportamiento y las invariantes: markdown sanitization — `docs/rules/01-modules/readers/micro/0633-markdown-sanitization/task.md`
+- `0634` — readers: Implementar la operación en una capa propietaria: markdown sanitization — `docs/rules/01-modules/readers/micro/0634-markdown-sanitization/task.md`
+- `0635` — readers: Implementar la interacción y estados visuales en Qt: markdown sanitization — `docs/rules/01-modules/readers/micro/0635-markdown-sanitization/task.md`
+- `0636` — readers: Probar casos positivos, negativos y recuperación: markdown sanitization — `docs/rules/01-modules/readers/micro/0636-markdown-sanitization/task.md`
+- `0637` — readers: Definir el comportamiento y las invariantes: mermaid local rendering — `docs/rules/01-modules/readers/micro/0637-mermaid-local-rendering/task.md`
+- `0638` — readers: Implementar la operación en una capa propietaria: mermaid local rendering — `docs/rules/01-modules/readers/micro/0638-mermaid-local-rendering/task.md`
+- `0639` — readers: Implementar la interacción y estados visuales en Qt: mermaid local rendering — `docs/rules/01-modules/readers/micro/0639-mermaid-local-rendering/task.md`
+- `0640` — readers: Probar casos positivos, negativos y recuperación: mermaid local rendering — `docs/rules/01-modules/readers/micro/0640-mermaid-local-rendering/task.md`
+- `0641` — readers: Definir el comportamiento y las invariantes: mermaid sandbox — `docs/rules/01-modules/readers/micro/0641-mermaid-sandbox/task.md`
+- `0642` — readers: Implementar la operación en una capa propietaria: mermaid sandbox — `docs/rules/01-modules/readers/micro/0642-mermaid-sandbox/task.md`
+- `0643` — readers: Implementar la interacción y estados visuales en Qt: mermaid sandbox — `docs/rules/01-modules/readers/micro/0643-mermaid-sandbox/task.md`
+- `0644` — readers: Probar casos positivos, negativos y recuperación: mermaid sandbox — `docs/rules/01-modules/readers/micro/0644-mermaid-sandbox/task.md`
+- `0645` — readers: Definir el comportamiento y las invariantes: JSON tree model — `docs/rules/01-modules/readers/micro/0645-json-tree-model/task.md`
+- `0646` — readers: Implementar la operación en una capa propietaria: JSON tree model — `docs/rules/01-modules/readers/micro/0646-json-tree-model/task.md`
+- `0647` — readers: Implementar la interacción y estados visuales en Qt: JSON tree model — `docs/rules/01-modules/readers/micro/0647-json-tree-model/task.md`
+- `0648` — readers: Probar casos positivos, negativos y recuperación: JSON tree model — `docs/rules/01-modules/readers/micro/0648-json-tree-model/task.md`
+- `0649` — readers: Definir el comportamiento y las invariantes: JSON virtualization — `docs/rules/01-modules/readers/micro/0649-json-virtualization/task.md`
+- `0650` — readers: Implementar la operación en una capa propietaria: JSON virtualization — `docs/rules/01-modules/readers/micro/0650-json-virtualization/task.md`
+- `0651` — readers: Implementar la interacción y estados visuales en Qt: JSON virtualization — `docs/rules/01-modules/readers/micro/0651-json-virtualization/task.md`
+- `0652` — readers: Probar casos positivos, negativos y recuperación: JSON virtualization — `docs/rules/01-modules/readers/micro/0652-json-virtualization/task.md`
+- `0653` — readers: Definir el comportamiento y las invariantes: JSONL streaming — `docs/rules/01-modules/readers/micro/0653-jsonl-streaming/task.md`
+- `0654` — readers: Implementar la operación en una capa propietaria: JSONL streaming — `docs/rules/01-modules/readers/micro/0654-jsonl-streaming/task.md`
+- `0655` — readers: Implementar la interacción y estados visuales en Qt: JSONL streaming — `docs/rules/01-modules/readers/micro/0655-jsonl-streaming/task.md`
+- `0656` — readers: Probar casos positivos, negativos y recuperación: JSONL streaming — `docs/rules/01-modules/readers/micro/0656-jsonl-streaming/task.md`
+- `0657` — readers: Definir el comportamiento y las invariantes: YAML viewer — `docs/rules/01-modules/readers/micro/0657-yaml-viewer/task.md`
+- `0658` — readers: Implementar la operación en una capa propietaria: YAML viewer — `docs/rules/01-modules/readers/micro/0658-yaml-viewer/task.md`
+- `0659` — readers: Implementar la interacción y estados visuales en Qt: YAML viewer — `docs/rules/01-modules/readers/micro/0659-yaml-viewer/task.md`
+- `0660` — readers: Probar casos positivos, negativos y recuperación: YAML viewer — `docs/rules/01-modules/readers/micro/0660-yaml-viewer/task.md`
+- `0661` — readers: Definir el comportamiento y las invariantes: TOML viewer — `docs/rules/01-modules/readers/micro/0661-toml-viewer/task.md`
+- `0662` — readers: Implementar la operación en una capa propietaria: TOML viewer — `docs/rules/01-modules/readers/micro/0662-toml-viewer/task.md`
+- `0663` — readers: Implementar la interacción y estados visuales en Qt: TOML viewer — `docs/rules/01-modules/readers/micro/0663-toml-viewer/task.md`
+- `0664` — readers: Probar casos positivos, negativos y recuperación: TOML viewer — `docs/rules/01-modules/readers/micro/0664-toml-viewer/task.md`
+- `0665` — readers: Definir el comportamiento y las invariantes: INI viewer — `docs/rules/01-modules/readers/micro/0665-ini-viewer/task.md`
+- `0666` — readers: Implementar la operación en una capa propietaria: INI viewer — `docs/rules/01-modules/readers/micro/0666-ini-viewer/task.md`
+- `0667` — readers: Implementar la interacción y estados visuales en Qt: INI viewer — `docs/rules/01-modules/readers/micro/0667-ini-viewer/task.md`
+- `0668` — readers: Probar casos positivos, negativos y recuperación: INI viewer — `docs/rules/01-modules/readers/micro/0668-ini-viewer/task.md`
+- `0669` — readers: Definir el comportamiento y las invariantes: XML tree viewer — `docs/rules/01-modules/readers/micro/0669-xml-tree-viewer/task.md`
+- `0670` — readers: Implementar la operación en una capa propietaria: XML tree viewer — `docs/rules/01-modules/readers/micro/0670-xml-tree-viewer/task.md`
+- `0671` — readers: Implementar la interacción y estados visuales en Qt: XML tree viewer — `docs/rules/01-modules/readers/micro/0671-xml-tree-viewer/task.md`
+- `0672` — readers: Probar casos positivos, negativos y recuperación: XML tree viewer — `docs/rules/01-modules/readers/micro/0672-xml-tree-viewer/task.md`
+- `0673` — readers: Definir el comportamiento y las invariantes: CSV grid model — `docs/rules/01-modules/readers/micro/0673-csv-grid-model/task.md`
+- `0674` — readers: Implementar la operación en una capa propietaria: CSV grid model — `docs/rules/01-modules/readers/micro/0674-csv-grid-model/task.md`
+- `0675` — readers: Implementar la interacción y estados visuales en Qt: CSV grid model — `docs/rules/01-modules/readers/micro/0675-csv-grid-model/task.md`
+- `0676` — readers: Probar casos positivos, negativos y recuperación: CSV grid model — `docs/rules/01-modules/readers/micro/0676-csv-grid-model/task.md`
+- `0677` — readers: Definir el comportamiento y las invariantes: TSV grid model — `docs/rules/01-modules/readers/micro/0677-tsv-grid-model/task.md`
+- `0678` — readers: Implementar la operación en una capa propietaria: TSV grid model — `docs/rules/01-modules/readers/micro/0678-tsv-grid-model/task.md`
+- `0679` — readers: Implementar la interacción y estados visuales en Qt: TSV grid model — `docs/rules/01-modules/readers/micro/0679-tsv-grid-model/task.md`
+- `0680` — readers: Probar casos positivos, negativos y recuperación: TSV grid model — `docs/rules/01-modules/readers/micro/0680-tsv-grid-model/task.md`
+- `0681` — readers: Definir el comportamiento y las invariantes: LOG viewer — `docs/rules/01-modules/readers/micro/0681-log-viewer/task.md`
+- `0682` — readers: Implementar la operación en una capa propietaria: LOG viewer — `docs/rules/01-modules/readers/micro/0682-log-viewer/task.md`
+- `0683` — readers: Implementar la interacción y estados visuales en Qt: LOG viewer — `docs/rules/01-modules/readers/micro/0683-log-viewer/task.md`
+- `0684` — readers: Probar casos positivos, negativos y recuperación: LOG viewer — `docs/rules/01-modules/readers/micro/0684-log-viewer/task.md`
+- `0685` — readers: Definir el comportamiento y las invariantes: TXT viewer — `docs/rules/01-modules/readers/micro/0685-txt-viewer/task.md`
+- `0686` — readers: Implementar la operación en una capa propietaria: TXT viewer — `docs/rules/01-modules/readers/micro/0686-txt-viewer/task.md`
+- `0687` — readers: Implementar la interacción y estados visuales en Qt: TXT viewer — `docs/rules/01-modules/readers/micro/0687-txt-viewer/task.md`
+- `0688` — devtools: Definir el comportamiento y las invariantes: devtools open close — `docs/rules/01-modules/devtools/micro/0688-devtools-open-close/task.md`
+- `0689` — devtools: Implementar la operación en una capa propietaria: devtools open close — `docs/rules/01-modules/devtools/micro/0689-devtools-open-close/task.md`
+- `0690` — devtools: Implementar la interacción y estados visuales en Qt: devtools open close — `docs/rules/01-modules/devtools/micro/0690-devtools-open-close/task.md`
+- `0691` — devtools: Probar casos positivos, negativos y recuperación: devtools open close — `docs/rules/01-modules/devtools/micro/0691-devtools-open-close/task.md`
+- `0692` — devtools: Definir el comportamiento y las invariantes: resource inspector — `docs/rules/01-modules/devtools/micro/0692-resource-inspector/task.md`
+- `0693` — devtools: Implementar la operación en una capa propietaria: resource inspector — `docs/rules/01-modules/devtools/micro/0693-resource-inspector/task.md`
+- `0694` — devtools: Implementar la interacción y estados visuales en Qt: resource inspector — `docs/rules/01-modules/devtools/micro/0694-resource-inspector/task.md`
+- `0695` — devtools: Probar casos positivos, negativos y recuperación: resource inspector — `docs/rules/01-modules/devtools/micro/0695-resource-inspector/task.md`
+- `0696` — devtools: Definir el comportamiento y las invariantes: responsive layout presets — `docs/rules/01-modules/devtools/micro/0696-responsive-layout-presets/task.md`
+- `0697` — devtools: Implementar la operación en una capa propietaria: responsive layout presets — `docs/rules/01-modules/devtools/micro/0697-responsive-layout-presets/task.md`
+- `0698` — devtools: Implementar la interacción y estados visuales en Qt: responsive layout presets — `docs/rules/01-modules/devtools/micro/0698-responsive-layout-presets/task.md`
+- `0699` — devtools: Probar casos positivos, negativos y recuperación: responsive layout presets — `docs/rules/01-modules/devtools/micro/0699-responsive-layout-presets/task.md`
+- `0700` — devtools: Definir el comportamiento y las invariantes: network request viewer — `docs/rules/01-modules/devtools/micro/0700-network-request-viewer/task.md`
+- `0701` — devtools: Implementar la operación en una capa propietaria: network request viewer — `docs/rules/01-modules/devtools/micro/0701-network-request-viewer/task.md`
+- `0702` — devtools: Implementar la interacción y estados visuales en Qt: network request viewer — `docs/rules/01-modules/devtools/micro/0702-network-request-viewer/task.md`
+- `0703` — devtools: Probar casos positivos, negativos y recuperación: network request viewer — `docs/rules/01-modules/devtools/micro/0703-network-request-viewer/task.md`
+- `0704` — devtools: Definir el comportamiento y las invariantes: console privacy policy — `docs/rules/01-modules/devtools/micro/0704-console-privacy-policy/task.md`
+- `0705` — extensions: Definir el comportamiento y las invariantes: extension manager UI — `docs/rules/01-modules/extensions/micro/0705-extension-manager-ui/task.md`
+- `0706` — extensions: Implementar la operación en una capa propietaria: extension manager UI — `docs/rules/01-modules/extensions/micro/0706-extension-manager-ui/task.md`
+- `0707` — extensions: Implementar la interacción y estados visuales en Qt: extension manager UI — `docs/rules/01-modules/extensions/micro/0707-extension-manager-ui/task.md`
+- `0708` — extensions: Probar casos positivos, negativos y recuperación: extension manager UI — `docs/rules/01-modules/extensions/micro/0708-extension-manager-ui/task.md`
+- `0709` — extensions: Definir el comportamiento y las invariantes: MV3 discovery — `docs/rules/01-modules/extensions/micro/0709-mv3-discovery/task.md`
+- `0710` — extensions: Implementar la operación en una capa propietaria: MV3 discovery — `docs/rules/01-modules/extensions/micro/0710-mv3-discovery/task.md`
+- `0711` — extensions: Implementar la interacción y estados visuales en Qt: MV3 discovery — `docs/rules/01-modules/extensions/micro/0711-mv3-discovery/task.md`
+- `0712` — extensions: Probar casos positivos, negativos y recuperación: MV3 discovery — `docs/rules/01-modules/extensions/micro/0712-mv3-discovery/task.md`
+- `0713` — extensions: Definir el comportamiento y las invariantes: extension install local — `docs/rules/01-modules/extensions/micro/0713-extension-install-local/task.md`
+- `0714` — extensions: Implementar la operación en una capa propietaria: extension install local — `docs/rules/01-modules/extensions/micro/0714-extension-install-local/task.md`
+- `0715` — extensions: Implementar la interacción y estados visuales en Qt: extension install local — `docs/rules/01-modules/extensions/micro/0715-extension-install-local/task.md`
+- `0716` — extensions: Probar casos positivos, negativos y recuperación: extension install local — `docs/rules/01-modules/extensions/micro/0716-extension-install-local/task.md`
+- `0717` — extensions: Definir el comportamiento y las invariantes: extension uninstall — `docs/rules/01-modules/extensions/micro/0717-extension-uninstall/task.md`
+- `0718` — extensions: Implementar la operación en una capa propietaria: extension uninstall — `docs/rules/01-modules/extensions/micro/0718-extension-uninstall/task.md`
+- `0719` — extensions: Implementar la interacción y estados visuales en Qt: extension uninstall — `docs/rules/01-modules/extensions/micro/0719-extension-uninstall/task.md`
+- `0720` — extensions: Probar casos positivos, negativos y recuperación: extension uninstall — `docs/rules/01-modules/extensions/micro/0720-extension-uninstall/task.md`
+- `0721` — extensions: Definir el comportamiento y las invariantes: extension enable disable — `docs/rules/01-modules/extensions/micro/0721-extension-enable-disable/task.md`
+- `0722` — extensions: Implementar la operación en una capa propietaria: extension enable disable — `docs/rules/01-modules/extensions/micro/0722-extension-enable-disable/task.md`
+- `0723` — extensions: Implementar la interacción y estados visuales en Qt: extension enable disable — `docs/rules/01-modules/extensions/micro/0723-extension-enable-disable/task.md`
+- `0724` — extensions: Probar casos positivos, negativos y recuperación: extension enable disable — `docs/rules/01-modules/extensions/micro/0724-extension-enable-disable/task.md`
+- `0725` — extensions: Definir el comportamiento y las invariantes: extension permission review — `docs/rules/01-modules/extensions/micro/0725-extension-permission-review/task.md`
+- `0726` — extensions: Implementar la operación en una capa propietaria: extension permission review — `docs/rules/01-modules/extensions/micro/0726-extension-permission-review/task.md`
+- `0727` — extensions: Implementar la interacción y estados visuales en Qt: extension permission review — `docs/rules/01-modules/extensions/micro/0727-extension-permission-review/task.md`
+- `0728` — extensions: Probar casos positivos, negativos y recuperación: extension permission review — `docs/rules/01-modules/extensions/micro/0728-extension-permission-review/task.md`
+- `0729` — extensions: Definir el comportamiento y las invariantes: extension capability warnings — `docs/rules/01-modules/extensions/micro/0729-extension-capability-warnings/task.md`
+- `0730` — extensions: Implementar la operación en una capa propietaria: extension capability warnings — `docs/rules/01-modules/extensions/micro/0730-extension-capability-warnings/task.md`
+- `0731` — mcp: Definir el comportamiento y las invariantes: MCP disabled default — `docs/rules/01-modules/mcp/micro/0731-mcp-disabled-default/task.md`
+- `0732` — mcp: Implementar la operación en una capa propietaria: MCP disabled default — `docs/rules/01-modules/mcp/micro/0732-mcp-disabled-default/task.md`
+- `0733` — mcp: Implementar la interacción y estados visuales en Qt: MCP disabled default — `docs/rules/01-modules/mcp/micro/0733-mcp-disabled-default/task.md`
+- `0734` — mcp: Probar casos positivos, negativos y recuperación: MCP disabled default — `docs/rules/01-modules/mcp/micro/0734-mcp-disabled-default/task.md`
+- `0735` — mcp: Definir el comportamiento y las invariantes: stdio bridge lifecycle — `docs/rules/01-modules/mcp/micro/0735-stdio-bridge-lifecycle/task.md`
+- `0736` — mcp: Implementar la operación en una capa propietaria: stdio bridge lifecycle — `docs/rules/01-modules/mcp/micro/0736-stdio-bridge-lifecycle/task.md`
+- `0737` — mcp: Implementar la interacción y estados visuales en Qt: stdio bridge lifecycle — `docs/rules/01-modules/mcp/micro/0737-stdio-bridge-lifecycle/task.md`
+- `0738` — mcp: Probar casos positivos, negativos y recuperación: stdio bridge lifecycle — `docs/rules/01-modules/mcp/micro/0738-stdio-bridge-lifecycle/task.md`
+- `0739` — mcp: Definir el comportamiento y las invariantes: IPC authentication — `docs/rules/01-modules/mcp/micro/0739-ipc-authentication/task.md`
+- `0740` — mcp: Implementar la operación en una capa propietaria: IPC authentication — `docs/rules/01-modules/mcp/micro/0740-ipc-authentication/task.md`
+- `0741` — mcp: Implementar la interacción y estados visuales en Qt: IPC authentication — `docs/rules/01-modules/mcp/micro/0741-ipc-authentication/task.md`
+- `0742` — mcp: Probar casos positivos, negativos y recuperación: IPC authentication — `docs/rules/01-modules/mcp/micro/0742-ipc-authentication/task.md`
+- `0743` — mcp: Definir el comportamiento y las invariantes: tool discovery — `docs/rules/01-modules/mcp/micro/0743-tool-discovery/task.md`
+- `0744` — mcp: Implementar la operación en una capa propietaria: tool discovery — `docs/rules/01-modules/mcp/micro/0744-tool-discovery/task.md`
+- `0745` — mcp: Implementar la interacción y estados visuales en Qt: tool discovery — `docs/rules/01-modules/mcp/micro/0745-tool-discovery/task.md`
+- `0746` — mcp: Probar casos positivos, negativos y recuperación: tool discovery — `docs/rules/01-modules/mcp/micro/0746-tool-discovery/task.md`
+- `0747` — mcp: Definir el comportamiento y las invariantes: list tabs tool — `docs/rules/01-modules/mcp/micro/0747-list-tabs-tool/task.md`
+- `0748` — mcp: Implementar la operación en una capa propietaria: list tabs tool — `docs/rules/01-modules/mcp/micro/0748-list-tabs-tool/task.md`
+- `0749` — mcp: Implementar la interacción y estados visuales en Qt: list tabs tool — `docs/rules/01-modules/mcp/micro/0749-list-tabs-tool/task.md`
+- `0750` — mcp: Probar casos positivos, negativos y recuperación: list tabs tool — `docs/rules/01-modules/mcp/micro/0750-list-tabs-tool/task.md`
+- `0751` — mcp: Definir el comportamiento y las invariantes: active tab tool — `docs/rules/01-modules/mcp/micro/0751-active-tab-tool/task.md`
+- `0752` — mcp: Implementar la operación en una capa propietaria: active tab tool — `docs/rules/01-modules/mcp/micro/0752-active-tab-tool/task.md`
+- `0753` — mcp: Implementar la interacción y estados visuales en Qt: active tab tool — `docs/rules/01-modules/mcp/micro/0753-active-tab-tool/task.md`
+- `0754` — mcp: Probar casos positivos, negativos y recuperación: active tab tool — `docs/rules/01-modules/mcp/micro/0754-active-tab-tool/task.md`
+- `0755` — mcp: Definir el comportamiento y las invariantes: read page tool — `docs/rules/01-modules/mcp/micro/0755-read-page-tool/task.md`
+- `0756` — mcp: Implementar la operación en una capa propietaria: read page tool — `docs/rules/01-modules/mcp/micro/0756-read-page-tool/task.md`
+- `0757` — mcp: Implementar la interacción y estados visuales en Qt: read page tool — `docs/rules/01-modules/mcp/micro/0757-read-page-tool/task.md`
+- `0758` — mcp: Probar casos positivos, negativos y recuperación: read page tool — `docs/rules/01-modules/mcp/micro/0758-read-page-tool/task.md`
+- `0759` — mcp: Definir el comportamiento y las invariantes: get links tool — `docs/rules/01-modules/mcp/micro/0759-get-links-tool/task.md`
+- `0760` — mcp: Implementar la operación en una capa propietaria: get links tool — `docs/rules/01-modules/mcp/micro/0760-get-links-tool/task.md`
+- `0761` — mcp: Implementar la interacción y estados visuales en Qt: get links tool — `docs/rules/01-modules/mcp/micro/0761-get-links-tool/task.md`
+- `0762` — mcp: Probar casos positivos, negativos y recuperación: get links tool — `docs/rules/01-modules/mcp/micro/0762-get-links-tool/task.md`
+- `0763` — mcp: Definir el comportamiento y las invariantes: open tab tool — `docs/rules/01-modules/mcp/micro/0763-open-tab-tool/task.md`
+- `0764` — mcp: Implementar la operación en una capa propietaria: open tab tool — `docs/rules/01-modules/mcp/micro/0764-open-tab-tool/task.md`
+- `0765` — mcp: Implementar la interacción y estados visuales en Qt: open tab tool — `docs/rules/01-modules/mcp/micro/0765-open-tab-tool/task.md`
+- `0766` — mcp: Probar casos positivos, negativos y recuperación: open tab tool — `docs/rules/01-modules/mcp/micro/0766-open-tab-tool/task.md`
+- `0767` — mcp: Definir el comportamiento y las invariantes: search tabs tool — `docs/rules/01-modules/mcp/micro/0767-search-tabs-tool/task.md`
+- `0768` — mcp: Implementar la operación en una capa propietaria: search tabs tool — `docs/rules/01-modules/mcp/micro/0768-search-tabs-tool/task.md`
+- `0769` — mcp: Implementar la interacción y estados visuales en Qt: search tabs tool — `docs/rules/01-modules/mcp/micro/0769-search-tabs-tool/task.md`
+- `0770` — mcp: Probar casos positivos, negativos y recuperación: search tabs tool — `docs/rules/01-modules/mcp/micro/0770-search-tabs-tool/task.md`
+- `0771` — mcp: Definir el comportamiento y las invariantes: capture page tool — `docs/rules/01-modules/mcp/micro/0771-capture-page-tool/task.md`
+- `0772` — mcp: Implementar la operación en una capa propietaria: capture page tool — `docs/rules/01-modules/mcp/micro/0772-capture-page-tool/task.md`
+- `0773` — mcp: Implementar la interacción y estados visuales en Qt: capture page tool — `docs/rules/01-modules/mcp/micro/0773-capture-page-tool/task.md`
+- `0774` — mcp: Probar casos positivos, negativos y recuperación: capture page tool — `docs/rules/01-modules/mcp/micro/0774-capture-page-tool/task.md`
+- `0775` — mcp: Definir el comportamiento y las invariantes: click element tool — `docs/rules/01-modules/mcp/micro/0775-click-element-tool/task.md`
+- `0776` — mcp: Implementar la operación en una capa propietaria: click element tool — `docs/rules/01-modules/mcp/micro/0776-click-element-tool/task.md`
+- `0777` — mcp: Implementar la interacción y estados visuales en Qt: click element tool — `docs/rules/01-modules/mcp/micro/0777-click-element-tool/task.md`
+- `0778` — mcp: Probar casos positivos, negativos y recuperación: click element tool — `docs/rules/01-modules/mcp/micro/0778-click-element-tool/task.md`
+- `0779` — mcp: Definir el comportamiento y las invariantes: type text tool — `docs/rules/01-modules/mcp/micro/0779-type-text-tool/task.md`
+- `0780` — mcp: Implementar la operación en una capa propietaria: type text tool — `docs/rules/01-modules/mcp/micro/0780-type-text-tool/task.md`
+- `0781` — mcp: Implementar la interacción y estados visuales en Qt: type text tool — `docs/rules/01-modules/mcp/micro/0781-type-text-tool/task.md`
+- `0782` — mcp: Probar casos positivos, negativos y recuperación: type text tool — `docs/rules/01-modules/mcp/micro/0782-type-text-tool/task.md`
+- `0783` — diagnostics: Definir el comportamiento y las invariantes: local structured logs — `docs/rules/01-modules/diagnostics/micro/0783-local-structured-logs/task.md`
+- `0784` — diagnostics: Implementar la operación en una capa propietaria: local structured logs — `docs/rules/01-modules/diagnostics/micro/0784-local-structured-logs/task.md`
+- `0785` — diagnostics: Implementar la interacción y estados visuales en Qt: local structured logs — `docs/rules/01-modules/diagnostics/micro/0785-local-structured-logs/task.md`
+- `0786` — diagnostics: Probar casos positivos, negativos y recuperación: local structured logs — `docs/rules/01-modules/diagnostics/micro/0786-local-structured-logs/task.md`
+- `0787` — diagnostics: Definir el comportamiento y las invariantes: log category toggles — `docs/rules/01-modules/diagnostics/micro/0787-log-category-toggles/task.md`
+- `0788` — diagnostics: Implementar la operación en una capa propietaria: log category toggles — `docs/rules/01-modules/diagnostics/micro/0788-log-category-toggles/task.md`
+- `0789` — diagnostics: Implementar la interacción y estados visuales en Qt: log category toggles — `docs/rules/01-modules/diagnostics/micro/0789-log-category-toggles/task.md`
+- `0790` — diagnostics: Probar casos positivos, negativos y recuperación: log category toggles — `docs/rules/01-modules/diagnostics/micro/0790-log-category-toggles/task.md`
+- `0791` — diagnostics: Definir el comportamiento y las invariantes: log rotation — `docs/rules/01-modules/diagnostics/micro/0791-log-rotation/task.md`
+- `0792` — diagnostics: Implementar la operación en una capa propietaria: log rotation — `docs/rules/01-modules/diagnostics/micro/0792-log-rotation/task.md`
+- `0793` — diagnostics: Implementar la interacción y estados visuales en Qt: log rotation — `docs/rules/01-modules/diagnostics/micro/0793-log-rotation/task.md`
+- `0794` — diagnostics: Probar casos positivos, negativos y recuperación: log rotation — `docs/rules/01-modules/diagnostics/micro/0794-log-rotation/task.md`
+- `0795` — diagnostics: Definir el comportamiento y las invariantes: log retention — `docs/rules/01-modules/diagnostics/micro/0795-log-retention/task.md`
+- `0796` — diagnostics: Implementar la operación en una capa propietaria: log retention — `docs/rules/01-modules/diagnostics/micro/0796-log-retention/task.md`
+- `0797` — diagnostics: Implementar la interacción y estados visuales en Qt: log retention — `docs/rules/01-modules/diagnostics/micro/0797-log-retention/task.md`
+- `0798` — diagnostics: Probar casos positivos, negativos y recuperación: log retention — `docs/rules/01-modules/diagnostics/micro/0798-log-retention/task.md`
+- `0799` — diagnostics: Definir el comportamiento y las invariantes: PII redaction — `docs/rules/01-modules/diagnostics/micro/0799-pii-redaction/task.md`
+- `0800` — diagnostics: Implementar la operación en una capa propietaria: PII redaction — `docs/rules/01-modules/diagnostics/micro/0800-pii-redaction/task.md`
+- `0801` — diagnostics: Implementar la interacción y estados visuales en Qt: PII redaction — `docs/rules/01-modules/diagnostics/micro/0801-pii-redaction/task.md`
+- `0802` — diagnostics: Probar casos positivos, negativos y recuperación: PII redaction — `docs/rules/01-modules/diagnostics/micro/0802-pii-redaction/task.md`
+- `0803` — diagnostics: Definir el comportamiento y las invariantes: crash dump opt in — `docs/rules/01-modules/diagnostics/micro/0803-crash-dump-opt-in/task.md`
+- `0804` — diagnostics: Implementar la operación en una capa propietaria: crash dump opt in — `docs/rules/01-modules/diagnostics/micro/0804-crash-dump-opt-in/task.md`
+- `0805` — diagnostics: Implementar la interacción y estados visuales en Qt: crash dump opt in — `docs/rules/01-modules/diagnostics/micro/0805-crash-dump-opt-in/task.md`
+- `0806` — diagnostics: Probar casos positivos, negativos y recuperación: crash dump opt in — `docs/rules/01-modules/diagnostics/micro/0806-crash-dump-opt-in/task.md`
+- `0807` — diagnostics: Definir el comportamiento y las invariantes: resource graphs — `docs/rules/01-modules/diagnostics/micro/0807-resource-graphs/task.md`
+- `0808` — diagnostics: Implementar la operación en una capa propietaria: resource graphs — `docs/rules/01-modules/diagnostics/micro/0808-resource-graphs/task.md`
+- `0809` — diagnostics: Implementar la interacción y estados visuales en Qt: resource graphs — `docs/rules/01-modules/diagnostics/micro/0809-resource-graphs/task.md`
+- `0810` — diagnostics: Probar casos positivos, negativos y recuperación: resource graphs — `docs/rules/01-modules/diagnostics/micro/0810-resource-graphs/task.md`
+- `0811` — backup: Definir el comportamiento y las invariantes: settings JSON export — `docs/rules/01-modules/backup/micro/0811-settings-json-export/task.md`
+- `0812` — backup: Implementar la operación en una capa propietaria: settings JSON export — `docs/rules/01-modules/backup/micro/0812-settings-json-export/task.md`
+- `0813` — backup: Implementar la interacción y estados visuales en Qt: settings JSON export — `docs/rules/01-modules/backup/micro/0813-settings-json-export/task.md`
+- `0814` — backup: Probar casos positivos, negativos y recuperación: settings JSON export — `docs/rules/01-modules/backup/micro/0814-settings-json-export/task.md`
+- `0815` — backup: Definir el comportamiento y las invariantes: bookmarks export — `docs/rules/01-modules/backup/micro/0815-bookmarks-export/task.md`
+- `0816` — backup: Implementar la operación en una capa propietaria: bookmarks export — `docs/rules/01-modules/backup/micro/0816-bookmarks-export/task.md`
+- `0817` — backup: Implementar la interacción y estados visuales en Qt: bookmarks export — `docs/rules/01-modules/backup/micro/0817-bookmarks-export/task.md`
+- `0818` — backup: Probar casos positivos, negativos y recuperación: bookmarks export — `docs/rules/01-modules/backup/micro/0818-bookmarks-export/task.md`
+- `0819` — backup: Definir el comportamiento y las invariantes: sessions export — `docs/rules/01-modules/backup/micro/0819-sessions-export/task.md`
+- `0820` — backup: Implementar la operación en una capa propietaria: sessions export — `docs/rules/01-modules/backup/micro/0820-sessions-export/task.md`
+- `0821` — backup: Implementar la interacción y estados visuales en Qt: sessions export — `docs/rules/01-modules/backup/micro/0821-sessions-export/task.md`
+- `0822` — backup: Probar casos positivos, negativos y recuperación: sessions export — `docs/rules/01-modules/backup/micro/0822-sessions-export/task.md`
+- `0823` — backup: Definir el comportamiento y las invariantes: encrypted backup design — `docs/rules/01-modules/backup/micro/0823-encrypted-backup-design/task.md`
+- `0824` — backup: Implementar la operación en una capa propietaria: encrypted backup design — `docs/rules/01-modules/backup/micro/0824-encrypted-backup-design/task.md`
+- `0825` — backup: Implementar la interacción y estados visuales en Qt: encrypted backup design — `docs/rules/01-modules/backup/micro/0825-encrypted-backup-design/task.md`
+- `0826` — backup: Probar casos positivos, negativos y recuperación: encrypted backup design — `docs/rules/01-modules/backup/micro/0826-encrypted-backup-design/task.md`
+- `0827` — backup: Definir el comportamiento y las invariantes: backup password UI — `docs/rules/01-modules/backup/micro/0827-backup-password-ui/task.md`
+- `0828` — backup: Implementar la operación en una capa propietaria: backup password UI — `docs/rules/01-modules/backup/micro/0828-backup-password-ui/task.md`
+- `0829` — backup: Implementar la interacción y estados visuales en Qt: backup password UI — `docs/rules/01-modules/backup/micro/0829-backup-password-ui/task.md`
+- `0830` — backup: Probar casos positivos, negativos y recuperación: backup password UI — `docs/rules/01-modules/backup/micro/0830-backup-password-ui/task.md`
+- `0831` — backup: Definir el comportamiento y las invariantes: backup selection — `docs/rules/01-modules/backup/micro/0831-backup-selection/task.md`
+- `0832` — backup: Implementar la operación en una capa propietaria: backup selection — `docs/rules/01-modules/backup/micro/0832-backup-selection/task.md`
+- `0833` — backup: Implementar la interacción y estados visuales en Qt: backup selection — `docs/rules/01-modules/backup/micro/0833-backup-selection/task.md`
+- `0834` — backup: Probar casos positivos, negativos y recuperación: backup selection — `docs/rules/01-modules/backup/micro/0834-backup-selection/task.md`
+- `0835` — backup: Definir el comportamiento y las invariantes: backup atomic write — `docs/rules/01-modules/backup/micro/0835-backup-atomic-write/task.md`
+- `0836` — backup: Implementar la operación en una capa propietaria: backup atomic write — `docs/rules/01-modules/backup/micro/0836-backup-atomic-write/task.md`
+- `0837` — backup: Implementar la interacción y estados visuales en Qt: backup atomic write — `docs/rules/01-modules/backup/micro/0837-backup-atomic-write/task.md`
+- `0838` — backup: Probar casos positivos, negativos y recuperación: backup atomic write — `docs/rules/01-modules/backup/micro/0838-backup-atomic-write/task.md`
+- `0839` — backup: Definir el comportamiento y las invariantes: backup integrity check — `docs/rules/01-modules/backup/micro/0839-backup-integrity-check/task.md`
+- `0840` — backup: Implementar la operación en una capa propietaria: backup integrity check — `docs/rules/01-modules/backup/micro/0840-backup-integrity-check/task.md`
+- `0841` — backup: Implementar la interacción y estados visuales en Qt: backup integrity check — `docs/rules/01-modules/backup/micro/0841-backup-integrity-check/task.md`
+- `0842` — installer: Definir el comportamiento y las invariantes: Windows setup welcome — `docs/rules/01-modules/installer/micro/0842-windows-setup-welcome/task.md`
+- `0843` — installer: Implementar la operación en una capa propietaria: Windows setup welcome — `docs/rules/01-modules/installer/micro/0843-windows-setup-welcome/task.md`
+- `0844` — installer: Implementar la interacción y estados visuales en Qt: Windows setup welcome — `docs/rules/01-modules/installer/micro/0844-windows-setup-welcome/task.md`
+- `0845` — installer: Probar casos positivos, negativos y recuperación: Windows setup welcome — `docs/rules/01-modules/installer/micro/0845-windows-setup-welcome/task.md`
+- `0846` — installer: Definir el comportamiento y las invariantes: Windows installation path — `docs/rules/01-modules/installer/micro/0846-windows-installation-path/task.md`
+- `0847` — installer: Implementar la operación en una capa propietaria: Windows installation path — `docs/rules/01-modules/installer/micro/0847-windows-installation-path/task.md`
+- `0848` — installer: Implementar la interacción y estados visuales en Qt: Windows installation path — `docs/rules/01-modules/installer/micro/0848-windows-installation-path/task.md`
+- `0849` — installer: Probar casos positivos, negativos y recuperación: Windows installation path — `docs/rules/01-modules/installer/micro/0849-windows-installation-path/task.md`
+- `0850` — installer: Definir el comportamiento y las invariantes: Windows component selection — `docs/rules/01-modules/installer/micro/0850-windows-component-selection/task.md`
+- `0851` — installer: Implementar la operación en una capa propietaria: Windows component selection — `docs/rules/01-modules/installer/micro/0851-windows-component-selection/task.md`
+- `0852` — installer: Implementar la interacción y estados visuales en Qt: Windows component selection — `docs/rules/01-modules/installer/micro/0852-windows-component-selection/task.md`
+- `0853` — installer: Probar casos positivos, negativos y recuperación: Windows component selection — `docs/rules/01-modules/installer/micro/0853-windows-component-selection/task.md`
+- `0854` — installer: Definir el comportamiento y las invariantes: Windows progress UI — `docs/rules/01-modules/installer/micro/0854-windows-progress-ui/task.md`
+- `0855` — installer: Implementar la operación en una capa propietaria: Windows progress UI — `docs/rules/01-modules/installer/micro/0855-windows-progress-ui/task.md`
+- `0856` — installer: Implementar la interacción y estados visuales en Qt: Windows progress UI — `docs/rules/01-modules/installer/micro/0856-windows-progress-ui/task.md`
+- `0857` — installer: Probar casos positivos, negativos y recuperación: Windows progress UI — `docs/rules/01-modules/installer/micro/0857-windows-progress-ui/task.md`
+- `0858` — installer: Definir el comportamiento y las invariantes: Windows failure rollback — `docs/rules/01-modules/installer/micro/0858-windows-failure-rollback/task.md`
+- `0859` — installer: Implementar la operación en una capa propietaria: Windows failure rollback — `docs/rules/01-modules/installer/micro/0859-windows-failure-rollback/task.md`
+- `0860` — installer: Implementar la interacción y estados visuales en Qt: Windows failure rollback — `docs/rules/01-modules/installer/micro/0860-windows-failure-rollback/task.md`
+- `0861` — installer: Probar casos positivos, negativos y recuperación: Windows failure rollback — `docs/rules/01-modules/installer/micro/0861-windows-failure-rollback/task.md`
+- `0862` — installer: Definir el comportamiento y las invariantes: Windows uninstaller export — `docs/rules/01-modules/installer/micro/0862-windows-uninstaller-export/task.md`
+- `0863` — installer: Implementar la operación en una capa propietaria: Windows uninstaller export — `docs/rules/01-modules/installer/micro/0863-windows-uninstaller-export/task.md`
+- `0864` — installer: Implementar la interacción y estados visuales en Qt: Windows uninstaller export — `docs/rules/01-modules/installer/micro/0864-windows-uninstaller-export/task.md`
+- `0865` — installer: Probar casos positivos, negativos y recuperación: Windows uninstaller export — `docs/rules/01-modules/installer/micro/0865-windows-uninstaller-export/task.md`
+- `0866` — installer: Definir el comportamiento y las invariantes: Windows uninstaller retain data — `docs/rules/01-modules/installer/micro/0866-windows-uninstaller-retain-data/task.md`
+- `0867` — installer: Implementar la operación en una capa propietaria: Windows uninstaller retain data — `docs/rules/01-modules/installer/micro/0867-windows-uninstaller-retain-data/task.md`
+- `0868` — installer: Implementar la interacción y estados visuales en Qt: Windows uninstaller retain data — `docs/rules/01-modules/installer/micro/0868-windows-uninstaller-retain-data/task.md`
+- `0869` — installer: Probar casos positivos, negativos y recuperación: Windows uninstaller retain data — `docs/rules/01-modules/installer/micro/0869-windows-uninstaller-retain-data/task.md`
+- `0870` — installer: Definir el comportamiento y las invariantes: Windows uninstaller wipe confirmation — `docs/rules/01-modules/installer/micro/0870-windows-uninstaller-wipe-confirmation/task.md`
+- `0871` — installer: Implementar la operación en una capa propietaria: Windows uninstaller wipe confirmation — `docs/rules/01-modules/installer/micro/0871-windows-uninstaller-wipe-confirmation/task.md`
+- `0872` — installer: Implementar la interacción y estados visuales en Qt: Windows uninstaller wipe confirmation — `docs/rules/01-modules/installer/micro/0872-windows-uninstaller-wipe-confirmation/task.md`
+- `0873` — installer: Probar casos positivos, negativos y recuperación: Windows uninstaller wipe confirmation — `docs/rules/01-modules/installer/micro/0873-windows-uninstaller-wipe-confirmation/task.md`
+- `0874` — installer: Definir el comportamiento y las invariantes: Linux deb packaging — `docs/rules/01-modules/installer/micro/0874-linux-deb-packaging/task.md`
+- `0875` — installer: Implementar la operación en una capa propietaria: Linux deb packaging — `docs/rules/01-modules/installer/micro/0875-linux-deb-packaging/task.md`
+- `0876` — installer: Implementar la interacción y estados visuales en Qt: Linux deb packaging — `docs/rules/01-modules/installer/micro/0876-linux-deb-packaging/task.md`
+- `0877` — installer: Probar casos positivos, negativos y recuperación: Linux deb packaging — `docs/rules/01-modules/installer/micro/0877-linux-deb-packaging/task.md`
+- `0878` — installer: Definir el comportamiento y las invariantes: Linux AppImage bundling — `docs/rules/01-modules/installer/micro/0878-linux-appimage-bundling/task.md`
+- `0879` — installer: Implementar la operación en una capa propietaria: Linux AppImage bundling — `docs/rules/01-modules/installer/micro/0879-linux-appimage-bundling/task.md`
+- `0880` — installer: Implementar la interacción y estados visuales en Qt: Linux AppImage bundling — `docs/rules/01-modules/installer/micro/0880-linux-appimage-bundling/task.md`
+- `0881` — installer: Probar casos positivos, negativos y recuperación: Linux AppImage bundling — `docs/rules/01-modules/installer/micro/0881-linux-appimage-bundling/task.md`
+- `0882` — installer: Definir el comportamiento y las invariantes: macOS bundle metadata — `docs/rules/01-modules/installer/micro/0882-macos-bundle-metadata/task.md`
+- `0883` — installer: Implementar la operación en una capa propietaria: macOS bundle metadata — `docs/rules/01-modules/installer/micro/0883-macos-bundle-metadata/task.md`
+- `0884` — installer: Implementar la interacción y estados visuales en Qt: macOS bundle metadata — `docs/rules/01-modules/installer/micro/0884-macos-bundle-metadata/task.md`
+- `0885` — installer: Probar casos positivos, negativos y recuperación: macOS bundle metadata — `docs/rules/01-modules/installer/micro/0885-macos-bundle-metadata/task.md`
+- `0886` — installer: Definir el comportamiento y las invariantes: macOS DMG layout — `docs/rules/01-modules/installer/micro/0886-macos-dmg-layout/task.md`
+- `0887` — installer: Implementar la operación en una capa propietaria: macOS DMG layout — `docs/rules/01-modules/installer/micro/0887-macos-dmg-layout/task.md`
+- `0888` — installer: Implementar la interacción y estados visuales en Qt: macOS DMG layout — `docs/rules/01-modules/installer/micro/0888-macos-dmg-layout/task.md`
+- `0889` — accessibility: Definir el comportamiento y las invariantes: WCAG contrast audit — `docs/rules/01-modules/accessibility/micro/0889-wcag-contrast-audit/task.md`
+- `0890` — accessibility: Implementar la operación en una capa propietaria: WCAG contrast audit — `docs/rules/01-modules/accessibility/micro/0890-wcag-contrast-audit/task.md`
+- `0891` — accessibility: Implementar la interacción y estados visuales en Qt: WCAG contrast audit — `docs/rules/01-modules/accessibility/micro/0891-wcag-contrast-audit/task.md`
+- `0892` — accessibility: Probar casos positivos, negativos y recuperación: WCAG contrast audit — `docs/rules/01-modules/accessibility/micro/0892-wcag-contrast-audit/task.md`
+- `0893` — accessibility: Definir el comportamiento y las invariantes: keyboard-only paths — `docs/rules/01-modules/accessibility/micro/0893-keyboard-only-paths/task.md`
+- `0894` — accessibility: Implementar la operación en una capa propietaria: keyboard-only paths — `docs/rules/01-modules/accessibility/micro/0894-keyboard-only-paths/task.md`
+- `0895` — accessibility: Implementar la interacción y estados visuales en Qt: keyboard-only paths — `docs/rules/01-modules/accessibility/micro/0895-keyboard-only-paths/task.md`
+- `0896` — accessibility: Probar casos positivos, negativos y recuperación: keyboard-only paths — `docs/rules/01-modules/accessibility/micro/0896-keyboard-only-paths/task.md`
+- `0897` — accessibility: Definir el comportamiento y las invariantes: screen reader Windows — `docs/rules/01-modules/accessibility/micro/0897-screen-reader-windows/task.md`
+- `0898` — accessibility: Implementar la operación en una capa propietaria: screen reader Windows — `docs/rules/01-modules/accessibility/micro/0898-screen-reader-windows/task.md`
+- `0899` — accessibility: Implementar la interacción y estados visuales en Qt: screen reader Windows — `docs/rules/01-modules/accessibility/micro/0899-screen-reader-windows/task.md`
+- `0900` — accessibility: Probar casos positivos, negativos y recuperación: screen reader Windows — `docs/rules/01-modules/accessibility/micro/0900-screen-reader-windows/task.md`
+- `0901` — accessibility: Definir el comportamiento y las invariantes: screen reader macOS — `docs/rules/01-modules/accessibility/micro/0901-screen-reader-macos/task.md`
+- `0902` — accessibility: Implementar la operación en una capa propietaria: screen reader macOS — `docs/rules/01-modules/accessibility/micro/0902-screen-reader-macos/task.md`
+- `0903` — accessibility: Implementar la interacción y estados visuales en Qt: screen reader macOS — `docs/rules/01-modules/accessibility/micro/0903-screen-reader-macos/task.md`
+- `0904` — accessibility: Probar casos positivos, negativos y recuperación: screen reader macOS — `docs/rules/01-modules/accessibility/micro/0904-screen-reader-macos/task.md`
+- `0905` — accessibility: Definir el comportamiento y las invariantes: screen reader Linux — `docs/rules/01-modules/accessibility/micro/0905-screen-reader-linux/task.md`
+- `0906` — accessibility: Implementar la operación en una capa propietaria: screen reader Linux — `docs/rules/01-modules/accessibility/micro/0906-screen-reader-linux/task.md`
+- `0907` — accessibility: Implementar la interacción y estados visuales en Qt: screen reader Linux — `docs/rules/01-modules/accessibility/micro/0907-screen-reader-linux/task.md`
+- `0908` — accessibility: Probar casos positivos, negativos y recuperación: screen reader Linux — `docs/rules/01-modules/accessibility/micro/0908-screen-reader-linux/task.md`
+- `0909` — accessibility: Definir el comportamiento y las invariantes: focus order — `docs/rules/01-modules/accessibility/micro/0909-focus-order/task.md`
+- `0910` — accessibility: Implementar la operación en una capa propietaria: focus order — `docs/rules/01-modules/accessibility/micro/0910-focus-order/task.md`
+- `0911` — accessibility: Implementar la interacción y estados visuales en Qt: focus order — `docs/rules/01-modules/accessibility/micro/0911-focus-order/task.md`
+- `0912` — accessibility: Probar casos positivos, negativos y recuperación: focus order — `docs/rules/01-modules/accessibility/micro/0912-focus-order/task.md`
+- `0913` — accessibility: Definir el comportamiento y las invariantes: error announcement — `docs/rules/01-modules/accessibility/micro/0913-error-announcement/task.md`
+- `0914` — accessibility: Implementar la operación en una capa propietaria: error announcement — `docs/rules/01-modules/accessibility/micro/0914-error-announcement/task.md`
+- `0915` — accessibility: Implementar la interacción y estados visuales en Qt: error announcement — `docs/rules/01-modules/accessibility/micro/0915-error-announcement/task.md`
+- `0916` — accessibility: Probar casos positivos, negativos y recuperación: error announcement — `docs/rules/01-modules/accessibility/micro/0916-error-announcement/task.md`
+- `0917` — security: Definir el comportamiento y las invariantes: sandbox enforcement — `docs/rules/01-modules/security/micro/0917-sandbox-enforcement/task.md`
+- `0918` — security: Implementar la operación en una capa propietaria: sandbox enforcement — `docs/rules/01-modules/security/micro/0918-sandbox-enforcement/task.md`
+- `0919` — security: Implementar la interacción y estados visuales en Qt: sandbox enforcement — `docs/rules/01-modules/security/micro/0919-sandbox-enforcement/task.md`
+- `0920` — security: Probar casos positivos, negativos y recuperación: sandbox enforcement — `docs/rules/01-modules/security/micro/0920-sandbox-enforcement/task.md`
+- `0921` — security: Definir el comportamiento y las invariantes: WebEngine profile isolation — `docs/rules/01-modules/security/micro/0921-webengine-profile-isolation/task.md`
+- `0922` — security: Implementar la operación en una capa propietaria: WebEngine profile isolation — `docs/rules/01-modules/security/micro/0922-webengine-profile-isolation/task.md`
+- `0923` — security: Implementar la interacción y estados visuales en Qt: WebEngine profile isolation — `docs/rules/01-modules/security/micro/0923-webengine-profile-isolation/task.md`
+- `0924` — security: Probar casos positivos, negativos y recuperación: WebEngine profile isolation — `docs/rules/01-modules/security/micro/0924-webengine-profile-isolation/task.md`
+- `0925` — security: Definir el comportamiento y las invariantes: untrusted local file handling — `docs/rules/01-modules/security/micro/0925-untrusted-local-file-handling/task.md`
+- `0926` — security: Implementar la operación en una capa propietaria: untrusted local file handling — `docs/rules/01-modules/security/micro/0926-untrusted-local-file-handling/task.md`
+- `0927` — security: Implementar la interacción y estados visuales en Qt: untrusted local file handling — `docs/rules/01-modules/security/micro/0927-untrusted-local-file-handling/task.md`
+- `0928` — security: Probar casos positivos, negativos y recuperación: untrusted local file handling — `docs/rules/01-modules/security/micro/0928-untrusted-local-file-handling/task.md`
+- `0929` — security: Definir el comportamiento y las invariantes: safe URL parsing — `docs/rules/01-modules/security/micro/0929-safe-url-parsing/task.md`
+- `0930` — security: Implementar la operación en una capa propietaria: safe URL parsing — `docs/rules/01-modules/security/micro/0930-safe-url-parsing/task.md`
+- `0931` — security: Implementar la interacción y estados visuales en Qt: safe URL parsing — `docs/rules/01-modules/security/micro/0931-safe-url-parsing/task.md`
+- `0932` — security: Probar casos positivos, negativos y recuperación: safe URL parsing — `docs/rules/01-modules/security/micro/0932-safe-url-parsing/task.md`
+- `0933` — security: Definir el comportamiento y las invariantes: OS secret integration — `docs/rules/01-modules/security/micro/0933-os-secret-integration/task.md`
+- `0934` — security: Implementar la operación en una capa propietaria: OS secret integration — `docs/rules/01-modules/security/micro/0934-os-secret-integration/task.md`
+- `0935` — security: Implementar la interacción y estados visuales en Qt: OS secret integration — `docs/rules/01-modules/security/micro/0935-os-secret-integration/task.md`
+- `0936` — security: Probar casos positivos, negativos y recuperación: OS secret integration — `docs/rules/01-modules/security/micro/0936-os-secret-integration/task.md`
+- `0937` — security: Definir el comportamiento y las invariantes: site permissions — `docs/rules/01-modules/security/micro/0937-site-permissions/task.md`
+- `0938` — security: Implementar la operación en una capa propietaria: site permissions — `docs/rules/01-modules/security/micro/0938-site-permissions/task.md`
+- `0939` — security: Implementar la interacción y estados visuales en Qt: site permissions — `docs/rules/01-modules/security/micro/0939-site-permissions/task.md`
+- `0940` — security: Probar casos positivos, negativos y recuperación: site permissions — `docs/rules/01-modules/security/micro/0940-site-permissions/task.md`
+- `0941` — security: Definir el comportamiento y las invariantes: navigation phishing state — `docs/rules/01-modules/security/micro/0941-navigation-phishing-state/task.md`
+- `0942` — security: Implementar la operación en una capa propietaria: navigation phishing state — `docs/rules/01-modules/security/micro/0942-navigation-phishing-state/task.md`
+- `0943` — security: Implementar la interacción y estados visuales en Qt: navigation phishing state — `docs/rules/01-modules/security/micro/0943-navigation-phishing-state/task.md`
+- `0944` — security: Probar casos positivos, negativos y recuperación: navigation phishing state — `docs/rules/01-modules/security/micro/0944-navigation-phishing-state/task.md`
+- `0945` — security: Definir el comportamiento y las invariantes: dependency license checks — `docs/rules/01-modules/security/micro/0945-dependency-license-checks/task.md`
+- `0946` — security: Implementar la operación en una capa propietaria: dependency license checks — `docs/rules/01-modules/security/micro/0946-dependency-license-checks/task.md`
+- `0947` — security: Implementar la interacción y estados visuales en Qt: dependency license checks — `docs/rules/01-modules/security/micro/0947-dependency-license-checks/task.md`
+- `0948` — security: Probar casos positivos, negativos y recuperación: dependency license checks — `docs/rules/01-modules/security/micro/0948-dependency-license-checks/task.md`
+- `0949` — security: Definir el comportamiento y las invariantes: secure update validation — `docs/rules/01-modules/security/micro/0949-secure-update-validation/task.md`
+- `0950` — security: Implementar la operación en una capa propietaria: secure update validation — `docs/rules/01-modules/security/micro/0950-secure-update-validation/task.md`
+- `0951` — security: Implementar la interacción y estados visuales en Qt: secure update validation — `docs/rules/01-modules/security/micro/0951-secure-update-validation/task.md`
+- `0952` — performance-testing: Definir el comportamiento y las invariantes: unit test coverage — `docs/rules/01-modules/performance-testing/micro/0952-unit-test-coverage/task.md`
+- `0953` — performance-testing: Implementar la operación en una capa propietaria: unit test coverage — `docs/rules/01-modules/performance-testing/micro/0953-unit-test-coverage/task.md`
+- `0954` — performance-testing: Implementar la interacción y estados visuales en Qt: unit test coverage — `docs/rules/01-modules/performance-testing/micro/0954-unit-test-coverage/task.md`
+- `0955` — performance-testing: Probar casos positivos, negativos y recuperación: unit test coverage — `docs/rules/01-modules/performance-testing/micro/0955-unit-test-coverage/task.md`
+- `0956` — performance-testing: Definir el comportamiento y las invariantes: Qt signal tests — `docs/rules/01-modules/performance-testing/micro/0956-qt-signal-tests/task.md`
+- `0957` — performance-testing: Implementar la operación en una capa propietaria: Qt signal tests — `docs/rules/01-modules/performance-testing/micro/0957-qt-signal-tests/task.md`
+- `0958` — performance-testing: Implementar la interacción y estados visuales en Qt: Qt signal tests — `docs/rules/01-modules/performance-testing/micro/0958-qt-signal-tests/task.md`
+- `0959` — performance-testing: Probar casos positivos, negativos y recuperación: Qt signal tests — `docs/rules/01-modules/performance-testing/micro/0959-qt-signal-tests/task.md`
+- `0960` — performance-testing: Definir el comportamiento y las invariantes: SQLite integration tests — `docs/rules/01-modules/performance-testing/micro/0960-sqlite-integration-tests/task.md`
+- `0961` — performance-testing: Implementar la operación en una capa propietaria: SQLite integration tests — `docs/rules/01-modules/performance-testing/micro/0961-sqlite-integration-tests/task.md`
+- `0962` — performance-testing: Implementar la interacción y estados visuales en Qt: SQLite integration tests — `docs/rules/01-modules/performance-testing/micro/0962-sqlite-integration-tests/task.md`
+- `0963` — performance-testing: Probar casos positivos, negativos y recuperación: SQLite integration tests — `docs/rules/01-modules/performance-testing/micro/0963-sqlite-integration-tests/task.md`
+- `0964` — performance-testing: Definir el comportamiento y las invariantes: E2E smoke test — `docs/rules/01-modules/performance-testing/micro/0964-e2e-smoke-test/task.md`
+- `0965` — performance-testing: Implementar la operación en una capa propietaria: E2E smoke test — `docs/rules/01-modules/performance-testing/micro/0965-e2e-smoke-test/task.md`
+- `0966` — performance-testing: Implementar la interacción y estados visuales en Qt: E2E smoke test — `docs/rules/01-modules/performance-testing/micro/0966-e2e-smoke-test/task.md`
+- `0967` — performance-testing: Probar casos positivos, negativos y recuperación: E2E smoke test — `docs/rules/01-modules/performance-testing/micro/0967-e2e-smoke-test/task.md`
+- `0968` — performance-testing: Definir el comportamiento y las invariantes: E2E download flow — `docs/rules/01-modules/performance-testing/micro/0968-e2e-download-flow/task.md`
+- `0969` — performance-testing: Implementar la operación en una capa propietaria: E2E download flow — `docs/rules/01-modules/performance-testing/micro/0969-e2e-download-flow/task.md`
+- `0970` — performance-testing: Implementar la interacción y estados visuales en Qt: E2E download flow — `docs/rules/01-modules/performance-testing/micro/0970-e2e-download-flow/task.md`
+- `0971` — performance-testing: Probar casos positivos, negativos y recuperación: E2E download flow — `docs/rules/01-modules/performance-testing/micro/0971-e2e-download-flow/task.md`
+- `0972` — performance-testing: Definir el comportamiento y las invariantes: E2E restore flow — `docs/rules/01-modules/performance-testing/micro/0972-e2e-restore-flow/task.md`
+- `0973` — performance-testing: Implementar la operación en una capa propietaria: E2E restore flow — `docs/rules/01-modules/performance-testing/micro/0973-e2e-restore-flow/task.md`
+- `0974` — performance-testing: Implementar la interacción y estados visuales en Qt: E2E restore flow — `docs/rules/01-modules/performance-testing/micro/0974-e2e-restore-flow/task.md`
+- `0975` — performance-testing: Probar casos positivos, negativos y recuperación: E2E restore flow — `docs/rules/01-modules/performance-testing/micro/0975-e2e-restore-flow/task.md`
+- `0976` — performance-testing: Definir el comportamiento y las invariantes: E2E permission flow — `docs/rules/01-modules/performance-testing/micro/0976-e2e-permission-flow/task.md`
+- `0977` — performance-testing: Implementar la operación en una capa propietaria: E2E permission flow — `docs/rules/01-modules/performance-testing/micro/0977-e2e-permission-flow/task.md`
+- `0978` — performance-testing: Implementar la interacción y estados visuales en Qt: E2E permission flow — `docs/rules/01-modules/performance-testing/micro/0978-e2e-permission-flow/task.md`
+- `0979` — performance-testing: Probar casos positivos, negativos y recuperación: E2E permission flow — `docs/rules/01-modules/performance-testing/micro/0979-e2e-permission-flow/task.md`
+- `0980` — performance-testing: Definir el comportamiento y las invariantes: E2E installer flow — `docs/rules/01-modules/performance-testing/micro/0980-e2e-installer-flow/task.md`
+- `0981` — performance-testing: Implementar la operación en una capa propietaria: E2E installer flow — `docs/rules/01-modules/performance-testing/micro/0981-e2e-installer-flow/task.md`
+- `0982` — performance-testing: Implementar la interacción y estados visuales en Qt: E2E installer flow — `docs/rules/01-modules/performance-testing/micro/0982-e2e-installer-flow/task.md`
+- `0983` — performance-testing: Probar casos positivos, negativos y recuperación: E2E installer flow — `docs/rules/01-modules/performance-testing/micro/0983-e2e-installer-flow/task.md`
+- `0984` — performance-testing: Definir el comportamiento y las invariantes: E2E serial scheduling — `docs/rules/01-modules/performance-testing/micro/0984-e2e-serial-scheduling/task.md`
+- `0985` — performance-testing: Implementar la operación en una capa propietaria: E2E serial scheduling — `docs/rules/01-modules/performance-testing/micro/0985-e2e-serial-scheduling/task.md`
+- `0986` — performance-testing: Implementar la interacción y estados visuales en Qt: E2E serial scheduling — `docs/rules/01-modules/performance-testing/micro/0986-e2e-serial-scheduling/task.md`
+- `0987` — performance-testing: Probar casos positivos, negativos y recuperación: E2E serial scheduling — `docs/rules/01-modules/performance-testing/micro/0987-e2e-serial-scheduling/task.md`
+- `0988` — performance-testing: Definir el comportamiento y las invariantes: ASan configuration — `docs/rules/01-modules/performance-testing/micro/0988-asan-configuration/task.md`
+- `0989` — performance-testing: Implementar la operación en una capa propietaria: ASan configuration — `docs/rules/01-modules/performance-testing/micro/0989-asan-configuration/task.md`
+- `0990` — performance-testing: Implementar la interacción y estados visuales en Qt: ASan configuration — `docs/rules/01-modules/performance-testing/micro/0990-asan-configuration/task.md`
+- `0991` — performance-testing: Probar casos positivos, negativos y recuperación: ASan configuration — `docs/rules/01-modules/performance-testing/micro/0991-asan-configuration/task.md`
+- `0992` — performance-testing: Definir el comportamiento y las invariantes: UBSan configuration — `docs/rules/01-modules/performance-testing/micro/0992-ubsan-configuration/task.md`
+- `0993` — performance-testing: Implementar la operación en una capa propietaria: UBSan configuration — `docs/rules/01-modules/performance-testing/micro/0993-ubsan-configuration/task.md`
+- `0994` — performance-testing: Implementar la interacción y estados visuales en Qt: UBSan configuration — `docs/rules/01-modules/performance-testing/micro/0994-ubsan-configuration/task.md`
+- `0995` — performance-testing: Probar casos positivos, negativos y recuperación: UBSan configuration — `docs/rules/01-modules/performance-testing/micro/0995-ubsan-configuration/task.md`
+- `0996` — performance-testing: Definir el comportamiento y las invariantes: TSan independent job — `docs/rules/01-modules/performance-testing/micro/0996-tsan-independent-job/task.md`
+- `0997` — performance-testing: Implementar la operación en una capa propietaria: TSan independent job — `docs/rules/01-modules/performance-testing/micro/0997-tsan-independent-job/task.md`
+- `0998` — performance-testing: Implementar la interacción y estados visuales en Qt: TSan independent job — `docs/rules/01-modules/performance-testing/micro/0998-tsan-independent-job/task.md`
+- `0999` — performance-testing: Probar casos positivos, negativos y recuperación: TSan independent job — `docs/rules/01-modules/performance-testing/micro/0999-tsan-independent-job/task.md`
+- `1000` — performance-testing: Definir el comportamiento y las invariantes: fuzz URL input — `docs/rules/01-modules/performance-testing/micro/1000-fuzz-url-input/task.md`

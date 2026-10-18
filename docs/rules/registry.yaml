@@ -1,0 +1,2002 @@
+version: 1
+packs:
+  module.foundations.task0001:
+    path: 01-modules/foundations/micro/0001-cmake-targets/prompt-pack.yaml
+  module.foundations.task0002:
+    path: 01-modules/foundations/micro/0002-cmake-targets/prompt-pack.yaml
+  module.foundations.task0003:
+    path: 01-modules/foundations/micro/0003-cmake-targets/prompt-pack.yaml
+  module.foundations.task0004:
+    path: 01-modules/foundations/micro/0004-cmake-targets/prompt-pack.yaml
+  module.foundations.task0005:
+    path: 01-modules/foundations/micro/0005-compiler-warnings/prompt-pack.yaml
+  module.foundations.task0006:
+    path: 01-modules/foundations/micro/0006-compiler-warnings/prompt-pack.yaml
+  module.foundations.task0007:
+    path: 01-modules/foundations/micro/0007-compiler-warnings/prompt-pack.yaml
+  module.foundations.task0008:
+    path: 01-modules/foundations/micro/0008-compiler-warnings/prompt-pack.yaml
+  module.foundations.task0009:
+    path: 01-modules/foundations/micro/0009-qt-dependency-validation/prompt-pack.yaml
+  module.foundations.task0010:
+    path: 01-modules/foundations/micro/0010-qt-dependency-validation/prompt-pack.yaml
+  module.foundations.task0011:
+    path: 01-modules/foundations/micro/0011-qt-dependency-validation/prompt-pack.yaml
+  module.foundations.task0012:
+    path: 01-modules/foundations/micro/0012-qt-dependency-validation/prompt-pack.yaml
+  module.foundations.task0013:
+    path: 01-modules/foundations/micro/0013-webengine-version-compatibility/prompt-pack.yaml
+  module.foundations.task0014:
+    path: 01-modules/foundations/micro/0014-webengine-version-compatibility/prompt-pack.yaml
+  module.foundations.task0015:
+    path: 01-modules/foundations/micro/0015-webengine-version-compatibility/prompt-pack.yaml
+  module.foundations.task0016:
+    path: 01-modules/foundations/micro/0016-webengine-version-compatibility/prompt-pack.yaml
+  module.foundations.task0017:
+    path: 01-modules/foundations/micro/0017-resource-qrc-inclusion/prompt-pack.yaml
+  module.foundations.task0018:
+    path: 01-modules/foundations/micro/0018-resource-qrc-inclusion/prompt-pack.yaml
+  module.foundations.task0019:
+    path: 01-modules/foundations/micro/0019-resource-qrc-inclusion/prompt-pack.yaml
+  module.foundations.task0020:
+    path: 01-modules/foundations/micro/0020-resource-qrc-inclusion/prompt-pack.yaml
+  module.foundations.task0021:
+    path: 01-modules/foundations/micro/0021-startup-bootstrap/prompt-pack.yaml
+  module.foundations.task0022:
+    path: 01-modules/foundations/micro/0022-startup-bootstrap/prompt-pack.yaml
+  module.foundations.task0023:
+    path: 01-modules/foundations/micro/0023-startup-bootstrap/prompt-pack.yaml
+  module.foundations.task0024:
+    path: 01-modules/foundations/micro/0024-startup-bootstrap/prompt-pack.yaml
+  module.foundations.task0025:
+    path: 01-modules/foundations/micro/0025-application-lifetime/prompt-pack.yaml
+  module.foundations.task0026:
+    path: 01-modules/foundations/micro/0026-application-lifetime/prompt-pack.yaml
+  module.foundations.task0027:
+    path: 01-modules/foundations/micro/0027-application-lifetime/prompt-pack.yaml
+  module.foundations.task0028:
+    path: 01-modules/foundations/micro/0028-application-lifetime/prompt-pack.yaml
+  module.foundations.task0029:
+    path: 01-modules/foundations/micro/0029-crash-recovery-policy/prompt-pack.yaml
+  module.foundations.task0030:
+    path: 01-modules/foundations/micro/0030-crash-recovery-policy/prompt-pack.yaml
+  module.foundations.task0031:
+    path: 01-modules/foundations/micro/0031-crash-recovery-policy/prompt-pack.yaml
+  module.foundations.task0032:
+    path: 01-modules/foundations/micro/0032-crash-recovery-policy/prompt-pack.yaml
+  module.foundations.task0033:
+    path: 01-modules/foundations/micro/0033-cmake-presets/prompt-pack.yaml
+  module.foundations.task0034:
+    path: 01-modules/foundations/micro/0034-cmake-presets/prompt-pack.yaml
+  module.foundations.task0035:
+    path: 01-modules/foundations/micro/0035-cmake-presets/prompt-pack.yaml
+  module.foundations.task0036:
+    path: 01-modules/foundations/micro/0036-cmake-presets/prompt-pack.yaml
+  module.foundations.task0037:
+    path: 01-modules/foundations/micro/0037-test-fixture-foundation/prompt-pack.yaml
+  module.foundations.task0038:
+    path: 01-modules/foundations/micro/0038-test-fixture-foundation/prompt-pack.yaml
+  module.foundations.task0039:
+    path: 01-modules/foundations/micro/0039-test-fixture-foundation/prompt-pack.yaml
+  module.foundations.task0040:
+    path: 01-modules/foundations/micro/0040-test-fixture-foundation/prompt-pack.yaml
+  module.foundations.task0041:
+    path: 01-modules/foundations/micro/0041-clang-format-configuration/prompt-pack.yaml
+  module.foundations.task0042:
+    path: 01-modules/foundations/micro/0042-clang-format-configuration/prompt-pack.yaml
+  module.foundations.task0043:
+    path: 01-modules/foundations/micro/0043-clang-format-configuration/prompt-pack.yaml
+  module.foundations.task0044:
+    path: 01-modules/foundations/micro/0044-clang-format-configuration/prompt-pack.yaml
+  module.foundations.task0045:
+    path: 01-modules/foundations/micro/0045-clang-tidy-configuration/prompt-pack.yaml
+  module.foundations.task0046:
+    path: 01-modules/foundations/micro/0046-clang-tidy-configuration/prompt-pack.yaml
+  module.foundations.task0047:
+    path: 01-modules/foundations/micro/0047-clang-tidy-configuration/prompt-pack.yaml
+  module.foundations.task0048:
+    path: 01-modules/foundations/micro/0048-clang-tidy-configuration/prompt-pack.yaml
+  module.foundations.task0049:
+    path: 01-modules/foundations/micro/0049-ci-linux-job/prompt-pack.yaml
+  module.foundations.task0050:
+    path: 01-modules/foundations/micro/0050-ci-linux-job/prompt-pack.yaml
+  module.foundations.task0051:
+    path: 01-modules/foundations/micro/0051-ci-linux-job/prompt-pack.yaml
+  module.foundations.task0052:
+    path: 01-modules/foundations/micro/0052-ci-linux-job/prompt-pack.yaml
+  module.foundations.task0053:
+    path: 01-modules/foundations/micro/0053-ci-windows-job/prompt-pack.yaml
+  module.foundations.task0054:
+    path: 01-modules/foundations/micro/0054-ci-windows-job/prompt-pack.yaml
+  module.foundations.task0055:
+    path: 01-modules/foundations/micro/0055-ci-windows-job/prompt-pack.yaml
+  module.foundations.task0056:
+    path: 01-modules/foundations/micro/0056-ci-windows-job/prompt-pack.yaml
+  module.foundations.task0057:
+    path: 01-modules/foundations/micro/0057-ci-macos-job/prompt-pack.yaml
+  module.foundations.task0058:
+    path: 01-modules/foundations/micro/0058-ci-macos-job/prompt-pack.yaml
+  module.foundations.task0059:
+    path: 01-modules/foundations/micro/0059-ci-macos-job/prompt-pack.yaml
+  module.ux-shell.task0060:
+    path: 01-modules/ux-shell/micro/0060-main-window-layout/prompt-pack.yaml
+  module.ux-shell.task0061:
+    path: 01-modules/ux-shell/micro/0061-main-window-layout/prompt-pack.yaml
+  module.ux-shell.task0062:
+    path: 01-modules/ux-shell/micro/0062-main-window-layout/prompt-pack.yaml
+  module.ux-shell.task0063:
+    path: 01-modules/ux-shell/micro/0063-main-window-layout/prompt-pack.yaml
+  module.ux-shell.task0064:
+    path: 01-modules/ux-shell/micro/0064-title-bar-integration/prompt-pack.yaml
+  module.ux-shell.task0065:
+    path: 01-modules/ux-shell/micro/0065-title-bar-integration/prompt-pack.yaml
+  module.ux-shell.task0066:
+    path: 01-modules/ux-shell/micro/0066-title-bar-integration/prompt-pack.yaml
+  module.ux-shell.task0067:
+    path: 01-modules/ux-shell/micro/0067-title-bar-integration/prompt-pack.yaml
+  module.ux-shell.task0068:
+    path: 01-modules/ux-shell/micro/0068-tab-strip-density/prompt-pack.yaml
+  module.ux-shell.task0069:
+    path: 01-modules/ux-shell/micro/0069-tab-strip-density/prompt-pack.yaml
+  module.ux-shell.task0070:
+    path: 01-modules/ux-shell/micro/0070-tab-strip-density/prompt-pack.yaml
+  module.ux-shell.task0071:
+    path: 01-modules/ux-shell/micro/0071-tab-strip-density/prompt-pack.yaml
+  module.ux-shell.task0072:
+    path: 01-modules/ux-shell/micro/0072-toolbar-layout/prompt-pack.yaml
+  module.ux-shell.task0073:
+    path: 01-modules/ux-shell/micro/0073-toolbar-layout/prompt-pack.yaml
+  module.ux-shell.task0074:
+    path: 01-modules/ux-shell/micro/0074-toolbar-layout/prompt-pack.yaml
+  module.ux-shell.task0075:
+    path: 01-modules/ux-shell/micro/0075-toolbar-layout/prompt-pack.yaml
+  module.ux-shell.task0076:
+    path: 01-modules/ux-shell/micro/0076-omnibox-focus/prompt-pack.yaml
+  module.ux-shell.task0077:
+    path: 01-modules/ux-shell/micro/0077-omnibox-focus/prompt-pack.yaml
+  module.ux-shell.task0078:
+    path: 01-modules/ux-shell/micro/0078-omnibox-focus/prompt-pack.yaml
+  module.ux-shell.task0079:
+    path: 01-modules/ux-shell/micro/0079-omnibox-focus/prompt-pack.yaml
+  module.ux-shell.task0080:
+    path: 01-modules/ux-shell/micro/0080-navigation-buttons/prompt-pack.yaml
+  module.ux-shell.task0081:
+    path: 01-modules/ux-shell/micro/0081-navigation-buttons/prompt-pack.yaml
+  module.ux-shell.task0082:
+    path: 01-modules/ux-shell/micro/0082-navigation-buttons/prompt-pack.yaml
+  module.ux-shell.task0083:
+    path: 01-modules/ux-shell/micro/0083-navigation-buttons/prompt-pack.yaml
+  module.ux-shell.task0084:
+    path: 01-modules/ux-shell/micro/0084-sidebar-collapsed/prompt-pack.yaml
+  module.ux-shell.task0085:
+    path: 01-modules/ux-shell/micro/0085-sidebar-collapsed/prompt-pack.yaml
+  module.ux-shell.task0086:
+    path: 01-modules/ux-shell/micro/0086-sidebar-collapsed/prompt-pack.yaml
+  module.ux-shell.task0087:
+    path: 01-modules/ux-shell/micro/0087-sidebar-collapsed/prompt-pack.yaml
+  module.ux-shell.task0088:
+    path: 01-modules/ux-shell/micro/0088-sidebar-expanded/prompt-pack.yaml
+  module.ux-shell.task0089:
+    path: 01-modules/ux-shell/micro/0089-sidebar-expanded/prompt-pack.yaml
+  module.ux-shell.task0090:
+    path: 01-modules/ux-shell/micro/0090-sidebar-expanded/prompt-pack.yaml
+  module.ux-shell.task0091:
+    path: 01-modules/ux-shell/micro/0091-sidebar-expanded/prompt-pack.yaml
+  module.ux-shell.task0092:
+    path: 01-modules/ux-shell/micro/0092-responsive-window-minimum/prompt-pack.yaml
+  module.ux-shell.task0093:
+    path: 01-modules/ux-shell/micro/0093-responsive-window-minimum/prompt-pack.yaml
+  module.ux-shell.task0094:
+    path: 01-modules/ux-shell/micro/0094-responsive-window-minimum/prompt-pack.yaml
+  module.ux-shell.task0095:
+    path: 01-modules/ux-shell/micro/0095-responsive-window-minimum/prompt-pack.yaml
+  module.ux-shell.task0096:
+    path: 01-modules/ux-shell/micro/0096-context-menu-styling/prompt-pack.yaml
+  module.ux-shell.task0097:
+    path: 01-modules/ux-shell/micro/0097-context-menu-styling/prompt-pack.yaml
+  module.ux-shell.task0098:
+    path: 01-modules/ux-shell/micro/0098-context-menu-styling/prompt-pack.yaml
+  module.ux-shell.task0099:
+    path: 01-modules/ux-shell/micro/0099-context-menu-styling/prompt-pack.yaml
+  module.ux-shell.task0100:
+    path: 01-modules/ux-shell/micro/0100-modal-focus-restore/prompt-pack.yaml
+  module.ux-shell.task0101:
+    path: 01-modules/ux-shell/micro/0101-modal-focus-restore/prompt-pack.yaml
+  module.ux-shell.task0102:
+    path: 01-modules/ux-shell/micro/0102-modal-focus-restore/prompt-pack.yaml
+  module.ux-shell.task0103:
+    path: 01-modules/ux-shell/micro/0103-modal-focus-restore/prompt-pack.yaml
+  module.ux-shell.task0104:
+    path: 01-modules/ux-shell/micro/0104-toast-notifications/prompt-pack.yaml
+  module.ux-shell.task0105:
+    path: 01-modules/ux-shell/micro/0105-toast-notifications/prompt-pack.yaml
+  module.ux-shell.task0106:
+    path: 01-modules/ux-shell/micro/0106-toast-notifications/prompt-pack.yaml
+  module.ux-shell.task0107:
+    path: 01-modules/ux-shell/micro/0107-toast-notifications/prompt-pack.yaml
+  module.ux-shell.task0108:
+    path: 01-modules/ux-shell/micro/0108-tooltips-and-labels/prompt-pack.yaml
+  module.ux-shell.task0109:
+    path: 01-modules/ux-shell/micro/0109-tooltips-and-labels/prompt-pack.yaml
+  module.ux-shell.task0110:
+    path: 01-modules/ux-shell/micro/0110-tooltips-and-labels/prompt-pack.yaml
+  module.ux-shell.task0111:
+    path: 01-modules/ux-shell/micro/0111-tooltips-and-labels/prompt-pack.yaml
+  module.ux-shell.task0112:
+    path: 01-modules/ux-shell/micro/0112-empty-state-views/prompt-pack.yaml
+  module.ux-shell.task0113:
+    path: 01-modules/ux-shell/micro/0113-empty-state-views/prompt-pack.yaml
+  module.ux-shell.task0114:
+    path: 01-modules/ux-shell/micro/0114-empty-state-views/prompt-pack.yaml
+  module.ux-shell.task0115:
+    path: 01-modules/ux-shell/micro/0115-empty-state-views/prompt-pack.yaml
+  module.ux-shell.task0116:
+    path: 01-modules/ux-shell/micro/0116-loading-and-error-states/prompt-pack.yaml
+  module.navigation.task0117:
+    path: 01-modules/navigation/micro/0117-url-scheme-validation/prompt-pack.yaml
+  module.navigation.task0118:
+    path: 01-modules/navigation/micro/0118-url-scheme-validation/prompt-pack.yaml
+  module.navigation.task0119:
+    path: 01-modules/navigation/micro/0119-url-scheme-validation/prompt-pack.yaml
+  module.navigation.task0120:
+    path: 01-modules/navigation/micro/0120-url-scheme-validation/prompt-pack.yaml
+  module.navigation.task0121:
+    path: 01-modules/navigation/micro/0121-search-query-conversion/prompt-pack.yaml
+  module.navigation.task0122:
+    path: 01-modules/navigation/micro/0122-search-query-conversion/prompt-pack.yaml
+  module.navigation.task0123:
+    path: 01-modules/navigation/micro/0123-search-query-conversion/prompt-pack.yaml
+  module.navigation.task0124:
+    path: 01-modules/navigation/micro/0124-search-query-conversion/prompt-pack.yaml
+  module.navigation.task0125:
+    path: 01-modules/navigation/micro/0125-omnibox-suggestions/prompt-pack.yaml
+  module.navigation.task0126:
+    path: 01-modules/navigation/micro/0126-omnibox-suggestions/prompt-pack.yaml
+  module.navigation.task0127:
+    path: 01-modules/navigation/micro/0127-omnibox-suggestions/prompt-pack.yaml
+  module.navigation.task0128:
+    path: 01-modules/navigation/micro/0128-omnibox-suggestions/prompt-pack.yaml
+  module.navigation.task0129:
+    path: 01-modules/navigation/micro/0129-search-provider-prefixes/prompt-pack.yaml
+  module.navigation.task0130:
+    path: 01-modules/navigation/micro/0130-search-provider-prefixes/prompt-pack.yaml
+  module.navigation.task0131:
+    path: 01-modules/navigation/micro/0131-search-provider-prefixes/prompt-pack.yaml
+  module.navigation.task0132:
+    path: 01-modules/navigation/micro/0132-search-provider-prefixes/prompt-pack.yaml
+  module.navigation.task0133:
+    path: 01-modules/navigation/micro/0133-back-navigation/prompt-pack.yaml
+  module.navigation.task0134:
+    path: 01-modules/navigation/micro/0134-back-navigation/prompt-pack.yaml
+  module.navigation.task0135:
+    path: 01-modules/navigation/micro/0135-back-navigation/prompt-pack.yaml
+  module.navigation.task0136:
+    path: 01-modules/navigation/micro/0136-back-navigation/prompt-pack.yaml
+  module.navigation.task0137:
+    path: 01-modules/navigation/micro/0137-forward-navigation/prompt-pack.yaml
+  module.navigation.task0138:
+    path: 01-modules/navigation/micro/0138-forward-navigation/prompt-pack.yaml
+  module.navigation.task0139:
+    path: 01-modules/navigation/micro/0139-forward-navigation/prompt-pack.yaml
+  module.navigation.task0140:
+    path: 01-modules/navigation/micro/0140-forward-navigation/prompt-pack.yaml
+  module.navigation.task0141:
+    path: 01-modules/navigation/micro/0141-reload-stop-state/prompt-pack.yaml
+  module.navigation.task0142:
+    path: 01-modules/navigation/micro/0142-reload-stop-state/prompt-pack.yaml
+  module.navigation.task0143:
+    path: 01-modules/navigation/micro/0143-reload-stop-state/prompt-pack.yaml
+  module.navigation.task0144:
+    path: 01-modules/navigation/micro/0144-reload-stop-state/prompt-pack.yaml
+  module.navigation.task0145:
+    path: 01-modules/navigation/micro/0145-redirect-handling/prompt-pack.yaml
+  module.navigation.task0146:
+    path: 01-modules/navigation/micro/0146-redirect-handling/prompt-pack.yaml
+  module.navigation.task0147:
+    path: 01-modules/navigation/micro/0147-redirect-handling/prompt-pack.yaml
+  module.navigation.task0148:
+    path: 01-modules/navigation/micro/0148-redirect-handling/prompt-pack.yaml
+  module.navigation.task0149:
+    path: 01-modules/navigation/micro/0149-failed-navigation-ui/prompt-pack.yaml
+  module.navigation.task0150:
+    path: 01-modules/navigation/micro/0150-failed-navigation-ui/prompt-pack.yaml
+  module.navigation.task0151:
+    path: 01-modules/navigation/micro/0151-failed-navigation-ui/prompt-pack.yaml
+  module.navigation.task0152:
+    path: 01-modules/navigation/micro/0152-failed-navigation-ui/prompt-pack.yaml
+  module.navigation.task0153:
+    path: 01-modules/navigation/micro/0153-tls-information-display/prompt-pack.yaml
+  module.navigation.task0154:
+    path: 01-modules/navigation/micro/0154-tls-information-display/prompt-pack.yaml
+  module.navigation.task0155:
+    path: 01-modules/navigation/micro/0155-tls-information-display/prompt-pack.yaml
+  module.navigation.task0156:
+    path: 01-modules/navigation/micro/0156-tls-information-display/prompt-pack.yaml
+  module.navigation.task0157:
+    path: 01-modules/navigation/micro/0157-external-protocol-handoff/prompt-pack.yaml
+  module.navigation.task0158:
+    path: 01-modules/navigation/micro/0158-external-protocol-handoff/prompt-pack.yaml
+  module.navigation.task0159:
+    path: 01-modules/navigation/micro/0159-external-protocol-handoff/prompt-pack.yaml
+  module.navigation.task0160:
+    path: 01-modules/navigation/micro/0160-external-protocol-handoff/prompt-pack.yaml
+  module.navigation.task0161:
+    path: 01-modules/navigation/micro/0161-file-url-policies/prompt-pack.yaml
+  module.navigation.task0162:
+    path: 01-modules/navigation/micro/0162-file-url-policies/prompt-pack.yaml
+  module.navigation.task0163:
+    path: 01-modules/navigation/micro/0163-file-url-policies/prompt-pack.yaml
+  module.tabs.task0164:
+    path: 01-modules/tabs/micro/0164-tab-creation/prompt-pack.yaml
+  module.tabs.task0165:
+    path: 01-modules/tabs/micro/0165-tab-creation/prompt-pack.yaml
+  module.tabs.task0166:
+    path: 01-modules/tabs/micro/0166-tab-creation/prompt-pack.yaml
+  module.tabs.task0167:
+    path: 01-modules/tabs/micro/0167-tab-creation/prompt-pack.yaml
+  module.tabs.task0168:
+    path: 01-modules/tabs/micro/0168-tab-close/prompt-pack.yaml
+  module.tabs.task0169:
+    path: 01-modules/tabs/micro/0169-tab-close/prompt-pack.yaml
+  module.tabs.task0170:
+    path: 01-modules/tabs/micro/0170-tab-close/prompt-pack.yaml
+  module.tabs.task0171:
+    path: 01-modules/tabs/micro/0171-tab-close/prompt-pack.yaml
+  module.tabs.task0172:
+    path: 01-modules/tabs/micro/0172-tab-undo-close/prompt-pack.yaml
+  module.tabs.task0173:
+    path: 01-modules/tabs/micro/0173-tab-undo-close/prompt-pack.yaml
+  module.tabs.task0174:
+    path: 01-modules/tabs/micro/0174-tab-undo-close/prompt-pack.yaml
+  module.tabs.task0175:
+    path: 01-modules/tabs/micro/0175-tab-undo-close/prompt-pack.yaml
+  module.tabs.task0176:
+    path: 01-modules/tabs/micro/0176-tab-duplicate/prompt-pack.yaml
+  module.tabs.task0177:
+    path: 01-modules/tabs/micro/0177-tab-duplicate/prompt-pack.yaml
+  module.tabs.task0178:
+    path: 01-modules/tabs/micro/0178-tab-duplicate/prompt-pack.yaml
+  module.tabs.task0179:
+    path: 01-modules/tabs/micro/0179-tab-duplicate/prompt-pack.yaml
+  module.tabs.task0180:
+    path: 01-modules/tabs/micro/0180-tab-pin/prompt-pack.yaml
+  module.tabs.task0181:
+    path: 01-modules/tabs/micro/0181-tab-pin/prompt-pack.yaml
+  module.tabs.task0182:
+    path: 01-modules/tabs/micro/0182-tab-pin/prompt-pack.yaml
+  module.tabs.task0183:
+    path: 01-modules/tabs/micro/0183-tab-pin/prompt-pack.yaml
+  module.tabs.task0184:
+    path: 01-modules/tabs/micro/0184-tab-mute/prompt-pack.yaml
+  module.tabs.task0185:
+    path: 01-modules/tabs/micro/0185-tab-mute/prompt-pack.yaml
+  module.tabs.task0186:
+    path: 01-modules/tabs/micro/0186-tab-mute/prompt-pack.yaml
+  module.tabs.task0187:
+    path: 01-modules/tabs/micro/0187-tab-mute/prompt-pack.yaml
+  module.tabs.task0188:
+    path: 01-modules/tabs/micro/0188-tab-move/prompt-pack.yaml
+  module.tabs.task0189:
+    path: 01-modules/tabs/micro/0189-tab-move/prompt-pack.yaml
+  module.tabs.task0190:
+    path: 01-modules/tabs/micro/0190-tab-move/prompt-pack.yaml
+  module.tabs.task0191:
+    path: 01-modules/tabs/micro/0191-tab-move/prompt-pack.yaml
+  module.tabs.task0192:
+    path: 01-modules/tabs/micro/0192-tab-reorder/prompt-pack.yaml
+  module.tabs.task0193:
+    path: 01-modules/tabs/micro/0193-tab-reorder/prompt-pack.yaml
+  module.tabs.task0194:
+    path: 01-modules/tabs/micro/0194-tab-reorder/prompt-pack.yaml
+  module.tabs.task0195:
+    path: 01-modules/tabs/micro/0195-tab-reorder/prompt-pack.yaml
+  module.tabs.task0196:
+    path: 01-modules/tabs/micro/0196-tab-group-create/prompt-pack.yaml
+  module.tabs.task0197:
+    path: 01-modules/tabs/micro/0197-tab-group-create/prompt-pack.yaml
+  module.tabs.task0198:
+    path: 01-modules/tabs/micro/0198-tab-group-create/prompt-pack.yaml
+  module.tabs.task0199:
+    path: 01-modules/tabs/micro/0199-tab-group-create/prompt-pack.yaml
+  module.tabs.task0200:
+    path: 01-modules/tabs/micro/0200-tab-group-rename/prompt-pack.yaml
+  module.tabs.task0201:
+    path: 01-modules/tabs/micro/0201-tab-group-rename/prompt-pack.yaml
+  module.tabs.task0202:
+    path: 01-modules/tabs/micro/0202-tab-group-rename/prompt-pack.yaml
+  module.tabs.task0203:
+    path: 01-modules/tabs/micro/0203-tab-group-rename/prompt-pack.yaml
+  module.tabs.task0204:
+    path: 01-modules/tabs/micro/0204-tab-group-collapse/prompt-pack.yaml
+  module.tabs.task0205:
+    path: 01-modules/tabs/micro/0205-tab-group-collapse/prompt-pack.yaml
+  module.tabs.task0206:
+    path: 01-modules/tabs/micro/0206-tab-group-collapse/prompt-pack.yaml
+  module.tabs.task0207:
+    path: 01-modules/tabs/micro/0207-tab-group-collapse/prompt-pack.yaml
+  module.tabs.task0208:
+    path: 01-modules/tabs/micro/0208-tab-group-move/prompt-pack.yaml
+  module.tabs.task0209:
+    path: 01-modules/tabs/micro/0209-tab-group-move/prompt-pack.yaml
+  module.tabs.task0210:
+    path: 01-modules/tabs/micro/0210-tab-group-move/prompt-pack.yaml
+  module.tabs.task0211:
+    path: 01-modules/tabs/micro/0211-tab-group-move/prompt-pack.yaml
+  module.tabs.task0212:
+    path: 01-modules/tabs/micro/0212-tab-close-duplicates/prompt-pack.yaml
+  module.tabs.task0213:
+    path: 01-modules/tabs/micro/0213-tab-close-duplicates/prompt-pack.yaml
+  module.tabs.task0214:
+    path: 01-modules/tabs/micro/0214-tab-close-duplicates/prompt-pack.yaml
+  module.tabs.task0215:
+    path: 01-modules/tabs/micro/0215-tab-close-duplicates/prompt-pack.yaml
+  module.tabs.task0216:
+    path: 01-modules/tabs/micro/0216-tab-close-others/prompt-pack.yaml
+  module.tabs.task0217:
+    path: 01-modules/tabs/micro/0217-tab-close-others/prompt-pack.yaml
+  module.tabs.task0218:
+    path: 01-modules/tabs/micro/0218-tab-close-others/prompt-pack.yaml
+  module.tabs.task0219:
+    path: 01-modules/tabs/micro/0219-tab-close-others/prompt-pack.yaml
+  module.tabs.task0220:
+    path: 01-modules/tabs/micro/0220-tab-close-right/prompt-pack.yaml
+  module.workspaces.task0221:
+    path: 01-modules/workspaces/micro/0221-workspace-create/prompt-pack.yaml
+  module.workspaces.task0222:
+    path: 01-modules/workspaces/micro/0222-workspace-create/prompt-pack.yaml
+  module.workspaces.task0223:
+    path: 01-modules/workspaces/micro/0223-workspace-create/prompt-pack.yaml
+  module.workspaces.task0224:
+    path: 01-modules/workspaces/micro/0224-workspace-create/prompt-pack.yaml
+  module.workspaces.task0225:
+    path: 01-modules/workspaces/micro/0225-workspace-rename/prompt-pack.yaml
+  module.workspaces.task0226:
+    path: 01-modules/workspaces/micro/0226-workspace-rename/prompt-pack.yaml
+  module.workspaces.task0227:
+    path: 01-modules/workspaces/micro/0227-workspace-rename/prompt-pack.yaml
+  module.workspaces.task0228:
+    path: 01-modules/workspaces/micro/0228-workspace-rename/prompt-pack.yaml
+  module.workspaces.task0229:
+    path: 01-modules/workspaces/micro/0229-workspace-delete/prompt-pack.yaml
+  module.workspaces.task0230:
+    path: 01-modules/workspaces/micro/0230-workspace-delete/prompt-pack.yaml
+  module.workspaces.task0231:
+    path: 01-modules/workspaces/micro/0231-workspace-delete/prompt-pack.yaml
+  module.workspaces.task0232:
+    path: 01-modules/workspaces/micro/0232-workspace-delete/prompt-pack.yaml
+  module.workspaces.task0233:
+    path: 01-modules/workspaces/micro/0233-workspace-tabs-association/prompt-pack.yaml
+  module.workspaces.task0234:
+    path: 01-modules/workspaces/micro/0234-workspace-tabs-association/prompt-pack.yaml
+  module.workspaces.task0235:
+    path: 01-modules/workspaces/micro/0235-workspace-tabs-association/prompt-pack.yaml
+  module.workspaces.task0236:
+    path: 01-modules/workspaces/micro/0236-workspace-tabs-association/prompt-pack.yaml
+  module.workspaces.task0237:
+    path: 01-modules/workspaces/micro/0237-workspace-switch/prompt-pack.yaml
+  module.workspaces.task0238:
+    path: 01-modules/workspaces/micro/0238-workspace-switch/prompt-pack.yaml
+  module.workspaces.task0239:
+    path: 01-modules/workspaces/micro/0239-workspace-switch/prompt-pack.yaml
+  module.workspaces.task0240:
+    path: 01-modules/workspaces/micro/0240-workspace-switch/prompt-pack.yaml
+  module.workspaces.task0241:
+    path: 01-modules/workspaces/micro/0241-workspace-restore/prompt-pack.yaml
+  module.workspaces.task0242:
+    path: 01-modules/workspaces/micro/0242-workspace-restore/prompt-pack.yaml
+  module.workspaces.task0243:
+    path: 01-modules/workspaces/micro/0243-workspace-restore/prompt-pack.yaml
+  module.workspaces.task0244:
+    path: 01-modules/workspaces/micro/0244-workspace-restore/prompt-pack.yaml
+  module.profiles.task0245:
+    path: 01-modules/profiles/micro/0245-profile-create/prompt-pack.yaml
+  module.profiles.task0246:
+    path: 01-modules/profiles/micro/0246-profile-create/prompt-pack.yaml
+  module.profiles.task0247:
+    path: 01-modules/profiles/micro/0247-profile-create/prompt-pack.yaml
+  module.profiles.task0248:
+    path: 01-modules/profiles/micro/0248-profile-create/prompt-pack.yaml
+  module.profiles.task0249:
+    path: 01-modules/profiles/micro/0249-profile-naming/prompt-pack.yaml
+  module.profiles.task0250:
+    path: 01-modules/profiles/micro/0250-profile-naming/prompt-pack.yaml
+  module.profiles.task0251:
+    path: 01-modules/profiles/micro/0251-profile-naming/prompt-pack.yaml
+  module.profiles.task0252:
+    path: 01-modules/profiles/micro/0252-profile-naming/prompt-pack.yaml
+  module.profiles.task0253:
+    path: 01-modules/profiles/micro/0253-profile-persistence/prompt-pack.yaml
+  module.profiles.task0254:
+    path: 01-modules/profiles/micro/0254-profile-persistence/prompt-pack.yaml
+  module.profiles.task0255:
+    path: 01-modules/profiles/micro/0255-profile-persistence/prompt-pack.yaml
+  module.profiles.task0256:
+    path: 01-modules/profiles/micro/0256-profile-persistence/prompt-pack.yaml
+  module.profiles.task0257:
+    path: 01-modules/profiles/micro/0257-profile-isolation/prompt-pack.yaml
+  module.profiles.task0258:
+    path: 01-modules/profiles/micro/0258-profile-isolation/prompt-pack.yaml
+  module.profiles.task0259:
+    path: 01-modules/profiles/micro/0259-profile-isolation/prompt-pack.yaml
+  module.profiles.task0260:
+    path: 01-modules/profiles/micro/0260-profile-isolation/prompt-pack.yaml
+  module.profiles.task0261:
+    path: 01-modules/profiles/micro/0261-profile-storage-path/prompt-pack.yaml
+  module.profiles.task0262:
+    path: 01-modules/profiles/micro/0262-profile-storage-path/prompt-pack.yaml
+  module.profiles.task0263:
+    path: 01-modules/profiles/micro/0263-profile-storage-path/prompt-pack.yaml
+  module.profiles.task0264:
+    path: 01-modules/profiles/micro/0264-profile-storage-path/prompt-pack.yaml
+  module.profiles.task0265:
+    path: 01-modules/profiles/micro/0265-profile-cookie-separation/prompt-pack.yaml
+  module.profiles.task0266:
+    path: 01-modules/profiles/micro/0266-profile-cookie-separation/prompt-pack.yaml
+  module.profiles.task0267:
+    path: 01-modules/profiles/micro/0267-profile-cookie-separation/prompt-pack.yaml
+  module.profiles.task0268:
+    path: 01-modules/profiles/micro/0268-profile-cookie-separation/prompt-pack.yaml
+  module.profiles.task0269:
+    path: 01-modules/profiles/micro/0269-profile-switching/prompt-pack.yaml
+  module.profiles.task0270:
+    path: 01-modules/profiles/micro/0270-profile-switching/prompt-pack.yaml
+  module.profiles.task0271:
+    path: 01-modules/profiles/micro/0271-profile-switching/prompt-pack.yaml
+  module.profiles.task0272:
+    path: 01-modules/profiles/micro/0272-profile-switching/prompt-pack.yaml
+  module.profiles.task0273:
+    path: 01-modules/profiles/micro/0273-private-profile/prompt-pack.yaml
+  module.profiles.task0274:
+    path: 01-modules/profiles/micro/0274-private-profile/prompt-pack.yaml
+  module.profiles.task0275:
+    path: 01-modules/profiles/micro/0275-private-profile/prompt-pack.yaml
+  module.bookmarks.task0276:
+    path: 01-modules/bookmarks/micro/0276-bookmark-add/prompt-pack.yaml
+  module.bookmarks.task0277:
+    path: 01-modules/bookmarks/micro/0277-bookmark-add/prompt-pack.yaml
+  module.bookmarks.task0278:
+    path: 01-modules/bookmarks/micro/0278-bookmark-add/prompt-pack.yaml
+  module.bookmarks.task0279:
+    path: 01-modules/bookmarks/micro/0279-bookmark-add/prompt-pack.yaml
+  module.bookmarks.task0280:
+    path: 01-modules/bookmarks/micro/0280-bookmark-edit/prompt-pack.yaml
+  module.bookmarks.task0281:
+    path: 01-modules/bookmarks/micro/0281-bookmark-edit/prompt-pack.yaml
+  module.bookmarks.task0282:
+    path: 01-modules/bookmarks/micro/0282-bookmark-edit/prompt-pack.yaml
+  module.bookmarks.task0283:
+    path: 01-modules/bookmarks/micro/0283-bookmark-edit/prompt-pack.yaml
+  module.bookmarks.task0284:
+    path: 01-modules/bookmarks/micro/0284-bookmark-delete/prompt-pack.yaml
+  module.bookmarks.task0285:
+    path: 01-modules/bookmarks/micro/0285-bookmark-delete/prompt-pack.yaml
+  module.bookmarks.task0286:
+    path: 01-modules/bookmarks/micro/0286-bookmark-delete/prompt-pack.yaml
+  module.bookmarks.task0287:
+    path: 01-modules/bookmarks/micro/0287-bookmark-delete/prompt-pack.yaml
+  module.bookmarks.task0288:
+    path: 01-modules/bookmarks/micro/0288-bookmark-folders/prompt-pack.yaml
+  module.bookmarks.task0289:
+    path: 01-modules/bookmarks/micro/0289-bookmark-folders/prompt-pack.yaml
+  module.bookmarks.task0290:
+    path: 01-modules/bookmarks/micro/0290-bookmark-folders/prompt-pack.yaml
+  module.bookmarks.task0291:
+    path: 01-modules/bookmarks/micro/0291-bookmark-folders/prompt-pack.yaml
+  module.bookmarks.task0292:
+    path: 01-modules/bookmarks/micro/0292-bookmark-search/prompt-pack.yaml
+  module.bookmarks.task0293:
+    path: 01-modules/bookmarks/micro/0293-bookmark-search/prompt-pack.yaml
+  module.bookmarks.task0294:
+    path: 01-modules/bookmarks/micro/0294-bookmark-search/prompt-pack.yaml
+  module.bookmarks.task0295:
+    path: 01-modules/bookmarks/micro/0295-bookmark-search/prompt-pack.yaml
+  module.bookmarks.task0296:
+    path: 01-modules/bookmarks/micro/0296-bookmark-manager-ui/prompt-pack.yaml
+  module.bookmarks.task0297:
+    path: 01-modules/bookmarks/micro/0297-bookmark-manager-ui/prompt-pack.yaml
+  module.bookmarks.task0298:
+    path: 01-modules/bookmarks/micro/0298-bookmark-manager-ui/prompt-pack.yaml
+  module.bookmarks.task0299:
+    path: 01-modules/bookmarks/micro/0299-bookmark-manager-ui/prompt-pack.yaml
+  module.bookmarks.task0300:
+    path: 01-modules/bookmarks/micro/0300-bookmarks-bar-toggle/prompt-pack.yaml
+  module.bookmarks.task0301:
+    path: 01-modules/bookmarks/micro/0301-bookmarks-bar-toggle/prompt-pack.yaml
+  module.history.task0302:
+    path: 01-modules/history/micro/0302-history-visit-write/prompt-pack.yaml
+  module.history.task0303:
+    path: 01-modules/history/micro/0303-history-visit-write/prompt-pack.yaml
+  module.history.task0304:
+    path: 01-modules/history/micro/0304-history-visit-write/prompt-pack.yaml
+  module.history.task0305:
+    path: 01-modules/history/micro/0305-history-visit-write/prompt-pack.yaml
+  module.history.task0306:
+    path: 01-modules/history/micro/0306-history-visit-query/prompt-pack.yaml
+  module.history.task0307:
+    path: 01-modules/history/micro/0307-history-visit-query/prompt-pack.yaml
+  module.history.task0308:
+    path: 01-modules/history/micro/0308-history-visit-query/prompt-pack.yaml
+  module.history.task0309:
+    path: 01-modules/history/micro/0309-history-visit-query/prompt-pack.yaml
+  module.history.task0310:
+    path: 01-modules/history/micro/0310-history-tree-view/prompt-pack.yaml
+  module.history.task0311:
+    path: 01-modules/history/micro/0311-history-tree-view/prompt-pack.yaml
+  module.history.task0312:
+    path: 01-modules/history/micro/0312-history-tree-view/prompt-pack.yaml
+  module.history.task0313:
+    path: 01-modules/history/micro/0313-history-tree-view/prompt-pack.yaml
+  module.history.task0314:
+    path: 01-modules/history/micro/0314-history-search/prompt-pack.yaml
+  module.history.task0315:
+    path: 01-modules/history/micro/0315-history-search/prompt-pack.yaml
+  module.history.task0316:
+    path: 01-modules/history/micro/0316-history-search/prompt-pack.yaml
+  module.history.task0317:
+    path: 01-modules/history/micro/0317-history-search/prompt-pack.yaml
+  module.history.task0318:
+    path: 01-modules/history/micro/0318-history-deletion/prompt-pack.yaml
+  module.history.task0319:
+    path: 01-modules/history/micro/0319-history-deletion/prompt-pack.yaml
+  module.history.task0320:
+    path: 01-modules/history/micro/0320-history-deletion/prompt-pack.yaml
+  module.history.task0321:
+    path: 01-modules/history/micro/0321-history-deletion/prompt-pack.yaml
+  module.history.task0322:
+    path: 01-modules/history/micro/0322-clear-by-period/prompt-pack.yaml
+  module.history.task0323:
+    path: 01-modules/history/micro/0323-clear-by-period/prompt-pack.yaml
+  module.history.task0324:
+    path: 01-modules/history/micro/0324-clear-by-period/prompt-pack.yaml
+  module.history.task0325:
+    path: 01-modules/history/micro/0325-clear-by-period/prompt-pack.yaml
+  module.downloads.task0326:
+    path: 01-modules/downloads/micro/0326-download-create/prompt-pack.yaml
+  module.downloads.task0327:
+    path: 01-modules/downloads/micro/0327-download-create/prompt-pack.yaml
+  module.downloads.task0328:
+    path: 01-modules/downloads/micro/0328-download-create/prompt-pack.yaml
+  module.downloads.task0329:
+    path: 01-modules/downloads/micro/0329-download-create/prompt-pack.yaml
+  module.downloads.task0330:
+    path: 01-modules/downloads/micro/0330-download-progress/prompt-pack.yaml
+  module.downloads.task0331:
+    path: 01-modules/downloads/micro/0331-download-progress/prompt-pack.yaml
+  module.downloads.task0332:
+    path: 01-modules/downloads/micro/0332-download-progress/prompt-pack.yaml
+  module.downloads.task0333:
+    path: 01-modules/downloads/micro/0333-download-progress/prompt-pack.yaml
+  module.downloads.task0334:
+    path: 01-modules/downloads/micro/0334-download-pause-resume/prompt-pack.yaml
+  module.downloads.task0335:
+    path: 01-modules/downloads/micro/0335-download-pause-resume/prompt-pack.yaml
+  module.downloads.task0336:
+    path: 01-modules/downloads/micro/0336-download-pause-resume/prompt-pack.yaml
+  module.downloads.task0337:
+    path: 01-modules/downloads/micro/0337-download-pause-resume/prompt-pack.yaml
+  module.downloads.task0338:
+    path: 01-modules/downloads/micro/0338-download-cancel/prompt-pack.yaml
+  module.downloads.task0339:
+    path: 01-modules/downloads/micro/0339-download-cancel/prompt-pack.yaml
+  module.downloads.task0340:
+    path: 01-modules/downloads/micro/0340-download-cancel/prompt-pack.yaml
+  module.downloads.task0341:
+    path: 01-modules/downloads/micro/0341-download-cancel/prompt-pack.yaml
+  module.downloads.task0342:
+    path: 01-modules/downloads/micro/0342-download-retry/prompt-pack.yaml
+  module.downloads.task0343:
+    path: 01-modules/downloads/micro/0343-download-retry/prompt-pack.yaml
+  module.downloads.task0344:
+    path: 01-modules/downloads/micro/0344-download-retry/prompt-pack.yaml
+  module.downloads.task0345:
+    path: 01-modules/downloads/micro/0345-download-retry/prompt-pack.yaml
+  module.downloads.task0346:
+    path: 01-modules/downloads/micro/0346-download-destination/prompt-pack.yaml
+  module.downloads.task0347:
+    path: 01-modules/downloads/micro/0347-download-destination/prompt-pack.yaml
+  module.downloads.task0348:
+    path: 01-modules/downloads/micro/0348-download-destination/prompt-pack.yaml
+  module.downloads.task0349:
+    path: 01-modules/downloads/micro/0349-download-destination/prompt-pack.yaml
+  module.downloads.task0350:
+    path: 01-modules/downloads/micro/0350-download-filename-collision/prompt-pack.yaml
+  module.downloads.task0351:
+    path: 01-modules/downloads/micro/0351-download-filename-collision/prompt-pack.yaml
+  module.shields.task0352:
+    path: 01-modules/shields/micro/0352-request-interception/prompt-pack.yaml
+  module.shields.task0353:
+    path: 01-modules/shields/micro/0353-request-interception/prompt-pack.yaml
+  module.shields.task0354:
+    path: 01-modules/shields/micro/0354-request-interception/prompt-pack.yaml
+  module.shields.task0355:
+    path: 01-modules/shields/micro/0355-request-interception/prompt-pack.yaml
+  module.shields.task0356:
+    path: 01-modules/shields/micro/0356-filter-list-parser/prompt-pack.yaml
+  module.shields.task0357:
+    path: 01-modules/shields/micro/0357-filter-list-parser/prompt-pack.yaml
+  module.shields.task0358:
+    path: 01-modules/shields/micro/0358-filter-list-parser/prompt-pack.yaml
+  module.shields.task0359:
+    path: 01-modules/shields/micro/0359-filter-list-parser/prompt-pack.yaml
+  module.shields.task0360:
+    path: 01-modules/shields/micro/0360-filter-updates/prompt-pack.yaml
+  module.shields.task0361:
+    path: 01-modules/shields/micro/0361-filter-updates/prompt-pack.yaml
+  module.shields.task0362:
+    path: 01-modules/shields/micro/0362-filter-updates/prompt-pack.yaml
+  module.shields.task0363:
+    path: 01-modules/shields/micro/0363-filter-updates/prompt-pack.yaml
+  module.shields.task0364:
+    path: 01-modules/shields/micro/0364-filter-compilation/prompt-pack.yaml
+  module.shields.task0365:
+    path: 01-modules/shields/micro/0365-filter-compilation/prompt-pack.yaml
+  module.shields.task0366:
+    path: 01-modules/shields/micro/0366-filter-compilation/prompt-pack.yaml
+  module.shields.task0367:
+    path: 01-modules/shields/micro/0367-filter-compilation/prompt-pack.yaml
+  module.shields.task0368:
+    path: 01-modules/shields/micro/0368-easylist-rules/prompt-pack.yaml
+  module.shields.task0369:
+    path: 01-modules/shields/micro/0369-easylist-rules/prompt-pack.yaml
+  module.shields.task0370:
+    path: 01-modules/shields/micro/0370-easylist-rules/prompt-pack.yaml
+  module.shields.task0371:
+    path: 01-modules/shields/micro/0371-easylist-rules/prompt-pack.yaml
+  module.shields.task0372:
+    path: 01-modules/shields/micro/0372-easyprivacy-rules/prompt-pack.yaml
+  module.shields.task0373:
+    path: 01-modules/shields/micro/0373-easyprivacy-rules/prompt-pack.yaml
+  module.shields.task0374:
+    path: 01-modules/shields/micro/0374-easyprivacy-rules/prompt-pack.yaml
+  module.shields.task0375:
+    path: 01-modules/shields/micro/0375-easyprivacy-rules/prompt-pack.yaml
+  module.shields.task0376:
+    path: 01-modules/shields/micro/0376-cosmetic-filters/prompt-pack.yaml
+  module.shields.task0377:
+    path: 01-modules/shields/micro/0377-cosmetic-filters/prompt-pack.yaml
+  module.shields.task0378:
+    path: 01-modules/shields/micro/0378-cosmetic-filters/prompt-pack.yaml
+  module.shields.task0379:
+    path: 01-modules/shields/micro/0379-cosmetic-filters/prompt-pack.yaml
+  module.shields.task0380:
+    path: 01-modules/shields/micro/0380-tracker-classification/prompt-pack.yaml
+  module.shields.task0381:
+    path: 01-modules/shields/micro/0381-tracker-classification/prompt-pack.yaml
+  module.shields.task0382:
+    path: 01-modules/shields/micro/0382-tracker-classification/prompt-pack.yaml
+  module.shields.task0383:
+    path: 01-modules/shields/micro/0383-tracker-classification/prompt-pack.yaml
+  module.shields.task0384:
+    path: 01-modules/shields/micro/0384-site-allowlist/prompt-pack.yaml
+  module.shields.task0385:
+    path: 01-modules/shields/micro/0385-site-allowlist/prompt-pack.yaml
+  module.shields.task0386:
+    path: 01-modules/shields/micro/0386-site-allowlist/prompt-pack.yaml
+  module.shields.task0387:
+    path: 01-modules/shields/micro/0387-site-allowlist/prompt-pack.yaml
+  module.shields.task0388:
+    path: 01-modules/shields/micro/0388-temporary-bypass/prompt-pack.yaml
+  module.shields.task0389:
+    path: 01-modules/shields/micro/0389-temporary-bypass/prompt-pack.yaml
+  module.memory.task0390:
+    path: 01-modules/memory/micro/0390-recommended-tab-lifecycle/prompt-pack.yaml
+  module.memory.task0391:
+    path: 01-modules/memory/micro/0391-recommended-tab-lifecycle/prompt-pack.yaml
+  module.memory.task0392:
+    path: 01-modules/memory/micro/0392-recommended-tab-lifecycle/prompt-pack.yaml
+  module.memory.task0393:
+    path: 01-modules/memory/micro/0393-recommended-tab-lifecycle/prompt-pack.yaml
+  module.memory.task0394:
+    path: 01-modules/memory/micro/0394-tab-active-state/prompt-pack.yaml
+  module.memory.task0395:
+    path: 01-modules/memory/micro/0395-tab-active-state/prompt-pack.yaml
+  module.memory.task0396:
+    path: 01-modules/memory/micro/0396-tab-active-state/prompt-pack.yaml
+  module.memory.task0397:
+    path: 01-modules/memory/micro/0397-tab-active-state/prompt-pack.yaml
+  module.memory.task0398:
+    path: 01-modules/memory/micro/0398-tab-frozen-state/prompt-pack.yaml
+  module.memory.task0399:
+    path: 01-modules/memory/micro/0399-tab-frozen-state/prompt-pack.yaml
+  module.memory.task0400:
+    path: 01-modules/memory/micro/0400-tab-frozen-state/prompt-pack.yaml
+  module.memory.task0401:
+    path: 01-modules/memory/micro/0401-tab-frozen-state/prompt-pack.yaml
+  module.memory.task0402:
+    path: 01-modules/memory/micro/0402-tab-discarded-state/prompt-pack.yaml
+  module.memory.task0403:
+    path: 01-modules/memory/micro/0403-tab-discarded-state/prompt-pack.yaml
+  module.memory.task0404:
+    path: 01-modules/memory/micro/0404-tab-discarded-state/prompt-pack.yaml
+  module.memory.task0405:
+    path: 01-modules/memory/micro/0405-tab-discarded-state/prompt-pack.yaml
+  module.memory.task0406:
+    path: 01-modules/memory/micro/0406-audio-exemption/prompt-pack.yaml
+  module.memory.task0407:
+    path: 01-modules/memory/micro/0407-audio-exemption/prompt-pack.yaml
+  module.memory.task0408:
+    path: 01-modules/memory/micro/0408-audio-exemption/prompt-pack.yaml
+  module.memory.task0409:
+    path: 01-modules/memory/micro/0409-audio-exemption/prompt-pack.yaml
+  module.memory.task0410:
+    path: 01-modules/memory/micro/0410-call-exemption/prompt-pack.yaml
+  module.memory.task0411:
+    path: 01-modules/memory/micro/0411-call-exemption/prompt-pack.yaml
+  module.memory.task0412:
+    path: 01-modules/memory/micro/0412-call-exemption/prompt-pack.yaml
+  module.memory.task0413:
+    path: 01-modules/memory/micro/0413-call-exemption/prompt-pack.yaml
+  module.memory.task0414:
+    path: 01-modules/memory/micro/0414-download-exemption/prompt-pack.yaml
+  module.memory.task0415:
+    path: 01-modules/memory/micro/0415-download-exemption/prompt-pack.yaml
+  module.memory.task0416:
+    path: 01-modules/memory/micro/0416-download-exemption/prompt-pack.yaml
+  module.memory.task0417:
+    path: 01-modules/memory/micro/0417-download-exemption/prompt-pack.yaml
+  module.memory.task0418:
+    path: 01-modules/memory/micro/0418-memory-pressure-response/prompt-pack.yaml
+  module.memory.task0419:
+    path: 01-modules/memory/micro/0419-memory-pressure-response/prompt-pack.yaml
+  module.memory.task0420:
+    path: 01-modules/memory/micro/0420-memory-pressure-response/prompt-pack.yaml
+  module.memory.task0421:
+    path: 01-modules/memory/micro/0421-memory-pressure-response/prompt-pack.yaml
+  module.memory.task0422:
+    path: 01-modules/memory/micro/0422-lazy-background-tabs/prompt-pack.yaml
+  module.memory.task0423:
+    path: 01-modules/memory/micro/0423-lazy-background-tabs/prompt-pack.yaml
+  module.memory.task0424:
+    path: 01-modules/memory/micro/0424-lazy-background-tabs/prompt-pack.yaml
+  module.memory.task0425:
+    path: 01-modules/memory/micro/0425-lazy-background-tabs/prompt-pack.yaml
+  module.themes.task0426:
+    path: 01-modules/themes/micro/0426-light-theme/prompt-pack.yaml
+  module.themes.task0427:
+    path: 01-modules/themes/micro/0427-light-theme/prompt-pack.yaml
+  module.themes.task0428:
+    path: 01-modules/themes/micro/0428-light-theme/prompt-pack.yaml
+  module.themes.task0429:
+    path: 01-modules/themes/micro/0429-light-theme/prompt-pack.yaml
+  module.themes.task0430:
+    path: 01-modules/themes/micro/0430-dark-theme/prompt-pack.yaml
+  module.themes.task0431:
+    path: 01-modules/themes/micro/0431-dark-theme/prompt-pack.yaml
+  module.themes.task0432:
+    path: 01-modules/themes/micro/0432-dark-theme/prompt-pack.yaml
+  module.themes.task0433:
+    path: 01-modules/themes/micro/0433-dark-theme/prompt-pack.yaml
+  module.themes.task0434:
+    path: 01-modules/themes/micro/0434-midnight-theme/prompt-pack.yaml
+  module.themes.task0435:
+    path: 01-modules/themes/micro/0435-midnight-theme/prompt-pack.yaml
+  module.themes.task0436:
+    path: 01-modules/themes/micro/0436-midnight-theme/prompt-pack.yaml
+  module.themes.task0437:
+    path: 01-modules/themes/micro/0437-midnight-theme/prompt-pack.yaml
+  module.themes.task0438:
+    path: 01-modules/themes/micro/0438-aurora-theme/prompt-pack.yaml
+  module.themes.task0439:
+    path: 01-modules/themes/micro/0439-aurora-theme/prompt-pack.yaml
+  module.themes.task0440:
+    path: 01-modules/themes/micro/0440-aurora-theme/prompt-pack.yaml
+  module.themes.task0441:
+    path: 01-modules/themes/micro/0441-aurora-theme/prompt-pack.yaml
+  module.themes.task0442:
+    path: 01-modules/themes/micro/0442-forest-theme/prompt-pack.yaml
+  module.themes.task0443:
+    path: 01-modules/themes/micro/0443-forest-theme/prompt-pack.yaml
+  module.themes.task0444:
+    path: 01-modules/themes/micro/0444-forest-theme/prompt-pack.yaml
+  module.themes.task0445:
+    path: 01-modules/themes/micro/0445-forest-theme/prompt-pack.yaml
+  module.themes.task0446:
+    path: 01-modules/themes/micro/0446-sunset-theme/prompt-pack.yaml
+  module.themes.task0447:
+    path: 01-modules/themes/micro/0447-sunset-theme/prompt-pack.yaml
+  module.themes.task0448:
+    path: 01-modules/themes/micro/0448-sunset-theme/prompt-pack.yaml
+  module.themes.task0449:
+    path: 01-modules/themes/micro/0449-sunset-theme/prompt-pack.yaml
+  module.themes.task0450:
+    path: 01-modules/themes/micro/0450-custom-accent/prompt-pack.yaml
+  module.themes.task0451:
+    path: 01-modules/themes/micro/0451-custom-accent/prompt-pack.yaml
+  module.themes.task0452:
+    path: 01-modules/themes/micro/0452-custom-accent/prompt-pack.yaml
+  module.themes.task0453:
+    path: 01-modules/themes/micro/0453-custom-accent/prompt-pack.yaml
+  module.themes.task0454:
+    path: 01-modules/themes/micro/0454-theme-persistence/prompt-pack.yaml
+  module.senior-mode.task0455:
+    path: 01-modules/senior-mode/micro/0455-first-run-opt-in/prompt-pack.yaml
+  module.senior-mode.task0456:
+    path: 01-modules/senior-mode/micro/0456-first-run-opt-in/prompt-pack.yaml
+  module.senior-mode.task0457:
+    path: 01-modules/senior-mode/micro/0457-first-run-opt-in/prompt-pack.yaml
+  module.senior-mode.task0458:
+    path: 01-modules/senior-mode/micro/0458-first-run-opt-in/prompt-pack.yaml
+  module.senior-mode.task0459:
+    path: 01-modules/senior-mode/micro/0459-senior-mode-toggle/prompt-pack.yaml
+  module.senior-mode.task0460:
+    path: 01-modules/senior-mode/micro/0460-senior-mode-toggle/prompt-pack.yaml
+  module.senior-mode.task0461:
+    path: 01-modules/senior-mode/micro/0461-senior-mode-toggle/prompt-pack.yaml
+  module.senior-mode.task0462:
+    path: 01-modules/senior-mode/micro/0462-senior-mode-toggle/prompt-pack.yaml
+  module.senior-mode.task0463:
+    path: 01-modules/senior-mode/micro/0463-large-labels/prompt-pack.yaml
+  module.senior-mode.task0464:
+    path: 01-modules/senior-mode/micro/0464-large-labels/prompt-pack.yaml
+  module.senior-mode.task0465:
+    path: 01-modules/senior-mode/micro/0465-large-labels/prompt-pack.yaml
+  module.senior-mode.task0466:
+    path: 01-modules/senior-mode/micro/0466-large-labels/prompt-pack.yaml
+  module.senior-mode.task0467:
+    path: 01-modules/senior-mode/micro/0467-large-hit-targets/prompt-pack.yaml
+  module.senior-mode.task0468:
+    path: 01-modules/senior-mode/micro/0468-large-hit-targets/prompt-pack.yaml
+  module.senior-mode.task0469:
+    path: 01-modules/senior-mode/micro/0469-large-hit-targets/prompt-pack.yaml
+  module.senior-mode.task0470:
+    path: 01-modules/senior-mode/micro/0470-large-hit-targets/prompt-pack.yaml
+  module.senior-mode.task0471:
+    path: 01-modules/senior-mode/micro/0471-simple-navigation-labels/prompt-pack.yaml
+  module.senior-mode.task0472:
+    path: 01-modules/senior-mode/micro/0472-simple-navigation-labels/prompt-pack.yaml
+  module.senior-mode.task0473:
+    path: 01-modules/senior-mode/micro/0473-simple-navigation-labels/prompt-pack.yaml
+  module.senior-mode.task0474:
+    path: 01-modules/senior-mode/micro/0474-simple-navigation-labels/prompt-pack.yaml
+  module.senior-mode.task0475:
+    path: 01-modules/senior-mode/micro/0475-reader-support/prompt-pack.yaml
+  module.senior-mode.task0476:
+    path: 01-modules/senior-mode/micro/0476-reader-support/prompt-pack.yaml
+  module.senior-mode.task0477:
+    path: 01-modules/senior-mode/micro/0477-reader-support/prompt-pack.yaml
+  module.senior-mode.task0478:
+    path: 01-modules/senior-mode/micro/0478-reader-support/prompt-pack.yaml
+  module.senior-mode.task0479:
+    path: 01-modules/senior-mode/micro/0479-contrast-presets/prompt-pack.yaml
+  module.senior-mode.task0480:
+    path: 01-modules/senior-mode/micro/0480-contrast-presets/prompt-pack.yaml
+  module.senior-mode.task0481:
+    path: 01-modules/senior-mode/micro/0481-contrast-presets/prompt-pack.yaml
+  module.senior-mode.task0482:
+    path: 01-modules/senior-mode/micro/0482-contrast-presets/prompt-pack.yaml
+  module.senior-mode.task0483:
+    path: 01-modules/senior-mode/micro/0483-keyboard-traversal/prompt-pack.yaml
+  module.senior-mode.task0484:
+    path: 01-modules/senior-mode/micro/0484-keyboard-traversal/prompt-pack.yaml
+  module.senior-mode.task0485:
+    path: 01-modules/senior-mode/micro/0485-keyboard-traversal/prompt-pack.yaml
+  module.senior-mode.task0486:
+    path: 01-modules/senior-mode/micro/0486-keyboard-traversal/prompt-pack.yaml
+  module.senior-mode.task0487:
+    path: 01-modules/senior-mode/micro/0487-screenreader-names/prompt-pack.yaml
+  module.senior-mode.task0488:
+    path: 01-modules/senior-mode/micro/0488-screenreader-names/prompt-pack.yaml
+  module.senior-mode.task0489:
+    path: 01-modules/senior-mode/micro/0489-screenreader-names/prompt-pack.yaml
+  module.senior-mode.task0490:
+    path: 01-modules/senior-mode/micro/0490-screenreader-names/prompt-pack.yaml
+  module.command-palette.task0491:
+    path: 01-modules/command-palette/micro/0491-palette-opening/prompt-pack.yaml
+  module.command-palette.task0492:
+    path: 01-modules/command-palette/micro/0492-palette-opening/prompt-pack.yaml
+  module.command-palette.task0493:
+    path: 01-modules/command-palette/micro/0493-palette-opening/prompt-pack.yaml
+  module.command-palette.task0494:
+    path: 01-modules/command-palette/micro/0494-palette-opening/prompt-pack.yaml
+  module.command-palette.task0495:
+    path: 01-modules/command-palette/micro/0495-command-search/prompt-pack.yaml
+  module.command-palette.task0496:
+    path: 01-modules/command-palette/micro/0496-command-search/prompt-pack.yaml
+  module.command-palette.task0497:
+    path: 01-modules/command-palette/micro/0497-command-search/prompt-pack.yaml
+  module.command-palette.task0498:
+    path: 01-modules/command-palette/micro/0498-command-search/prompt-pack.yaml
+  module.command-palette.task0499:
+    path: 01-modules/command-palette/micro/0499-tabs-prefix/prompt-pack.yaml
+  module.command-palette.task0500:
+    path: 01-modules/command-palette/micro/0500-tabs-prefix/prompt-pack.yaml
+  module.command-palette.task0501:
+    path: 01-modules/command-palette/micro/0501-tabs-prefix/prompt-pack.yaml
+  module.command-palette.task0502:
+    path: 01-modules/command-palette/micro/0502-tabs-prefix/prompt-pack.yaml
+  module.command-palette.task0503:
+    path: 01-modules/command-palette/micro/0503-history-prefix/prompt-pack.yaml
+  module.command-palette.task0504:
+    path: 01-modules/command-palette/micro/0504-history-prefix/prompt-pack.yaml
+  module.command-palette.task0505:
+    path: 01-modules/command-palette/micro/0505-history-prefix/prompt-pack.yaml
+  module.command-palette.task0506:
+    path: 01-modules/command-palette/micro/0506-history-prefix/prompt-pack.yaml
+  module.command-palette.task0507:
+    path: 01-modules/command-palette/micro/0507-bookmarks-prefix/prompt-pack.yaml
+  module.command-palette.task0508:
+    path: 01-modules/command-palette/micro/0508-bookmarks-prefix/prompt-pack.yaml
+  module.command-palette.task0509:
+    path: 01-modules/command-palette/micro/0509-bookmarks-prefix/prompt-pack.yaml
+  module.command-palette.task0510:
+    path: 01-modules/command-palette/micro/0510-bookmarks-prefix/prompt-pack.yaml
+  module.command-palette.task0511:
+    path: 01-modules/command-palette/micro/0511-settings-prefix/prompt-pack.yaml
+  module.command-palette.task0512:
+    path: 01-modules/command-palette/micro/0512-settings-prefix/prompt-pack.yaml
+  module.command-palette.task0513:
+    path: 01-modules/command-palette/micro/0513-settings-prefix/prompt-pack.yaml
+  module.command-palette.task0514:
+    path: 01-modules/command-palette/micro/0514-settings-prefix/prompt-pack.yaml
+  module.command-palette.task0515:
+    path: 01-modules/command-palette/micro/0515-fuzzy-matching/prompt-pack.yaml
+  module.command-palette.task0516:
+    path: 01-modules/command-palette/micro/0516-fuzzy-matching/prompt-pack.yaml
+  module.split-view.task0517:
+    path: 01-modules/split-view/micro/0517-split-create/prompt-pack.yaml
+  module.split-view.task0518:
+    path: 01-modules/split-view/micro/0518-split-create/prompt-pack.yaml
+  module.split-view.task0519:
+    path: 01-modules/split-view/micro/0519-split-create/prompt-pack.yaml
+  module.split-view.task0520:
+    path: 01-modules/split-view/micro/0520-split-create/prompt-pack.yaml
+  module.split-view.task0521:
+    path: 01-modules/split-view/micro/0521-split-vertical-resize/prompt-pack.yaml
+  module.split-view.task0522:
+    path: 01-modules/split-view/micro/0522-split-vertical-resize/prompt-pack.yaml
+  module.split-view.task0523:
+    path: 01-modules/split-view/micro/0523-split-vertical-resize/prompt-pack.yaml
+  module.split-view.task0524:
+    path: 01-modules/split-view/micro/0524-split-vertical-resize/prompt-pack.yaml
+  module.split-view.task0525:
+    path: 01-modules/split-view/micro/0525-split-horizontal-resize/prompt-pack.yaml
+  module.split-view.task0526:
+    path: 01-modules/split-view/micro/0526-split-horizontal-resize/prompt-pack.yaml
+  module.split-view.task0527:
+    path: 01-modules/split-view/micro/0527-split-horizontal-resize/prompt-pack.yaml
+  module.split-view.task0528:
+    path: 01-modules/split-view/micro/0528-split-horizontal-resize/prompt-pack.yaml
+  module.split-view.task0529:
+    path: 01-modules/split-view/micro/0529-split-four-pane/prompt-pack.yaml
+  module.split-view.task0530:
+    path: 01-modules/split-view/micro/0530-split-four-pane/prompt-pack.yaml
+  module.split-view.task0531:
+    path: 01-modules/split-view/micro/0531-split-four-pane/prompt-pack.yaml
+  module.split-view.task0532:
+    path: 01-modules/split-view/micro/0532-split-four-pane/prompt-pack.yaml
+  module.split-view.task0533:
+    path: 01-modules/split-view/micro/0533-split-collapse/prompt-pack.yaml
+  module.split-view.task0534:
+    path: 01-modules/split-view/micro/0534-split-collapse/prompt-pack.yaml
+  module.split-view.task0535:
+    path: 01-modules/split-view/micro/0535-split-collapse/prompt-pack.yaml
+  module.split-view.task0536:
+    path: 01-modules/split-view/micro/0536-split-collapse/prompt-pack.yaml
+  module.split-view.task0537:
+    path: 01-modules/split-view/micro/0537-split-focus-management/prompt-pack.yaml
+  module.split-view.task0538:
+    path: 01-modules/split-view/micro/0538-split-focus-management/prompt-pack.yaml
+  module.split-view.task0539:
+    path: 01-modules/split-view/micro/0539-split-focus-management/prompt-pack.yaml
+  module.split-view.task0540:
+    path: 01-modules/split-view/micro/0540-split-focus-management/prompt-pack.yaml
+  module.notes.task0541:
+    path: 01-modules/notes/micro/0541-notes-create/prompt-pack.yaml
+  module.notes.task0542:
+    path: 01-modules/notes/micro/0542-notes-create/prompt-pack.yaml
+  module.notes.task0543:
+    path: 01-modules/notes/micro/0543-notes-create/prompt-pack.yaml
+  module.notes.task0544:
+    path: 01-modules/notes/micro/0544-notes-create/prompt-pack.yaml
+  module.notes.task0545:
+    path: 01-modules/notes/micro/0545-notes-edit/prompt-pack.yaml
+  module.notes.task0546:
+    path: 01-modules/notes/micro/0546-notes-edit/prompt-pack.yaml
+  module.notes.task0547:
+    path: 01-modules/notes/micro/0547-notes-edit/prompt-pack.yaml
+  module.notes.task0548:
+    path: 01-modules/notes/micro/0548-notes-edit/prompt-pack.yaml
+  module.notes.task0549:
+    path: 01-modules/notes/micro/0549-notes-delete/prompt-pack.yaml
+  module.notes.task0550:
+    path: 01-modules/notes/micro/0550-notes-delete/prompt-pack.yaml
+  module.notes.task0551:
+    path: 01-modules/notes/micro/0551-notes-delete/prompt-pack.yaml
+  module.notes.task0552:
+    path: 01-modules/notes/micro/0552-notes-delete/prompt-pack.yaml
+  module.notes.task0553:
+    path: 01-modules/notes/micro/0553-notes-page-link/prompt-pack.yaml
+  module.notes.task0554:
+    path: 01-modules/notes/micro/0554-notes-page-link/prompt-pack.yaml
+  module.notes.task0555:
+    path: 01-modules/notes/micro/0555-notes-page-link/prompt-pack.yaml
+  module.notes.task0556:
+    path: 01-modules/notes/micro/0556-notes-page-link/prompt-pack.yaml
+  module.notes.task0557:
+    path: 01-modules/notes/micro/0557-notes-search/prompt-pack.yaml
+  module.notes.task0558:
+    path: 01-modules/notes/micro/0558-notes-search/prompt-pack.yaml
+  module.notes.task0559:
+    path: 01-modules/notes/micro/0559-notes-search/prompt-pack.yaml
+  module.notes.task0560:
+    path: 01-modules/notes/micro/0560-notes-search/prompt-pack.yaml
+  module.notes.task0561:
+    path: 01-modules/notes/micro/0561-notes-autosave/prompt-pack.yaml
+  module.notes.task0562:
+    path: 01-modules/notes/micro/0562-notes-autosave/prompt-pack.yaml
+  module.screenshots.task0563:
+    path: 01-modules/screenshots/micro/0563-capture-visible-viewport/prompt-pack.yaml
+  module.screenshots.task0564:
+    path: 01-modules/screenshots/micro/0564-capture-visible-viewport/prompt-pack.yaml
+  module.screenshots.task0565:
+    path: 01-modules/screenshots/micro/0565-capture-visible-viewport/prompt-pack.yaml
+  module.screenshots.task0566:
+    path: 01-modules/screenshots/micro/0566-capture-visible-viewport/prompt-pack.yaml
+  module.screenshots.task0567:
+    path: 01-modules/screenshots/micro/0567-capture-region/prompt-pack.yaml
+  module.screenshots.task0568:
+    path: 01-modules/screenshots/micro/0568-capture-region/prompt-pack.yaml
+  module.screenshots.task0569:
+    path: 01-modules/screenshots/micro/0569-capture-region/prompt-pack.yaml
+  module.screenshots.task0570:
+    path: 01-modules/screenshots/micro/0570-capture-region/prompt-pack.yaml
+  module.screenshots.task0571:
+    path: 01-modules/screenshots/micro/0571-capture-full-page/prompt-pack.yaml
+  module.screenshots.task0572:
+    path: 01-modules/screenshots/micro/0572-capture-full-page/prompt-pack.yaml
+  module.screenshots.task0573:
+    path: 01-modules/screenshots/micro/0573-capture-full-page/prompt-pack.yaml
+  module.screenshots.task0574:
+    path: 01-modules/screenshots/micro/0574-capture-full-page/prompt-pack.yaml
+  module.screenshots.task0575:
+    path: 01-modules/screenshots/micro/0575-capture-save-dialog/prompt-pack.yaml
+  module.screenshots.task0576:
+    path: 01-modules/screenshots/micro/0576-capture-save-dialog/prompt-pack.yaml
+  module.screenshots.task0577:
+    path: 01-modules/screenshots/micro/0577-capture-save-dialog/prompt-pack.yaml
+  module.screenshots.task0578:
+    path: 01-modules/screenshots/micro/0578-capture-save-dialog/prompt-pack.yaml
+  module.screenshots.task0579:
+    path: 01-modules/screenshots/micro/0579-capture-filename/prompt-pack.yaml
+  module.screenshots.task0580:
+    path: 01-modules/screenshots/micro/0580-capture-filename/prompt-pack.yaml
+  module.screenshots.task0581:
+    path: 01-modules/screenshots/micro/0581-capture-filename/prompt-pack.yaml
+  module.qr.task0582:
+    path: 01-modules/qr/micro/0582-qr-from-url/prompt-pack.yaml
+  module.qr.task0583:
+    path: 01-modules/qr/micro/0583-qr-from-url/prompt-pack.yaml
+  module.qr.task0584:
+    path: 01-modules/qr/micro/0584-qr-from-url/prompt-pack.yaml
+  module.qr.task0585:
+    path: 01-modules/qr/micro/0585-qr-from-url/prompt-pack.yaml
+  module.qr.task0586:
+    path: 01-modules/qr/micro/0586-qr-from-text/prompt-pack.yaml
+  module.qr.task0587:
+    path: 01-modules/qr/micro/0587-qr-from-text/prompt-pack.yaml
+  module.qr.task0588:
+    path: 01-modules/qr/micro/0588-qr-from-text/prompt-pack.yaml
+  module.qr.task0589:
+    path: 01-modules/qr/micro/0589-qr-from-text/prompt-pack.yaml
+  module.qr.task0590:
+    path: 01-modules/qr/micro/0590-qr-vector-export/prompt-pack.yaml
+  module.qr.task0591:
+    path: 01-modules/qr/micro/0591-qr-vector-export/prompt-pack.yaml
+  module.qr.task0592:
+    path: 01-modules/qr/micro/0592-qr-vector-export/prompt-pack.yaml
+  module.qr.task0593:
+    path: 01-modules/qr/micro/0593-qr-vector-export/prompt-pack.yaml
+  module.qr.task0594:
+    path: 01-modules/qr/micro/0594-qr-raster-export/prompt-pack.yaml
+  module.qr.task0595:
+    path: 01-modules/qr/micro/0595-qr-raster-export/prompt-pack.yaml
+  module.qr.task0596:
+    path: 01-modules/qr/micro/0596-qr-raster-export/prompt-pack.yaml
+  module.passwords.task0597:
+    path: 01-modules/passwords/micro/0597-secure-random-generation/prompt-pack.yaml
+  module.passwords.task0598:
+    path: 01-modules/passwords/micro/0598-secure-random-generation/prompt-pack.yaml
+  module.passwords.task0599:
+    path: 01-modules/passwords/micro/0599-secure-random-generation/prompt-pack.yaml
+  module.passwords.task0600:
+    path: 01-modules/passwords/micro/0600-secure-random-generation/prompt-pack.yaml
+  module.passwords.task0601:
+    path: 01-modules/passwords/micro/0601-password-strength-settings/prompt-pack.yaml
+  module.passwords.task0602:
+    path: 01-modules/passwords/micro/0602-password-strength-settings/prompt-pack.yaml
+  module.passwords.task0603:
+    path: 01-modules/passwords/micro/0603-password-strength-settings/prompt-pack.yaml
+  module.passwords.task0604:
+    path: 01-modules/passwords/micro/0604-password-strength-settings/prompt-pack.yaml
+  module.passwords.task0605:
+    path: 01-modules/passwords/micro/0605-password-clipboard-clearing/prompt-pack.yaml
+  module.passwords.task0606:
+    path: 01-modules/passwords/micro/0606-password-clipboard-clearing/prompt-pack.yaml
+  module.passwords.task0607:
+    path: 01-modules/passwords/micro/0607-password-clipboard-clearing/prompt-pack.yaml
+  module.passwords.task0608:
+    path: 01-modules/passwords/micro/0608-password-clipboard-clearing/prompt-pack.yaml
+  module.passwords.task0609:
+    path: 01-modules/passwords/micro/0609-password-reveal-controls/prompt-pack.yaml
+  module.passwords.task0610:
+    path: 01-modules/passwords/micro/0610-password-reveal-controls/prompt-pack.yaml
+  module.passwords.task0611:
+    path: 01-modules/passwords/micro/0611-password-reveal-controls/prompt-pack.yaml
+  module.passwords.task0612:
+    path: 01-modules/passwords/micro/0612-password-reveal-controls/prompt-pack.yaml
+  module.passwords.task0613:
+    path: 01-modules/passwords/micro/0613-os-credential-storage/prompt-pack.yaml
+  module.translation.task0614:
+    path: 01-modules/translation/micro/0614-selected-text-translation/prompt-pack.yaml
+  module.translation.task0615:
+    path: 01-modules/translation/micro/0615-selected-text-translation/prompt-pack.yaml
+  module.translation.task0616:
+    path: 01-modules/translation/micro/0616-selected-text-translation/prompt-pack.yaml
+  module.translation.task0617:
+    path: 01-modules/translation/micro/0617-selected-text-translation/prompt-pack.yaml
+  module.translation.task0618:
+    path: 01-modules/translation/micro/0618-page-translation-opt-in/prompt-pack.yaml
+  module.translation.task0619:
+    path: 01-modules/translation/micro/0619-page-translation-opt-in/prompt-pack.yaml
+  module.translation.task0620:
+    path: 01-modules/translation/micro/0620-page-translation-opt-in/prompt-pack.yaml
+  module.translation.task0621:
+    path: 01-modules/translation/micro/0621-page-translation-opt-in/prompt-pack.yaml
+  module.translation.task0622:
+    path: 01-modules/translation/micro/0622-provider-privacy-warning/prompt-pack.yaml
+  module.translation.task0623:
+    path: 01-modules/translation/micro/0623-provider-privacy-warning/prompt-pack.yaml
+  module.translation.task0624:
+    path: 01-modules/translation/micro/0624-provider-privacy-warning/prompt-pack.yaml
+  module.translation.task0625:
+    path: 01-modules/translation/micro/0625-provider-privacy-warning/prompt-pack.yaml
+  module.translation.task0626:
+    path: 01-modules/translation/micro/0626-translation-failure-ui/prompt-pack.yaml
+  module.translation.task0627:
+    path: 01-modules/translation/micro/0627-translation-failure-ui/prompt-pack.yaml
+  module.translation.task0628:
+    path: 01-modules/translation/micro/0628-translation-failure-ui/prompt-pack.yaml
+  module.readers.task0629:
+    path: 01-modules/readers/micro/0629-markdown-renderer/prompt-pack.yaml
+  module.readers.task0630:
+    path: 01-modules/readers/micro/0630-markdown-renderer/prompt-pack.yaml
+  module.readers.task0631:
+    path: 01-modules/readers/micro/0631-markdown-renderer/prompt-pack.yaml
+  module.readers.task0632:
+    path: 01-modules/readers/micro/0632-markdown-renderer/prompt-pack.yaml
+  module.readers.task0633:
+    path: 01-modules/readers/micro/0633-markdown-sanitization/prompt-pack.yaml
+  module.readers.task0634:
+    path: 01-modules/readers/micro/0634-markdown-sanitization/prompt-pack.yaml
+  module.readers.task0635:
+    path: 01-modules/readers/micro/0635-markdown-sanitization/prompt-pack.yaml
+  module.readers.task0636:
+    path: 01-modules/readers/micro/0636-markdown-sanitization/prompt-pack.yaml
+  module.readers.task0637:
+    path: 01-modules/readers/micro/0637-mermaid-local-rendering/prompt-pack.yaml
+  module.readers.task0638:
+    path: 01-modules/readers/micro/0638-mermaid-local-rendering/prompt-pack.yaml
+  module.readers.task0639:
+    path: 01-modules/readers/micro/0639-mermaid-local-rendering/prompt-pack.yaml
+  module.readers.task0640:
+    path: 01-modules/readers/micro/0640-mermaid-local-rendering/prompt-pack.yaml
+  module.readers.task0641:
+    path: 01-modules/readers/micro/0641-mermaid-sandbox/prompt-pack.yaml
+  module.readers.task0642:
+    path: 01-modules/readers/micro/0642-mermaid-sandbox/prompt-pack.yaml
+  module.readers.task0643:
+    path: 01-modules/readers/micro/0643-mermaid-sandbox/prompt-pack.yaml
+  module.readers.task0644:
+    path: 01-modules/readers/micro/0644-mermaid-sandbox/prompt-pack.yaml
+  module.readers.task0645:
+    path: 01-modules/readers/micro/0645-json-tree-model/prompt-pack.yaml
+  module.readers.task0646:
+    path: 01-modules/readers/micro/0646-json-tree-model/prompt-pack.yaml
+  module.readers.task0647:
+    path: 01-modules/readers/micro/0647-json-tree-model/prompt-pack.yaml
+  module.readers.task0648:
+    path: 01-modules/readers/micro/0648-json-tree-model/prompt-pack.yaml
+  module.readers.task0649:
+    path: 01-modules/readers/micro/0649-json-virtualization/prompt-pack.yaml
+  module.readers.task0650:
+    path: 01-modules/readers/micro/0650-json-virtualization/prompt-pack.yaml
+  module.readers.task0651:
+    path: 01-modules/readers/micro/0651-json-virtualization/prompt-pack.yaml
+  module.readers.task0652:
+    path: 01-modules/readers/micro/0652-json-virtualization/prompt-pack.yaml
+  module.readers.task0653:
+    path: 01-modules/readers/micro/0653-jsonl-streaming/prompt-pack.yaml
+  module.readers.task0654:
+    path: 01-modules/readers/micro/0654-jsonl-streaming/prompt-pack.yaml
+  module.readers.task0655:
+    path: 01-modules/readers/micro/0655-jsonl-streaming/prompt-pack.yaml
+  module.readers.task0656:
+    path: 01-modules/readers/micro/0656-jsonl-streaming/prompt-pack.yaml
+  module.readers.task0657:
+    path: 01-modules/readers/micro/0657-yaml-viewer/prompt-pack.yaml
+  module.readers.task0658:
+    path: 01-modules/readers/micro/0658-yaml-viewer/prompt-pack.yaml
+  module.readers.task0659:
+    path: 01-modules/readers/micro/0659-yaml-viewer/prompt-pack.yaml
+  module.readers.task0660:
+    path: 01-modules/readers/micro/0660-yaml-viewer/prompt-pack.yaml
+  module.readers.task0661:
+    path: 01-modules/readers/micro/0661-toml-viewer/prompt-pack.yaml
+  module.readers.task0662:
+    path: 01-modules/readers/micro/0662-toml-viewer/prompt-pack.yaml
+  module.readers.task0663:
+    path: 01-modules/readers/micro/0663-toml-viewer/prompt-pack.yaml
+  module.readers.task0664:
+    path: 01-modules/readers/micro/0664-toml-viewer/prompt-pack.yaml
+  module.readers.task0665:
+    path: 01-modules/readers/micro/0665-ini-viewer/prompt-pack.yaml
+  module.readers.task0666:
+    path: 01-modules/readers/micro/0666-ini-viewer/prompt-pack.yaml
+  module.readers.task0667:
+    path: 01-modules/readers/micro/0667-ini-viewer/prompt-pack.yaml
+  module.readers.task0668:
+    path: 01-modules/readers/micro/0668-ini-viewer/prompt-pack.yaml
+  module.readers.task0669:
+    path: 01-modules/readers/micro/0669-xml-tree-viewer/prompt-pack.yaml
+  module.readers.task0670:
+    path: 01-modules/readers/micro/0670-xml-tree-viewer/prompt-pack.yaml
+  module.readers.task0671:
+    path: 01-modules/readers/micro/0671-xml-tree-viewer/prompt-pack.yaml
+  module.readers.task0672:
+    path: 01-modules/readers/micro/0672-xml-tree-viewer/prompt-pack.yaml
+  module.readers.task0673:
+    path: 01-modules/readers/micro/0673-csv-grid-model/prompt-pack.yaml
+  module.readers.task0674:
+    path: 01-modules/readers/micro/0674-csv-grid-model/prompt-pack.yaml
+  module.readers.task0675:
+    path: 01-modules/readers/micro/0675-csv-grid-model/prompt-pack.yaml
+  module.readers.task0676:
+    path: 01-modules/readers/micro/0676-csv-grid-model/prompt-pack.yaml
+  module.readers.task0677:
+    path: 01-modules/readers/micro/0677-tsv-grid-model/prompt-pack.yaml
+  module.readers.task0678:
+    path: 01-modules/readers/micro/0678-tsv-grid-model/prompt-pack.yaml
+  module.readers.task0679:
+    path: 01-modules/readers/micro/0679-tsv-grid-model/prompt-pack.yaml
+  module.readers.task0680:
+    path: 01-modules/readers/micro/0680-tsv-grid-model/prompt-pack.yaml
+  module.readers.task0681:
+    path: 01-modules/readers/micro/0681-log-viewer/prompt-pack.yaml
+  module.readers.task0682:
+    path: 01-modules/readers/micro/0682-log-viewer/prompt-pack.yaml
+  module.readers.task0683:
+    path: 01-modules/readers/micro/0683-log-viewer/prompt-pack.yaml
+  module.readers.task0684:
+    path: 01-modules/readers/micro/0684-log-viewer/prompt-pack.yaml
+  module.readers.task0685:
+    path: 01-modules/readers/micro/0685-txt-viewer/prompt-pack.yaml
+  module.readers.task0686:
+    path: 01-modules/readers/micro/0686-txt-viewer/prompt-pack.yaml
+  module.readers.task0687:
+    path: 01-modules/readers/micro/0687-txt-viewer/prompt-pack.yaml
+  module.devtools.task0688:
+    path: 01-modules/devtools/micro/0688-devtools-open-close/prompt-pack.yaml
+  module.devtools.task0689:
+    path: 01-modules/devtools/micro/0689-devtools-open-close/prompt-pack.yaml
+  module.devtools.task0690:
+    path: 01-modules/devtools/micro/0690-devtools-open-close/prompt-pack.yaml
+  module.devtools.task0691:
+    path: 01-modules/devtools/micro/0691-devtools-open-close/prompt-pack.yaml
+  module.devtools.task0692:
+    path: 01-modules/devtools/micro/0692-resource-inspector/prompt-pack.yaml
+  module.devtools.task0693:
+    path: 01-modules/devtools/micro/0693-resource-inspector/prompt-pack.yaml
+  module.devtools.task0694:
+    path: 01-modules/devtools/micro/0694-resource-inspector/prompt-pack.yaml
+  module.devtools.task0695:
+    path: 01-modules/devtools/micro/0695-resource-inspector/prompt-pack.yaml
+  module.devtools.task0696:
+    path: 01-modules/devtools/micro/0696-responsive-layout-presets/prompt-pack.yaml
+  module.devtools.task0697:
+    path: 01-modules/devtools/micro/0697-responsive-layout-presets/prompt-pack.yaml
+  module.devtools.task0698:
+    path: 01-modules/devtools/micro/0698-responsive-layout-presets/prompt-pack.yaml
+  module.devtools.task0699:
+    path: 01-modules/devtools/micro/0699-responsive-layout-presets/prompt-pack.yaml
+  module.devtools.task0700:
+    path: 01-modules/devtools/micro/0700-network-request-viewer/prompt-pack.yaml
+  module.devtools.task0701:
+    path: 01-modules/devtools/micro/0701-network-request-viewer/prompt-pack.yaml
+  module.devtools.task0702:
+    path: 01-modules/devtools/micro/0702-network-request-viewer/prompt-pack.yaml
+  module.devtools.task0703:
+    path: 01-modules/devtools/micro/0703-network-request-viewer/prompt-pack.yaml
+  module.devtools.task0704:
+    path: 01-modules/devtools/micro/0704-console-privacy-policy/prompt-pack.yaml
+  module.extensions.task0705:
+    path: 01-modules/extensions/micro/0705-extension-manager-ui/prompt-pack.yaml
+  module.extensions.task0706:
+    path: 01-modules/extensions/micro/0706-extension-manager-ui/prompt-pack.yaml
+  module.extensions.task0707:
+    path: 01-modules/extensions/micro/0707-extension-manager-ui/prompt-pack.yaml
+  module.extensions.task0708:
+    path: 01-modules/extensions/micro/0708-extension-manager-ui/prompt-pack.yaml
+  module.extensions.task0709:
+    path: 01-modules/extensions/micro/0709-mv3-discovery/prompt-pack.yaml
+  module.extensions.task0710:
+    path: 01-modules/extensions/micro/0710-mv3-discovery/prompt-pack.yaml
+  module.extensions.task0711:
+    path: 01-modules/extensions/micro/0711-mv3-discovery/prompt-pack.yaml
+  module.extensions.task0712:
+    path: 01-modules/extensions/micro/0712-mv3-discovery/prompt-pack.yaml
+  module.extensions.task0713:
+    path: 01-modules/extensions/micro/0713-extension-install-local/prompt-pack.yaml
+  module.extensions.task0714:
+    path: 01-modules/extensions/micro/0714-extension-install-local/prompt-pack.yaml
+  module.extensions.task0715:
+    path: 01-modules/extensions/micro/0715-extension-install-local/prompt-pack.yaml
+  module.extensions.task0716:
+    path: 01-modules/extensions/micro/0716-extension-install-local/prompt-pack.yaml
+  module.extensions.task0717:
+    path: 01-modules/extensions/micro/0717-extension-uninstall/prompt-pack.yaml
+  module.extensions.task0718:
+    path: 01-modules/extensions/micro/0718-extension-uninstall/prompt-pack.yaml
+  module.extensions.task0719:
+    path: 01-modules/extensions/micro/0719-extension-uninstall/prompt-pack.yaml
+  module.extensions.task0720:
+    path: 01-modules/extensions/micro/0720-extension-uninstall/prompt-pack.yaml
+  module.extensions.task0721:
+    path: 01-modules/extensions/micro/0721-extension-enable-disable/prompt-pack.yaml
+  module.extensions.task0722:
+    path: 01-modules/extensions/micro/0722-extension-enable-disable/prompt-pack.yaml
+  module.extensions.task0723:
+    path: 01-modules/extensions/micro/0723-extension-enable-disable/prompt-pack.yaml
+  module.extensions.task0724:
+    path: 01-modules/extensions/micro/0724-extension-enable-disable/prompt-pack.yaml
+  module.extensions.task0725:
+    path: 01-modules/extensions/micro/0725-extension-permission-review/prompt-pack.yaml
+  module.extensions.task0726:
+    path: 01-modules/extensions/micro/0726-extension-permission-review/prompt-pack.yaml
+  module.extensions.task0727:
+    path: 01-modules/extensions/micro/0727-extension-permission-review/prompt-pack.yaml
+  module.extensions.task0728:
+    path: 01-modules/extensions/micro/0728-extension-permission-review/prompt-pack.yaml
+  module.extensions.task0729:
+    path: 01-modules/extensions/micro/0729-extension-capability-warnings/prompt-pack.yaml
+  module.extensions.task0730:
+    path: 01-modules/extensions/micro/0730-extension-capability-warnings/prompt-pack.yaml
+  module.mcp.task0731:
+    path: 01-modules/mcp/micro/0731-mcp-disabled-default/prompt-pack.yaml
+  module.mcp.task0732:
+    path: 01-modules/mcp/micro/0732-mcp-disabled-default/prompt-pack.yaml
+  module.mcp.task0733:
+    path: 01-modules/mcp/micro/0733-mcp-disabled-default/prompt-pack.yaml
+  module.mcp.task0734:
+    path: 01-modules/mcp/micro/0734-mcp-disabled-default/prompt-pack.yaml
+  module.mcp.task0735:
+    path: 01-modules/mcp/micro/0735-stdio-bridge-lifecycle/prompt-pack.yaml
+  module.mcp.task0736:
+    path: 01-modules/mcp/micro/0736-stdio-bridge-lifecycle/prompt-pack.yaml
+  module.mcp.task0737:
+    path: 01-modules/mcp/micro/0737-stdio-bridge-lifecycle/prompt-pack.yaml
+  module.mcp.task0738:
+    path: 01-modules/mcp/micro/0738-stdio-bridge-lifecycle/prompt-pack.yaml
+  module.mcp.task0739:
+    path: 01-modules/mcp/micro/0739-ipc-authentication/prompt-pack.yaml
+  module.mcp.task0740:
+    path: 01-modules/mcp/micro/0740-ipc-authentication/prompt-pack.yaml
+  module.mcp.task0741:
+    path: 01-modules/mcp/micro/0741-ipc-authentication/prompt-pack.yaml
+  module.mcp.task0742:
+    path: 01-modules/mcp/micro/0742-ipc-authentication/prompt-pack.yaml
+  module.mcp.task0743:
+    path: 01-modules/mcp/micro/0743-tool-discovery/prompt-pack.yaml
+  module.mcp.task0744:
+    path: 01-modules/mcp/micro/0744-tool-discovery/prompt-pack.yaml
+  module.mcp.task0745:
+    path: 01-modules/mcp/micro/0745-tool-discovery/prompt-pack.yaml
+  module.mcp.task0746:
+    path: 01-modules/mcp/micro/0746-tool-discovery/prompt-pack.yaml
+  module.mcp.task0747:
+    path: 01-modules/mcp/micro/0747-list-tabs-tool/prompt-pack.yaml
+  module.mcp.task0748:
+    path: 01-modules/mcp/micro/0748-list-tabs-tool/prompt-pack.yaml
+  module.mcp.task0749:
+    path: 01-modules/mcp/micro/0749-list-tabs-tool/prompt-pack.yaml
+  module.mcp.task0750:
+    path: 01-modules/mcp/micro/0750-list-tabs-tool/prompt-pack.yaml
+  module.mcp.task0751:
+    path: 01-modules/mcp/micro/0751-active-tab-tool/prompt-pack.yaml
+  module.mcp.task0752:
+    path: 01-modules/mcp/micro/0752-active-tab-tool/prompt-pack.yaml
+  module.mcp.task0753:
+    path: 01-modules/mcp/micro/0753-active-tab-tool/prompt-pack.yaml
+  module.mcp.task0754:
+    path: 01-modules/mcp/micro/0754-active-tab-tool/prompt-pack.yaml
+  module.mcp.task0755:
+    path: 01-modules/mcp/micro/0755-read-page-tool/prompt-pack.yaml
+  module.mcp.task0756:
+    path: 01-modules/mcp/micro/0756-read-page-tool/prompt-pack.yaml
+  module.mcp.task0757:
+    path: 01-modules/mcp/micro/0757-read-page-tool/prompt-pack.yaml
+  module.mcp.task0758:
+    path: 01-modules/mcp/micro/0758-read-page-tool/prompt-pack.yaml
+  module.mcp.task0759:
+    path: 01-modules/mcp/micro/0759-get-links-tool/prompt-pack.yaml
+  module.mcp.task0760:
+    path: 01-modules/mcp/micro/0760-get-links-tool/prompt-pack.yaml
+  module.mcp.task0761:
+    path: 01-modules/mcp/micro/0761-get-links-tool/prompt-pack.yaml
+  module.mcp.task0762:
+    path: 01-modules/mcp/micro/0762-get-links-tool/prompt-pack.yaml
+  module.mcp.task0763:
+    path: 01-modules/mcp/micro/0763-open-tab-tool/prompt-pack.yaml
+  module.mcp.task0764:
+    path: 01-modules/mcp/micro/0764-open-tab-tool/prompt-pack.yaml
+  module.mcp.task0765:
+    path: 01-modules/mcp/micro/0765-open-tab-tool/prompt-pack.yaml
+  module.mcp.task0766:
+    path: 01-modules/mcp/micro/0766-open-tab-tool/prompt-pack.yaml
+  module.mcp.task0767:
+    path: 01-modules/mcp/micro/0767-search-tabs-tool/prompt-pack.yaml
+  module.mcp.task0768:
+    path: 01-modules/mcp/micro/0768-search-tabs-tool/prompt-pack.yaml
+  module.mcp.task0769:
+    path: 01-modules/mcp/micro/0769-search-tabs-tool/prompt-pack.yaml
+  module.mcp.task0770:
+    path: 01-modules/mcp/micro/0770-search-tabs-tool/prompt-pack.yaml
+  module.mcp.task0771:
+    path: 01-modules/mcp/micro/0771-capture-page-tool/prompt-pack.yaml
+  module.mcp.task0772:
+    path: 01-modules/mcp/micro/0772-capture-page-tool/prompt-pack.yaml
+  module.mcp.task0773:
+    path: 01-modules/mcp/micro/0773-capture-page-tool/prompt-pack.yaml
+  module.mcp.task0774:
+    path: 01-modules/mcp/micro/0774-capture-page-tool/prompt-pack.yaml
+  module.mcp.task0775:
+    path: 01-modules/mcp/micro/0775-click-element-tool/prompt-pack.yaml
+  module.mcp.task0776:
+    path: 01-modules/mcp/micro/0776-click-element-tool/prompt-pack.yaml
+  module.mcp.task0777:
+    path: 01-modules/mcp/micro/0777-click-element-tool/prompt-pack.yaml
+  module.mcp.task0778:
+    path: 01-modules/mcp/micro/0778-click-element-tool/prompt-pack.yaml
+  module.mcp.task0779:
+    path: 01-modules/mcp/micro/0779-type-text-tool/prompt-pack.yaml
+  module.mcp.task0780:
+    path: 01-modules/mcp/micro/0780-type-text-tool/prompt-pack.yaml
+  module.mcp.task0781:
+    path: 01-modules/mcp/micro/0781-type-text-tool/prompt-pack.yaml
+  module.mcp.task0782:
+    path: 01-modules/mcp/micro/0782-type-text-tool/prompt-pack.yaml
+  module.diagnostics.task0783:
+    path: 01-modules/diagnostics/micro/0783-local-structured-logs/prompt-pack.yaml
+  module.diagnostics.task0784:
+    path: 01-modules/diagnostics/micro/0784-local-structured-logs/prompt-pack.yaml
+  module.diagnostics.task0785:
+    path: 01-modules/diagnostics/micro/0785-local-structured-logs/prompt-pack.yaml
+  module.diagnostics.task0786:
+    path: 01-modules/diagnostics/micro/0786-local-structured-logs/prompt-pack.yaml
+  module.diagnostics.task0787:
+    path: 01-modules/diagnostics/micro/0787-log-category-toggles/prompt-pack.yaml
+  module.diagnostics.task0788:
+    path: 01-modules/diagnostics/micro/0788-log-category-toggles/prompt-pack.yaml
+  module.diagnostics.task0789:
+    path: 01-modules/diagnostics/micro/0789-log-category-toggles/prompt-pack.yaml
+  module.diagnostics.task0790:
+    path: 01-modules/diagnostics/micro/0790-log-category-toggles/prompt-pack.yaml
+  module.diagnostics.task0791:
+    path: 01-modules/diagnostics/micro/0791-log-rotation/prompt-pack.yaml
+  module.diagnostics.task0792:
+    path: 01-modules/diagnostics/micro/0792-log-rotation/prompt-pack.yaml
+  module.diagnostics.task0793:
+    path: 01-modules/diagnostics/micro/0793-log-rotation/prompt-pack.yaml
+  module.diagnostics.task0794:
+    path: 01-modules/diagnostics/micro/0794-log-rotation/prompt-pack.yaml
+  module.diagnostics.task0795:
+    path: 01-modules/diagnostics/micro/0795-log-retention/prompt-pack.yaml
+  module.diagnostics.task0796:
+    path: 01-modules/diagnostics/micro/0796-log-retention/prompt-pack.yaml
+  module.diagnostics.task0797:
+    path: 01-modules/diagnostics/micro/0797-log-retention/prompt-pack.yaml
+  module.diagnostics.task0798:
+    path: 01-modules/diagnostics/micro/0798-log-retention/prompt-pack.yaml
+  module.diagnostics.task0799:
+    path: 01-modules/diagnostics/micro/0799-pii-redaction/prompt-pack.yaml
+  module.diagnostics.task0800:
+    path: 01-modules/diagnostics/micro/0800-pii-redaction/prompt-pack.yaml
+  module.diagnostics.task0801:
+    path: 01-modules/diagnostics/micro/0801-pii-redaction/prompt-pack.yaml
+  module.diagnostics.task0802:
+    path: 01-modules/diagnostics/micro/0802-pii-redaction/prompt-pack.yaml
+  module.diagnostics.task0803:
+    path: 01-modules/diagnostics/micro/0803-crash-dump-opt-in/prompt-pack.yaml
+  module.diagnostics.task0804:
+    path: 01-modules/diagnostics/micro/0804-crash-dump-opt-in/prompt-pack.yaml
+  module.diagnostics.task0805:
+    path: 01-modules/diagnostics/micro/0805-crash-dump-opt-in/prompt-pack.yaml
+  module.diagnostics.task0806:
+    path: 01-modules/diagnostics/micro/0806-crash-dump-opt-in/prompt-pack.yaml
+  module.diagnostics.task0807:
+    path: 01-modules/diagnostics/micro/0807-resource-graphs/prompt-pack.yaml
+  module.diagnostics.task0808:
+    path: 01-modules/diagnostics/micro/0808-resource-graphs/prompt-pack.yaml
+  module.diagnostics.task0809:
+    path: 01-modules/diagnostics/micro/0809-resource-graphs/prompt-pack.yaml
+  module.diagnostics.task0810:
+    path: 01-modules/diagnostics/micro/0810-resource-graphs/prompt-pack.yaml
+  module.backup.task0811:
+    path: 01-modules/backup/micro/0811-settings-json-export/prompt-pack.yaml
+  module.backup.task0812:
+    path: 01-modules/backup/micro/0812-settings-json-export/prompt-pack.yaml
+  module.backup.task0813:
+    path: 01-modules/backup/micro/0813-settings-json-export/prompt-pack.yaml
+  module.backup.task0814:
+    path: 01-modules/backup/micro/0814-settings-json-export/prompt-pack.yaml
+  module.backup.task0815:
+    path: 01-modules/backup/micro/0815-bookmarks-export/prompt-pack.yaml
+  module.backup.task0816:
+    path: 01-modules/backup/micro/0816-bookmarks-export/prompt-pack.yaml
+  module.backup.task0817:
+    path: 01-modules/backup/micro/0817-bookmarks-export/prompt-pack.yaml
+  module.backup.task0818:
+    path: 01-modules/backup/micro/0818-bookmarks-export/prompt-pack.yaml
+  module.backup.task0819:
+    path: 01-modules/backup/micro/0819-sessions-export/prompt-pack.yaml
+  module.backup.task0820:
+    path: 01-modules/backup/micro/0820-sessions-export/prompt-pack.yaml
+  module.backup.task0821:
+    path: 01-modules/backup/micro/0821-sessions-export/prompt-pack.yaml
+  module.backup.task0822:
+    path: 01-modules/backup/micro/0822-sessions-export/prompt-pack.yaml
+  module.backup.task0823:
+    path: 01-modules/backup/micro/0823-encrypted-backup-design/prompt-pack.yaml
+  module.backup.task0824:
+    path: 01-modules/backup/micro/0824-encrypted-backup-design/prompt-pack.yaml
+  module.backup.task0825:
+    path: 01-modules/backup/micro/0825-encrypted-backup-design/prompt-pack.yaml
+  module.backup.task0826:
+    path: 01-modules/backup/micro/0826-encrypted-backup-design/prompt-pack.yaml
+  module.backup.task0827:
+    path: 01-modules/backup/micro/0827-backup-password-ui/prompt-pack.yaml
+  module.backup.task0828:
+    path: 01-modules/backup/micro/0828-backup-password-ui/prompt-pack.yaml
+  module.backup.task0829:
+    path: 01-modules/backup/micro/0829-backup-password-ui/prompt-pack.yaml
+  module.backup.task0830:
+    path: 01-modules/backup/micro/0830-backup-password-ui/prompt-pack.yaml
+  module.backup.task0831:
+    path: 01-modules/backup/micro/0831-backup-selection/prompt-pack.yaml
+  module.backup.task0832:
+    path: 01-modules/backup/micro/0832-backup-selection/prompt-pack.yaml
+  module.backup.task0833:
+    path: 01-modules/backup/micro/0833-backup-selection/prompt-pack.yaml
+  module.backup.task0834:
+    path: 01-modules/backup/micro/0834-backup-selection/prompt-pack.yaml
+  module.backup.task0835:
+    path: 01-modules/backup/micro/0835-backup-atomic-write/prompt-pack.yaml
+  module.backup.task0836:
+    path: 01-modules/backup/micro/0836-backup-atomic-write/prompt-pack.yaml
+  module.backup.task0837:
+    path: 01-modules/backup/micro/0837-backup-atomic-write/prompt-pack.yaml
+  module.backup.task0838:
+    path: 01-modules/backup/micro/0838-backup-atomic-write/prompt-pack.yaml
+  module.backup.task0839:
+    path: 01-modules/backup/micro/0839-backup-integrity-check/prompt-pack.yaml
+  module.backup.task0840:
+    path: 01-modules/backup/micro/0840-backup-integrity-check/prompt-pack.yaml
+  module.backup.task0841:
+    path: 01-modules/backup/micro/0841-backup-integrity-check/prompt-pack.yaml
+  module.installer.task0842:
+    path: 01-modules/installer/micro/0842-windows-setup-welcome/prompt-pack.yaml
+  module.installer.task0843:
+    path: 01-modules/installer/micro/0843-windows-setup-welcome/prompt-pack.yaml
+  module.installer.task0844:
+    path: 01-modules/installer/micro/0844-windows-setup-welcome/prompt-pack.yaml
+  module.installer.task0845:
+    path: 01-modules/installer/micro/0845-windows-setup-welcome/prompt-pack.yaml
+  module.installer.task0846:
+    path: 01-modules/installer/micro/0846-windows-installation-path/prompt-pack.yaml
+  module.installer.task0847:
+    path: 01-modules/installer/micro/0847-windows-installation-path/prompt-pack.yaml
+  module.installer.task0848:
+    path: 01-modules/installer/micro/0848-windows-installation-path/prompt-pack.yaml
+  module.installer.task0849:
+    path: 01-modules/installer/micro/0849-windows-installation-path/prompt-pack.yaml
+  module.installer.task0850:
+    path: 01-modules/installer/micro/0850-windows-component-selection/prompt-pack.yaml
+  module.installer.task0851:
+    path: 01-modules/installer/micro/0851-windows-component-selection/prompt-pack.yaml
+  module.installer.task0852:
+    path: 01-modules/installer/micro/0852-windows-component-selection/prompt-pack.yaml
+  module.installer.task0853:
+    path: 01-modules/installer/micro/0853-windows-component-selection/prompt-pack.yaml
+  module.installer.task0854:
+    path: 01-modules/installer/micro/0854-windows-progress-ui/prompt-pack.yaml
+  module.installer.task0855:
+    path: 01-modules/installer/micro/0855-windows-progress-ui/prompt-pack.yaml
+  module.installer.task0856:
+    path: 01-modules/installer/micro/0856-windows-progress-ui/prompt-pack.yaml
+  module.installer.task0857:
+    path: 01-modules/installer/micro/0857-windows-progress-ui/prompt-pack.yaml
+  module.installer.task0858:
+    path: 01-modules/installer/micro/0858-windows-failure-rollback/prompt-pack.yaml
+  module.installer.task0859:
+    path: 01-modules/installer/micro/0859-windows-failure-rollback/prompt-pack.yaml
+  module.installer.task0860:
+    path: 01-modules/installer/micro/0860-windows-failure-rollback/prompt-pack.yaml
+  module.installer.task0861:
+    path: 01-modules/installer/micro/0861-windows-failure-rollback/prompt-pack.yaml
+  module.installer.task0862:
+    path: 01-modules/installer/micro/0862-windows-uninstaller-export/prompt-pack.yaml
+  module.installer.task0863:
+    path: 01-modules/installer/micro/0863-windows-uninstaller-export/prompt-pack.yaml
+  module.installer.task0864:
+    path: 01-modules/installer/micro/0864-windows-uninstaller-export/prompt-pack.yaml
+  module.installer.task0865:
+    path: 01-modules/installer/micro/0865-windows-uninstaller-export/prompt-pack.yaml
+  module.installer.task0866:
+    path: 01-modules/installer/micro/0866-windows-uninstaller-retain-data/prompt-pack.yaml
+  module.installer.task0867:
+    path: 01-modules/installer/micro/0867-windows-uninstaller-retain-data/prompt-pack.yaml
+  module.installer.task0868:
+    path: 01-modules/installer/micro/0868-windows-uninstaller-retain-data/prompt-pack.yaml
+  module.installer.task0869:
+    path: 01-modules/installer/micro/0869-windows-uninstaller-retain-data/prompt-pack.yaml
+  module.installer.task0870:
+    path: 01-modules/installer/micro/0870-windows-uninstaller-wipe-confirmation/prompt-pack.yaml
+  module.installer.task0871:
+    path: 01-modules/installer/micro/0871-windows-uninstaller-wipe-confirmation/prompt-pack.yaml
+  module.installer.task0872:
+    path: 01-modules/installer/micro/0872-windows-uninstaller-wipe-confirmation/prompt-pack.yaml
+  module.installer.task0873:
+    path: 01-modules/installer/micro/0873-windows-uninstaller-wipe-confirmation/prompt-pack.yaml
+  module.installer.task0874:
+    path: 01-modules/installer/micro/0874-linux-deb-packaging/prompt-pack.yaml
+  module.installer.task0875:
+    path: 01-modules/installer/micro/0875-linux-deb-packaging/prompt-pack.yaml
+  module.installer.task0876:
+    path: 01-modules/installer/micro/0876-linux-deb-packaging/prompt-pack.yaml
+  module.installer.task0877:
+    path: 01-modules/installer/micro/0877-linux-deb-packaging/prompt-pack.yaml
+  module.installer.task0878:
+    path: 01-modules/installer/micro/0878-linux-appimage-bundling/prompt-pack.yaml
+  module.installer.task0879:
+    path: 01-modules/installer/micro/0879-linux-appimage-bundling/prompt-pack.yaml
+  module.installer.task0880:
+    path: 01-modules/installer/micro/0880-linux-appimage-bundling/prompt-pack.yaml
+  module.installer.task0881:
+    path: 01-modules/installer/micro/0881-linux-appimage-bundling/prompt-pack.yaml
+  module.installer.task0882:
+    path: 01-modules/installer/micro/0882-macos-bundle-metadata/prompt-pack.yaml
+  module.installer.task0883:
+    path: 01-modules/installer/micro/0883-macos-bundle-metadata/prompt-pack.yaml
+  module.installer.task0884:
+    path: 01-modules/installer/micro/0884-macos-bundle-metadata/prompt-pack.yaml
+  module.installer.task0885:
+    path: 01-modules/installer/micro/0885-macos-bundle-metadata/prompt-pack.yaml
+  module.installer.task0886:
+    path: 01-modules/installer/micro/0886-macos-dmg-layout/prompt-pack.yaml
+  module.installer.task0887:
+    path: 01-modules/installer/micro/0887-macos-dmg-layout/prompt-pack.yaml
+  module.installer.task0888:
+    path: 01-modules/installer/micro/0888-macos-dmg-layout/prompt-pack.yaml
+  module.accessibility.task0889:
+    path: 01-modules/accessibility/micro/0889-wcag-contrast-audit/prompt-pack.yaml
+  module.accessibility.task0890:
+    path: 01-modules/accessibility/micro/0890-wcag-contrast-audit/prompt-pack.yaml
+  module.accessibility.task0891:
+    path: 01-modules/accessibility/micro/0891-wcag-contrast-audit/prompt-pack.yaml
+  module.accessibility.task0892:
+    path: 01-modules/accessibility/micro/0892-wcag-contrast-audit/prompt-pack.yaml
+  module.accessibility.task0893:
+    path: 01-modules/accessibility/micro/0893-keyboard-only-paths/prompt-pack.yaml
+  module.accessibility.task0894:
+    path: 01-modules/accessibility/micro/0894-keyboard-only-paths/prompt-pack.yaml
+  module.accessibility.task0895:
+    path: 01-modules/accessibility/micro/0895-keyboard-only-paths/prompt-pack.yaml
+  module.accessibility.task0896:
+    path: 01-modules/accessibility/micro/0896-keyboard-only-paths/prompt-pack.yaml
+  module.accessibility.task0897:
+    path: 01-modules/accessibility/micro/0897-screen-reader-windows/prompt-pack.yaml
+  module.accessibility.task0898:
+    path: 01-modules/accessibility/micro/0898-screen-reader-windows/prompt-pack.yaml
+  module.accessibility.task0899:
+    path: 01-modules/accessibility/micro/0899-screen-reader-windows/prompt-pack.yaml
+  module.accessibility.task0900:
+    path: 01-modules/accessibility/micro/0900-screen-reader-windows/prompt-pack.yaml
+  module.accessibility.task0901:
+    path: 01-modules/accessibility/micro/0901-screen-reader-macos/prompt-pack.yaml
+  module.accessibility.task0902:
+    path: 01-modules/accessibility/micro/0902-screen-reader-macos/prompt-pack.yaml
+  module.accessibility.task0903:
+    path: 01-modules/accessibility/micro/0903-screen-reader-macos/prompt-pack.yaml
+  module.accessibility.task0904:
+    path: 01-modules/accessibility/micro/0904-screen-reader-macos/prompt-pack.yaml
+  module.accessibility.task0905:
+    path: 01-modules/accessibility/micro/0905-screen-reader-linux/prompt-pack.yaml
+  module.accessibility.task0906:
+    path: 01-modules/accessibility/micro/0906-screen-reader-linux/prompt-pack.yaml
+  module.accessibility.task0907:
+    path: 01-modules/accessibility/micro/0907-screen-reader-linux/prompt-pack.yaml
+  module.accessibility.task0908:
+    path: 01-modules/accessibility/micro/0908-screen-reader-linux/prompt-pack.yaml
+  module.accessibility.task0909:
+    path: 01-modules/accessibility/micro/0909-focus-order/prompt-pack.yaml
+  module.accessibility.task0910:
+    path: 01-modules/accessibility/micro/0910-focus-order/prompt-pack.yaml
+  module.accessibility.task0911:
+    path: 01-modules/accessibility/micro/0911-focus-order/prompt-pack.yaml
+  module.accessibility.task0912:
+    path: 01-modules/accessibility/micro/0912-focus-order/prompt-pack.yaml
+  module.accessibility.task0913:
+    path: 01-modules/accessibility/micro/0913-error-announcement/prompt-pack.yaml
+  module.accessibility.task0914:
+    path: 01-modules/accessibility/micro/0914-error-announcement/prompt-pack.yaml
+  module.accessibility.task0915:
+    path: 01-modules/accessibility/micro/0915-error-announcement/prompt-pack.yaml
+  module.accessibility.task0916:
+    path: 01-modules/accessibility/micro/0916-error-announcement/prompt-pack.yaml
+  module.security.task0917:
+    path: 01-modules/security/micro/0917-sandbox-enforcement/prompt-pack.yaml
+  module.security.task0918:
+    path: 01-modules/security/micro/0918-sandbox-enforcement/prompt-pack.yaml
+  module.security.task0919:
+    path: 01-modules/security/micro/0919-sandbox-enforcement/prompt-pack.yaml
+  module.security.task0920:
+    path: 01-modules/security/micro/0920-sandbox-enforcement/prompt-pack.yaml
+  module.security.task0921:
+    path: 01-modules/security/micro/0921-webengine-profile-isolation/prompt-pack.yaml
+  module.security.task0922:
+    path: 01-modules/security/micro/0922-webengine-profile-isolation/prompt-pack.yaml
+  module.security.task0923:
+    path: 01-modules/security/micro/0923-webengine-profile-isolation/prompt-pack.yaml
+  module.security.task0924:
+    path: 01-modules/security/micro/0924-webengine-profile-isolation/prompt-pack.yaml
+  module.security.task0925:
+    path: 01-modules/security/micro/0925-untrusted-local-file-handling/prompt-pack.yaml
+  module.security.task0926:
+    path: 01-modules/security/micro/0926-untrusted-local-file-handling/prompt-pack.yaml
+  module.security.task0927:
+    path: 01-modules/security/micro/0927-untrusted-local-file-handling/prompt-pack.yaml
+  module.security.task0928:
+    path: 01-modules/security/micro/0928-untrusted-local-file-handling/prompt-pack.yaml
+  module.security.task0929:
+    path: 01-modules/security/micro/0929-safe-url-parsing/prompt-pack.yaml
+  module.security.task0930:
+    path: 01-modules/security/micro/0930-safe-url-parsing/prompt-pack.yaml
+  module.security.task0931:
+    path: 01-modules/security/micro/0931-safe-url-parsing/prompt-pack.yaml
+  module.security.task0932:
+    path: 01-modules/security/micro/0932-safe-url-parsing/prompt-pack.yaml
+  module.security.task0933:
+    path: 01-modules/security/micro/0933-os-secret-integration/prompt-pack.yaml
+  module.security.task0934:
+    path: 01-modules/security/micro/0934-os-secret-integration/prompt-pack.yaml
+  module.security.task0935:
+    path: 01-modules/security/micro/0935-os-secret-integration/prompt-pack.yaml
+  module.security.task0936:
+    path: 01-modules/security/micro/0936-os-secret-integration/prompt-pack.yaml
+  module.security.task0937:
+    path: 01-modules/security/micro/0937-site-permissions/prompt-pack.yaml
+  module.security.task0938:
+    path: 01-modules/security/micro/0938-site-permissions/prompt-pack.yaml
+  module.security.task0939:
+    path: 01-modules/security/micro/0939-site-permissions/prompt-pack.yaml
+  module.security.task0940:
+    path: 01-modules/security/micro/0940-site-permissions/prompt-pack.yaml
+  module.security.task0941:
+    path: 01-modules/security/micro/0941-navigation-phishing-state/prompt-pack.yaml
+  module.security.task0942:
+    path: 01-modules/security/micro/0942-navigation-phishing-state/prompt-pack.yaml
+  module.security.task0943:
+    path: 01-modules/security/micro/0943-navigation-phishing-state/prompt-pack.yaml
+  module.security.task0944:
+    path: 01-modules/security/micro/0944-navigation-phishing-state/prompt-pack.yaml
+  module.security.task0945:
+    path: 01-modules/security/micro/0945-dependency-license-checks/prompt-pack.yaml
+  module.security.task0946:
+    path: 01-modules/security/micro/0946-dependency-license-checks/prompt-pack.yaml
+  module.security.task0947:
+    path: 01-modules/security/micro/0947-dependency-license-checks/prompt-pack.yaml
+  module.security.task0948:
+    path: 01-modules/security/micro/0948-dependency-license-checks/prompt-pack.yaml
+  module.security.task0949:
+    path: 01-modules/security/micro/0949-secure-update-validation/prompt-pack.yaml
+  module.security.task0950:
+    path: 01-modules/security/micro/0950-secure-update-validation/prompt-pack.yaml
+  module.security.task0951:
+    path: 01-modules/security/micro/0951-secure-update-validation/prompt-pack.yaml
+  module.performance-testing.task0952:
+    path: 01-modules/performance-testing/micro/0952-unit-test-coverage/prompt-pack.yaml
+  module.performance-testing.task0953:
+    path: 01-modules/performance-testing/micro/0953-unit-test-coverage/prompt-pack.yaml
+  module.performance-testing.task0954:
+    path: 01-modules/performance-testing/micro/0954-unit-test-coverage/prompt-pack.yaml
+  module.performance-testing.task0955:
+    path: 01-modules/performance-testing/micro/0955-unit-test-coverage/prompt-pack.yaml
+  module.performance-testing.task0956:
+    path: 01-modules/performance-testing/micro/0956-qt-signal-tests/prompt-pack.yaml
+  module.performance-testing.task0957:
+    path: 01-modules/performance-testing/micro/0957-qt-signal-tests/prompt-pack.yaml
+  module.performance-testing.task0958:
+    path: 01-modules/performance-testing/micro/0958-qt-signal-tests/prompt-pack.yaml
+  module.performance-testing.task0959:
+    path: 01-modules/performance-testing/micro/0959-qt-signal-tests/prompt-pack.yaml
+  module.performance-testing.task0960:
+    path: 01-modules/performance-testing/micro/0960-sqlite-integration-tests/prompt-pack.yaml
+  module.performance-testing.task0961:
+    path: 01-modules/performance-testing/micro/0961-sqlite-integration-tests/prompt-pack.yaml
+  module.performance-testing.task0962:
+    path: 01-modules/performance-testing/micro/0962-sqlite-integration-tests/prompt-pack.yaml
+  module.performance-testing.task0963:
+    path: 01-modules/performance-testing/micro/0963-sqlite-integration-tests/prompt-pack.yaml
+  module.performance-testing.task0964:
+    path: 01-modules/performance-testing/micro/0964-e2e-smoke-test/prompt-pack.yaml
+  module.performance-testing.task0965:
+    path: 01-modules/performance-testing/micro/0965-e2e-smoke-test/prompt-pack.yaml
+  module.performance-testing.task0966:
+    path: 01-modules/performance-testing/micro/0966-e2e-smoke-test/prompt-pack.yaml
+  module.performance-testing.task0967:
+    path: 01-modules/performance-testing/micro/0967-e2e-smoke-test/prompt-pack.yaml
+  module.performance-testing.task0968:
+    path: 01-modules/performance-testing/micro/0968-e2e-download-flow/prompt-pack.yaml
+  module.performance-testing.task0969:
+    path: 01-modules/performance-testing/micro/0969-e2e-download-flow/prompt-pack.yaml
+  module.performance-testing.task0970:
+    path: 01-modules/performance-testing/micro/0970-e2e-download-flow/prompt-pack.yaml
+  module.performance-testing.task0971:
+    path: 01-modules/performance-testing/micro/0971-e2e-download-flow/prompt-pack.yaml
+  module.performance-testing.task0972:
+    path: 01-modules/performance-testing/micro/0972-e2e-restore-flow/prompt-pack.yaml
+  module.performance-testing.task0973:
+    path: 01-modules/performance-testing/micro/0973-e2e-restore-flow/prompt-pack.yaml
+  module.performance-testing.task0974:
+    path: 01-modules/performance-testing/micro/0974-e2e-restore-flow/prompt-pack.yaml
+  module.performance-testing.task0975:
+    path: 01-modules/performance-testing/micro/0975-e2e-restore-flow/prompt-pack.yaml
+  module.performance-testing.task0976:
+    path: 01-modules/performance-testing/micro/0976-e2e-permission-flow/prompt-pack.yaml
+  module.performance-testing.task0977:
+    path: 01-modules/performance-testing/micro/0977-e2e-permission-flow/prompt-pack.yaml
+  module.performance-testing.task0978:
+    path: 01-modules/performance-testing/micro/0978-e2e-permission-flow/prompt-pack.yaml
+  module.performance-testing.task0979:
+    path: 01-modules/performance-testing/micro/0979-e2e-permission-flow/prompt-pack.yaml
+  module.performance-testing.task0980:
+    path: 01-modules/performance-testing/micro/0980-e2e-installer-flow/prompt-pack.yaml
+  module.performance-testing.task0981:
+    path: 01-modules/performance-testing/micro/0981-e2e-installer-flow/prompt-pack.yaml
+  module.performance-testing.task0982:
+    path: 01-modules/performance-testing/micro/0982-e2e-installer-flow/prompt-pack.yaml
+  module.performance-testing.task0983:
+    path: 01-modules/performance-testing/micro/0983-e2e-installer-flow/prompt-pack.yaml
+  module.performance-testing.task0984:
+    path: 01-modules/performance-testing/micro/0984-e2e-serial-scheduling/prompt-pack.yaml
+  module.performance-testing.task0985:
+    path: 01-modules/performance-testing/micro/0985-e2e-serial-scheduling/prompt-pack.yaml
+  module.performance-testing.task0986:
+    path: 01-modules/performance-testing/micro/0986-e2e-serial-scheduling/prompt-pack.yaml
+  module.performance-testing.task0987:
+    path: 01-modules/performance-testing/micro/0987-e2e-serial-scheduling/prompt-pack.yaml
+  module.performance-testing.task0988:
+    path: 01-modules/performance-testing/micro/0988-asan-configuration/prompt-pack.yaml
+  module.performance-testing.task0989:
+    path: 01-modules/performance-testing/micro/0989-asan-configuration/prompt-pack.yaml
+  module.performance-testing.task0990:
+    path: 01-modules/performance-testing/micro/0990-asan-configuration/prompt-pack.yaml
+  module.performance-testing.task0991:
+    path: 01-modules/performance-testing/micro/0991-asan-configuration/prompt-pack.yaml
+  module.performance-testing.task0992:
+    path: 01-modules/performance-testing/micro/0992-ubsan-configuration/prompt-pack.yaml
+  module.performance-testing.task0993:
+    path: 01-modules/performance-testing/micro/0993-ubsan-configuration/prompt-pack.yaml
+  module.performance-testing.task0994:
+    path: 01-modules/performance-testing/micro/0994-ubsan-configuration/prompt-pack.yaml
+  module.performance-testing.task0995:
+    path: 01-modules/performance-testing/micro/0995-ubsan-configuration/prompt-pack.yaml
+  module.performance-testing.task0996:
+    path: 01-modules/performance-testing/micro/0996-tsan-independent-job/prompt-pack.yaml
+  module.performance-testing.task0997:
+    path: 01-modules/performance-testing/micro/0997-tsan-independent-job/prompt-pack.yaml
+  module.performance-testing.task0998:
+    path: 01-modules/performance-testing/micro/0998-tsan-independent-job/prompt-pack.yaml
+  module.performance-testing.task0999:
+    path: 01-modules/performance-testing/micro/0999-tsan-independent-job/prompt-pack.yaml
+  module.performance-testing.task1000:
+    path: 01-modules/performance-testing/micro/1000-fuzz-url-input/prompt-pack.yaml

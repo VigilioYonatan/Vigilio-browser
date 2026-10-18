@@ -1,0 +1,16 @@
+Ejecución local — Vigilio Browser Starter 0.1
+Entorno: Linux, g++ 14.2.0, CMake, Ninja, SQLite 3.46.1
+Comando: cmake --build _build && ctest --test-dir _build --output-on-failure
+
+PASS core_units (C++20, validación de entradas, pestañas, sesión local)
+PASS storage_integration (SQLite, persistencia tras reapertura, sentencias parametrizadas)
+2/2 PASS
+
+Repetición con -fsanitize=address,undefined: 2/2 PASS (Linux, compilación separada, entorno local).
+
+NO_EJECUTADO Qt6 Widgets/WebEngine — no está instalado en este entorno
+NO_EJECUTADO tests E2E — dependen de Qt6 y display
+NO_EJECUTADO linters ClangFormat/Clang-Tidy — ejecutables no instalados
+NO_EJECUTADO pruebas Windows/macOS, instaladores, seguridad de WebEngine y benchmarks RAM
+
+Nota: es evidencia del núcleo solamente; no una certificación del navegador completo.

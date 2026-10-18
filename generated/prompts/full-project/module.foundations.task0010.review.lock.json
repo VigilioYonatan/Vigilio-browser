@@ -1,0 +1,94 @@
+{
+  "schema_version": 2,
+  "builder_version": "0.6.3",
+  "pack": "module.foundations.task0010",
+  "prompt_pack_schema_version": 2,
+  "pack_version": 1,
+  "change": null,
+  "phase": "review",
+  "plan_id": null,
+  "sequence": null,
+  "dependency_level": null,
+  "plan_selection": null,
+  "generated_at": "2026-10-17T22:23:13.187Z",
+  "prompt_sha256": "29bea3c1d98fd21400b14f995b9323038483fd187a0722de549afc72bea24862",
+  "template_sha256": "f23fee45f496583c1708ba3196f2f10e81fb13f14684e01abd9d320669eac774",
+  "factory_baseline": {
+    "project_mode": "greenfield",
+    "source": "docs/rules/factory-baseline.yaml",
+    "sha256": "4ddbbcf73d95af5b5d6ddbbf8e7295a899c22393ff5d311e5873474f4f1bc985",
+    "architecture": {
+      "source": "docs/rules/00-global/architecture.md",
+      "sha256": "b92afe045e6ee76042a9e248522d725e896fba92d23678a2be7794d65811e37c"
+    }
+  },
+  "estimated_tokens": 5120,
+  "inheritance": [
+    "module.foundations.task0010"
+  ],
+  "depends_on": [
+    "module.foundations.task0009"
+  ],
+  "target_profile": null,
+  "skills": [],
+  "quality_gates": [
+    "cmake-configure",
+    "cmake-build",
+    "ctest",
+    "code-review",
+    "documentation-sync"
+  ],
+  "activation_gates": [],
+  "activation_requirements": [],
+  "allowed_paths": [
+    "apps/vigilio-browser/src/**",
+    "apps/vigilio-browser/tests/**",
+    "apps/vigilio-browser/assets/**",
+    "apps/vigilio-browser/CMakeLists.txt",
+    "docs/rules/01-modules/foundations/micro/0010-qt-dependency-validation/task.md"
+  ],
+  "forbidden_paths": [
+    "**/generated/**",
+    "**/openspec/**"
+  ],
+  "documents": [
+    {
+      "source": "docs/rules/01-modules/foundations/README.md",
+      "required": true,
+      "sha256": "8557395820b92260f200572a0d35ef55ff6358076d910fac835d22e579ce2872"
+    },
+    {
+      "source": "docs/rules/01-modules/foundations/design.md",
+      "required": true,
+      "sha256": "6f39a43ac7c3c022b4cab561478d6f6ebbffc98a8b58e1302816933a4361bcc1"
+    },
+    {
+      "source": "docs/rules/01-modules/foundations/screens.md",
+      "required": true,
+      "sha256": "f3d7c8aa31bbf99fd24484a827916d3049dd07fa9d5cc18f6daa61303e5716cd"
+    },
+    {
+      "source": "docs/rules/01-modules/foundations/business.md",
+      "required": true,
+      "sha256": "fc8ef7fbe6d77c3ab355b40d9a61b0f757b1d7815e1ab0d1ea0e013d07c1d7f1"
+    },
+    {
+      "source": "docs/rules/01-modules/foundations/tests.md",
+      "required": true,
+      "sha256": "dedc83bf236f8e414e6e2b220af34adff4abaa0c5fe8b4b3e6bf2bf6401e6e3a"
+    },
+    {
+      "source": "docs/rules/01-modules/foundations/operations.md",
+      "required": true,
+      "sha256": "559b67c449746f109202e543c2940f20cfcb44379f53b0df5c18d364b1f46493"
+    },
+    {
+      "source": "docs/rules/01-modules/foundations/micro/0010-qt-dependency-validation/task.md",
+      "required": true,
+      "sha256": "8b3efa223719030534050e73189bbed97a5430dee1a5f6c623304e1c2dcd2e9f"
+    }
+  ],
+  "openspec": {},
+  "canonical_authority": null,
+  "canonical_references": []
+}

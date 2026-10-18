@@ -1,0 +1,43 @@
+schema_version: 2
+id: module.bookmarks.task0298
+version: 1
+status: active
+kind: use-case
+module: bookmarks
+use_case: bookmark-manager-ui-ui
+depends_on:
+- module.bookmarks.task0297
+execution:
+  enabled: true
+  order: 298
+  phases:
+  - explore
+  - propose
+  - apply
+  - review
+documents:
+  required:
+  - ../../README.md
+  - ../../design.md
+  - ../../screens.md
+  - ../../business.md
+  - ../../tests.md
+  - ../../operations.md
+  - task.md
+scope:
+  allowed_paths:
+  - apps/vigilio-browser/src/**
+  - apps/vigilio-browser/tests/**
+  - apps/vigilio-browser/assets/**
+  - apps/vigilio-browser/CMakeLists.txt
+  - docs/rules/01-modules/bookmarks/micro/0298-bookmark-manager-ui/task.md
+  forbidden_paths:
+  - '**/generated/**'
+  - '**/openspec/**'
+quality_gates:
+  required:
+  - cmake-configure
+  - cmake-build
+  - ctest
+  - code-review
+  - documentation-sync
