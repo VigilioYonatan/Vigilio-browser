@@ -118,7 +118,9 @@ add_library(vigilio_core STATIC
   src/core/CMakePresetsService.cpp
   src/core/TestFixtureValidator.cpp
   src/core/TestFixtureFoundation.cpp
-  src/core/TestFixtureService.cpp)
+  src/core/TestFixtureService.cpp
+  src/core/ClangFormatValidator.cpp
+  src/core/ClangFormatConfiguration.cpp)
 target_include_directories(vigilio_core PUBLIC src)
 target_compile_features(vigilio_core PUBLIC cxx_std_20)
 target_link_libraries(vigilio_core PRIVATE SQLite::SQLite3 vigilio_compiler_warnings)
@@ -228,6 +230,14 @@ if(BUILD_TESTING)
   target_link_libraries(vigilio_fixture_service_tests PRIVATE vigilio_core SQLite::SQLite3 vigilio_compiler_warnings)
   add_test(NAME test_fixture_service_tests COMMAND vigilio_fixture_service_tests)
   set_tests_properties(test_fixture_service_tests PROPERTIES LABELS "unit;fast" TIMEOUT 15)
+
+  add_executable(vigilio_clang_format_tests tests/unit/ClangFormatConfigurationTests.cpp)
+  target_link_libraries(vigilio_clang_format_tests PRIVATE vigilio_core vigilio_compiler_warnings)
+  target_compile_definitions(vigilio_clang_format_tests PRIVATE
+    VIGILIO_CLANG_FORMAT_PATH="${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+  )
+  add_test(NAME clang_format_configuration_tests COMMAND vigilio_clang_format_tests)
+  set_tests_properties(clang_format_configuration_tests PROPERTIES LABELS "unit;fast" TIMEOUT 15)
 endif()
 
 option(VIGILIO_ENABLE_E2E "Enable resource-intensive native browser E2E smoke" OFF)
