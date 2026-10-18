@@ -20,6 +20,9 @@ class ClangFormatValidator {
     [[nodiscard]] static ClangFormatValidationReport
     validateConfigurationFile(const std::filesystem::path& configPath);
 
+    /// @brief Valida el contenido YAML de configuración directamente en memoria.
+    [[nodiscard]] static ClangFormatValidationReport validateConfigContent(std::string_view yamlContent);
+
     /// @brief Parsea deterministamente el contenido YAML de un archivo .clang-format.
     [[nodiscard]] static bool parseConfig(std::string_view yamlContent, ClangFormatOptions& outOptions,
                                           std::string* outErrorMessage = nullptr);

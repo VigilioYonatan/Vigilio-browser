@@ -231,6 +231,148 @@ void test_clang_format_public_copy_compliance() {
     }
 }
 
+// TEST-FORMAT-011: test_clang_format_validator_boundary_values
+void test_clang_format_validator_boundary_values() {
+    auto opts = ClangFormatConfiguration::canonicalConfig();
+
+    // Límites numéricos permitidos en sus fronteras exactas (2, 8, 80, 140)
+    opts.indentWidth = 2;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::None);
+    opts.indentWidth = 8;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::None);
+
+    opts = ClangFormatConfiguration::canonicalConfig();
+    opts.columnLimit = 80;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::None);
+    opts.columnLimit = 140;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::None);
+
+    // Verificación y rechazo de valores fuera de rango y de frontera en indentWidth:
+    // 0, 1, 16, 17, negativos (-1, -10)
+    opts = ClangFormatConfiguration::canonicalConfig();
+    opts.indentWidth = 0;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidIndentWidth);
+    opts.indentWidth = 1;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidIndentWidth);
+    opts.indentWidth = 16;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidIndentWidth);
+    opts.indentWidth = 17;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidIndentWidth);
+    opts.indentWidth = -1;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidIndentWidth);
+    opts.indentWidth = -10;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidIndentWidth);
+
+    // Verificación y rechazo de valores fuera de rango y de frontera en columnLimit:
+    // 19, 20, 79, 141, 500, 501, negativos (-20)
+    opts = ClangFormatConfiguration::canonicalConfig();
+    opts.columnLimit = 19;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidColumnLimit);
+    opts.columnLimit = 20;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidColumnLimit);
+    opts.columnLimit = 79;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidColumnLimit);
+    opts.columnLimit = 141;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidColumnLimit);
+    opts.columnLimit = 500;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidColumnLimit);
+    opts.columnLimit = 501;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidColumnLimit);
+    opts.columnLimit = -20;
+    CHECK(ClangFormatValidator::validateOptions(opts) == ClangFormatError::InvalidColumnLimit);
+}
+
+// TEST-FORMAT-012: test_clang_format_malformed_yaml_inputs
+void test_clang_format_malformed_yaml_inputs() {
+    // 1. YAML vacío
+    const auto emptyReport = ClangFormatValidator::validateConfigContent("");
+    CHECK(!emptyReport.isValid);
+    CHECK(emptyReport.error == ClangFormatError::ParseError);
+
+    // 2. YAML truncado a mitad de clave
+    const auto truncatedKeyReport =
+        ClangFormatValidator::validateConfigContent("BasedOnStyle: LLVM\nIndentWi");
+    CHECK(!truncatedKeyReport.isValid);
+    CHECK(truncatedKeyReport.error == ClangFormatError::ParseError);
+
+    // 3. YAML truncado a mitad de valor
+    const auto truncatedValReport =
+        ClangFormatValidator::validateConfigContent("BasedOnStyle: LLVM\nIndentWidth: ");
+    CHECK(!truncatedValReport.isValid);
+    CHECK(truncatedValReport.error == ClangFormatError::ParseError);
+
+    // 4. YAML con caracteres nulos
+    std::string nullContent = "BasedOnStyle: LLVM\n";
+    nullContent.push_back('\0');
+    nullContent.append("IndentWidth: 4\nColumnLimit: 105\n");
+    const auto nullReport = ClangFormatValidator::validateConfigContent(nullContent);
+    CHECK(!nullReport.isValid);
+    CHECK(nullReport.error == ClangFormatError::ParseError);
+
+    // 5. Bytes binarios arbitrarios (encabezado ELF)
+    const std::string binaryContent("\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00",
+                                    16);
+    const auto binaryReport = ClangFormatValidator::validateConfigContent(binaryContent);
+    CHECK(!binaryReport.isValid);
+    CHECK(binaryReport.error == ClangFormatError::ParseError);
+}
+
+// TEST-FORMAT-013: test_clang_format_complex_path_traversal
+void test_clang_format_complex_path_traversal() {
+    CHECK(!ClangFormatValidator::isSafeConfigPath("./../.."));
+    CHECK(!ClangFormatValidator::isSafeConfigPath("foo/../../bar"));
+    CHECK(!ClangFormatValidator::isSafeConfigPath("..\\windows\\style"));
+    CHECK(!ClangFormatValidator::isSafeConfigPath("/etc/shadow"));
+    CHECK(!ClangFormatValidator::isSafeConfigPath("/usr/bin"));
+    CHECK(!ClangFormatValidator::isSafeConfigPath("/var/log"));
+    CHECK(!ClangFormatValidator::isSafeConfigPath("/root/.bashrc"));
+
+    const auto reportTraversal = ClangFormatValidator::validateConfigurationFile("./../..");
+    CHECK(!reportTraversal.isValid);
+    CHECK(reportTraversal.error == ClangFormatError::UnsafeFilePath);
+
+    const auto reportShadow = ClangFormatValidator::validateConfigurationFile("/etc/shadow");
+    CHECK(!reportShadow.isValid);
+    CHECK(reportShadow.error == ClangFormatError::UnsafeFilePath);
+}
+
+// TEST-FORMAT-014: test_clang_format_roundtrip_variants
+void test_clang_format_roundtrip_variants() {
+    const std::vector<PointerAlignmentPolicy> pointerAlignments = {
+        PointerAlignmentPolicy::Left, PointerAlignmentPolicy::Right, PointerAlignmentPolicy::Middle};
+
+    const std::vector<ShortFunctionPolicy> shortFunctionPolicies = {
+        ShortFunctionPolicy::None, ShortFunctionPolicy::Inline, ShortFunctionPolicy::Empty,
+        ShortFunctionPolicy::All};
+
+    for (const auto align : pointerAlignments) {
+        for (const auto shortFunc : shortFunctionPolicies) {
+            ClangFormatOptions original;
+            original.stylePreset = ClangFormatStylePreset::LLVM;
+            original.indentWidth = 4;
+            original.columnLimit = 105;
+            original.pointerAlignment = align;
+            original.allowShortFunctions = shortFunc;
+            original.cppStandard = "c++20";
+
+            const std::string serialized = ClangFormatValidator::serializeConfig(original);
+            CHECK(!serialized.empty());
+
+            ClangFormatOptions parsed;
+            std::string errMsg;
+            CHECK(ClangFormatValidator::parseConfig(serialized, parsed, &errMsg));
+            CHECK(errMsg.empty());
+            CHECK(parsed.stylePreset == original.stylePreset);
+            CHECK(parsed.indentWidth == original.indentWidth);
+            CHECK(parsed.columnLimit == original.columnLimit);
+            CHECK(parsed.pointerAlignment == original.pointerAlignment);
+            CHECK(parsed.allowShortFunctions == original.allowShortFunctions);
+            CHECK(parsed.cppStandard == original.cppStandard);
+            CHECK(parsed == original);
+        }
+    }
+}
+
 } // namespace
 
 int main() {
@@ -245,8 +387,12 @@ int main() {
         test_clang_format_unsafe_path_rejection();
         test_clang_format_file_extensions_and_exclusions();
         test_clang_format_public_copy_compliance();
+        test_clang_format_validator_boundary_values();
+        test_clang_format_malformed_yaml_inputs();
+        test_clang_format_complex_path_traversal();
+        test_clang_format_roundtrip_variants();
 
-        std::cout << "ClangFormatConfigurationTests: ALL 10 TESTS PASSED\n";
+        std::cout << "ClangFormatConfigurationTests: ALL 14 TESTS PASSED\n";
         return 0;
     } catch (const std::exception& ex) {
         std::cerr << "ClangFormatConfigurationTests FAILED: " << ex.what() << '\n';

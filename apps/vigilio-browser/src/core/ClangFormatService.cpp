@@ -72,6 +72,8 @@ std::string ClangFormatService::formatSourceCode(std::string_view sourceCode,
         return "";
     }
 
+    std::lock_guard<std::mutex> lock(mutex_);
+
     std::string styleArg =
         "--style={BasedOnStyle: " + ClangFormatValidator::stylePresetToString(options.stylePreset) +
         ", IndentWidth: " + std::to_string(options.indentWidth) +
@@ -86,10 +88,10 @@ std::string ClangFormatService::formatSourceCode(std::string_view sourceCode,
 
     int pipeIn[2];
     int pipeOut[2];
-    if (::pipe(pipeIn) != 0) {
+    if (::pipe2(pipeIn, O_CLOEXEC) != 0) {
         return std::string(sourceCode);
     }
-    if (::pipe(pipeOut) != 0) {
+    if (::pipe2(pipeOut, O_CLOEXEC) != 0) {
         ::close(pipeIn[0]);
         ::close(pipeIn[1]);
         return std::string(sourceCode);

@@ -139,9 +139,35 @@ ClangFormatValidator::validateConfigurationFile(const std::filesystem::path& con
     buffer << file.rdbuf();
     const std::string content = buffer.str();
 
+    report = validateConfigContent(content);
+    report.configPath = configPath.string();
+    return report;
+}
+
+ClangFormatValidationReport ClangFormatValidator::validateConfigContent(std::string_view yamlContent) {
+    ClangFormatValidationReport report;
+    report.configPath = "<in-memory>";
+
+    if (yamlContent.empty()) {
+        report.isValid = false;
+        report.error = ClangFormatError::ParseError;
+        report.errorMessage = formatErrorToString(report.error);
+        return report;
+    }
+
+    // Comprobación de bytes nulos o caracteres binarios
+    for (char ch : yamlContent) {
+        if (ch == '\0') {
+            report.isValid = false;
+            report.error = ClangFormatError::ParseError;
+            report.errorMessage = formatErrorToString(report.error);
+            return report;
+        }
+    }
+
     ClangFormatOptions options;
     std::string parseErrMsg;
-    if (!parseConfig(content, options, &parseErrMsg)) {
+    if (!parseConfig(yamlContent, options, &parseErrMsg)) {
         report.isValid = false;
         report.error = ClangFormatError::ParseError;
         report.errorMessage = parseErrMsg.empty() ? formatErrorToString(report.error) : parseErrMsg;
