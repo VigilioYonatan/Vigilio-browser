@@ -136,7 +136,9 @@ add_library(vigilio_core STATIC
   src/core/CiMacOsJobService.cpp
   src/core/MainWindowLayoutConfiguration.cpp
   src/core/MainWindowLayoutValidator.cpp
-  src/core/MainWindowLayoutService.cpp)
+  src/core/MainWindowLayoutService.cpp
+  src/core/TitleBarConfiguration.cpp
+  src/core/TitleBarValidator.cpp)
 target_include_directories(vigilio_core PUBLIC src)
 target_compile_features(vigilio_core PUBLIC cxx_std_20)
 target_link_libraries(vigilio_core PRIVATE SQLite::SQLite3 vigilio_compiler_warnings)
@@ -318,6 +320,11 @@ if(BUILD_TESTING)
   target_link_libraries(vigilio_main_window_layout_service_tests PRIVATE vigilio_core vigilio_compiler_warnings)
   add_test(NAME main_window_layout_service_tests COMMAND vigilio_main_window_layout_service_tests)
   set_tests_properties(main_window_layout_service_tests PROPERTIES LABELS "unit;fast" TIMEOUT 15)
+
+  add_executable(vigilio_title_bar_tests tests/unit/TitleBarIntegrationTests.cpp)
+  target_link_libraries(vigilio_title_bar_tests PRIVATE vigilio_core vigilio_compiler_warnings)
+  add_test(NAME title_bar_integration_tests COMMAND vigilio_title_bar_tests)
+  set_tests_properties(title_bar_integration_tests PROPERTIES LABELS "unit;fast" TIMEOUT 15)
 endif()
 
 option(VIGILIO_ENABLE_E2E "Enable resource-intensive native browser E2E smoke" OFF)
