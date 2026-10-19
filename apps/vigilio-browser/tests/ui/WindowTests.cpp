@@ -2,6 +2,10 @@
 #include "core/CiLinuxJobService.h"
 #include "core/CiLinuxJobTypes.h"
 #include "core/CiLinuxJobValidator.h"
+#include "core/CiMacOsJobConfiguration.h"
+#include "core/CiMacOsJobService.h"
+#include "core/CiMacOsJobTypes.h"
+#include "core/CiMacOsJobValidator.h"
 #include "core/CiWindowsJobConfiguration.h"
 #include "core/CiWindowsJobService.h"
 #include "core/CiWindowsJobTypes.h"
@@ -1295,6 +1299,270 @@ int main(int argc, char** argv) {
                      "Public execution mode must not contain 'Linter'");
             UI_CHECK(modeStr.find("CI Windows job") == std::string::npos,
                      "Public execution mode must not contain 'CI Windows job'");
+        }
+    }
+
+    // CI macOS job quality governance and public copy audit in UI context
+    {
+        vigilio::CiMacOsJobPlan debugPlan = vigilio::CiMacOsJobConfiguration::canonicalDebugPlan();
+        vigilio::CiMacOsJobService ciMacOsService(debugPlan);
+        vigilio::CiMacOsServiceOptions options;
+        options.mode = vigilio::CiMacOsExecutionMode::DryRun;
+        ciMacOsService.setOptions(options);
+
+        // TASK-003: Programmatic dry-run pipeline validation
+        auto debugReport = ciMacOsService.executePlan();
+        UI_CHECK(debugReport.status == vigilio::CiMacOsJobStatus::Passed,
+                 "CI macOS debug plan must pass in dry-run mode");
+        UI_CHECK(debugReport.isPassed(), "CI macOS debug plan report must be passed");
+        UI_CHECK(debugReport.stepResults.size() == debugPlan.steps.size(),
+                 "Debug plan steps evaluated must match plan steps count");
+        UI_CHECK(debugReport.durationMs >= 0, "Execution duration must be non-negative");
+        UI_CHECK(debugReport.isClean, "Debug plan report must be clean");
+
+        // Comprehensive plan with all 8 canonical pipeline steps
+        vigilio::CiMacOsJobPlan comprehensivePlan = debugPlan;
+        comprehensivePlan.presetName = "ci-macos-comprehensive";
+        comprehensivePlan.steps.push_back(vigilio::CiMacOsStepDefinition{
+            .step = vigilio::CiMacOsPipelineStep::SanitizerVerification,
+            .name = "Verificación de sanitizadores de memoria",
+            .command = "ctest --preset ci-macos-debug -L sanitizer",
+            .isMandatory = true,
+            .options = vigilio::CiMacOsStepOptions{.timeoutMs = 180000,
+                                                   .continueOnError = false,
+                                                   .requiredEnvVars = {},
+                                                   .workingDirectory = "."}});
+        comprehensivePlan.steps.push_back(vigilio::CiMacOsStepDefinition{
+            .step = vigilio::CiMacOsPipelineStep::BundleVerification,
+            .name = "Verificación del paquete de la aplicación",
+            .command = "test -d build-ci-macos-debug/VigilioBrowser.app/Contents/MacOS && test -f "
+                       "build-ci-macos-debug/VigilioBrowser.app/Contents/Info.plist",
+            .isMandatory = true,
+            .options = vigilio::CiMacOsStepOptions{.timeoutMs = 60000,
+                                                   .continueOnError = false,
+                                                   .requiredEnvVars = {},
+                                                   .workingDirectory = "."}});
+        UI_CHECK(comprehensivePlan.steps.size() == 8,
+                 "Comprehensive pipeline plan must define all 8 canonical steps");
+        ciMacOsService.setPlan(comprehensivePlan);
+        auto comprehensiveReport = ciMacOsService.executePlan();
+        UI_CHECK(comprehensiveReport.status == vigilio::CiMacOsJobStatus::Passed,
+                 "Comprehensive plan with 8 steps must pass");
+        UI_CHECK(comprehensiveReport.stepResults.size() == 8,
+                 "Comprehensive plan must evaluate all 8 steps");
+
+        // TASK-005: UI artifact compilation coverage verification in pipeline
+        bool hasBuild = false;
+        bool hasTests = false;
+        bool hasBundle = false;
+        for (const auto& stepDef : comprehensivePlan.steps) {
+            if (stepDef.step == vigilio::CiMacOsPipelineStep::BuildCompilation) {
+                hasBuild = true;
+                const auto cmd = ciMacOsService.buildCommandLine(stepDef);
+                UI_CHECK(!cmd.empty(), "BuildCompilation command line must not be empty");
+                UI_CHECK(cmd.find("build-ci-macos-debug") != std::string::npos ||
+                             cmd.find("preset") != std::string::npos,
+                         "BuildCompilation command line must reference build directory or preset");
+            }
+            if (stepDef.step == vigilio::CiMacOsPipelineStep::TestSuiteExecution) {
+                hasTests = true;
+                const auto cmd = ciMacOsService.buildCommandLine(stepDef);
+                UI_CHECK(!cmd.empty(), "TestSuiteExecution command line must not be empty");
+                UI_CHECK(cmd.find("ci-macos-debug") != std::string::npos ||
+                             cmd.find("preset") != std::string::npos,
+                         "TestSuiteExecution command line must target test preset");
+            }
+            if (stepDef.step == vigilio::CiMacOsPipelineStep::BundleVerification) {
+                hasBundle = true;
+                const auto cmd = ciMacOsService.buildCommandLine(stepDef);
+                UI_CHECK(!cmd.empty(), "BundleVerification command line must not be empty");
+                UI_CHECK(cmd.find("VigilioBrowser.app") != std::string::npos,
+                         "BundleVerification command line must reference VigilioBrowser.app bundle");
+            }
+        }
+        UI_CHECK(hasBuild,
+                 "Pipeline plan must contain CiMacOsPipelineStep::BuildCompilation governing UI");
+        UI_CHECK(hasTests,
+                 "Pipeline plan must contain CiMacOsPipelineStep::TestSuiteExecution governing UI");
+        UI_CHECK(
+            hasBundle,
+            "Pipeline plan must contain CiMacOsPipelineStep::BundleVerification governing UI bundle");
+
+        // TASK-006: Audit of executionModeToString and formatStepSummary in neutral Spanish
+        const auto dryRunModeStr =
+            vigilio::CiMacOsJobService::executionModeToString(vigilio::CiMacOsExecutionMode::DryRun);
+        UI_CHECK(!dryRunModeStr.empty(), "DryRun mode string must not be empty");
+        UI_CHECK(dryRunModeStr.find("simulada") != std::string::npos ||
+                     dryRunModeStr.find("Simulación") != std::string::npos,
+                 "DryRun mode must mention simulación/simulada in Spanish");
+
+        const auto simulatedModeStr =
+            vigilio::CiMacOsJobService::executionModeToString(vigilio::CiMacOsExecutionMode::Simulated);
+        UI_CHECK(!simulatedModeStr.empty(), "Simulated mode string must not be empty");
+        UI_CHECK(simulatedModeStr.find("Simulación") != std::string::npos,
+                 "Simulated mode must mention simulación in Spanish");
+
+        const auto liveModeStr =
+            vigilio::CiMacOsJobService::executionModeToString(vigilio::CiMacOsExecutionMode::Live);
+        UI_CHECK(!liveModeStr.empty(), "Live mode string must not be empty");
+        UI_CHECK(liveModeStr.find("Ejecución") != std::string::npos,
+                 "Live mode must mention ejecución in Spanish");
+
+        vigilio::CiMacOsStepResult sampleStepResult;
+        sampleStepResult.step = vigilio::CiMacOsPipelineStep::BuildCompilation;
+        sampleStepResult.status = vigilio::CiMacOsStepStatus::Success;
+        sampleStepResult.durationMs = 150;
+        sampleStepResult.exitCode = 0;
+        sampleStepResult.outputSummary = "Compilación completada sin errores.";
+        const auto stepSummary = vigilio::CiMacOsJobService::formatStepSummary(sampleStepResult);
+        UI_CHECK(!stepSummary.empty(), "CiMacOsJobService::formatStepSummary must not be empty");
+        UI_CHECK(stepSummary.find("Compilación") != std::string::npos,
+                 "formatStepSummary must contain step name in Spanish");
+
+        // TASK-007: Audit of diagnostic and remediation copy in neutral Spanish (CiMacOsJobValidator)
+        const std::vector<vigilio::CiMacOsJobStatus> sampleJobStatuses = {
+            vigilio::CiMacOsJobStatus::Pending,   vigilio::CiMacOsJobStatus::Running,
+            vigilio::CiMacOsJobStatus::Passed,    vigilio::CiMacOsJobStatus::Failed,
+            vigilio::CiMacOsJobStatus::Cancelled, vigilio::CiMacOsJobStatus::TimedOut};
+        for (const auto& js : sampleJobStatuses) {
+            const auto jsStr = vigilio::CiMacOsJobValidator::jobStatusToString(js);
+            UI_CHECK(!jsStr.empty(), "jobStatusToString must not be empty");
+        }
+        UI_CHECK(vigilio::CiMacOsJobValidator::jobStatusToString(vigilio::CiMacOsJobStatus::Passed)
+                         .find("correctamente") != std::string::npos,
+                 "Passed status must mention correctamente");
+
+        const std::vector<vigilio::CiMacOsJobError> sampleJobErrors = {
+            vigilio::CiMacOsJobError::None,
+            vigilio::CiMacOsJobError::ToolchainMissing,
+            vigilio::CiMacOsJobError::MacOsSdkMissing,
+            vigilio::CiMacOsJobError::XcodeToolsMissing,
+            vigilio::CiMacOsJobError::ConfigurationFailed,
+            vigilio::CiMacOsJobError::CompilationFailed,
+            vigilio::CiMacOsJobError::TestExecutionFailed,
+            vigilio::CiMacOsJobError::FormatDiscrepancy,
+            vigilio::CiMacOsJobError::StaticAnalysisIssue,
+            vigilio::CiMacOsJobError::UnsafePipelinePath,
+            vigilio::CiMacOsJobError::TimeoutExceeded,
+            vigilio::CiMacOsJobError::InvalidWorkflowSchema,
+            vigilio::CiMacOsJobError::DependencyOrderingViolation,
+            vigilio::CiMacOsJobError::MemoryLimitExceeded,
+            vigilio::CiMacOsJobError::BundleVerificationFailed};
+        for (const auto& err : sampleJobErrors) {
+            const auto errStr = vigilio::CiMacOsJobValidator::jobErrorToString(err);
+            UI_CHECK(!errStr.empty(), "jobErrorToString must not be empty");
+            const auto hintStr = vigilio::CiMacOsJobValidator::generateRemediationHint(err);
+            UI_CHECK(!hintStr.empty(), "generateRemediationHint must not be empty");
+        }
+
+        const std::vector<vigilio::CiMacOsPipelineStep> samplePipelineSteps = {
+            vigilio::CiMacOsPipelineStep::EnvironmentCheck,
+            vigilio::CiMacOsPipelineStep::FormatVerification,
+            vigilio::CiMacOsPipelineStep::StaticAnalysis,
+            vigilio::CiMacOsPipelineStep::ConfigurePreset,
+            vigilio::CiMacOsPipelineStep::BuildCompilation,
+            vigilio::CiMacOsPipelineStep::TestSuiteExecution,
+            vigilio::CiMacOsPipelineStep::SanitizerVerification,
+            vigilio::CiMacOsPipelineStep::BundleVerification};
+        for (const auto& ps : samplePipelineSteps) {
+            const auto psStr = vigilio::CiMacOsJobValidator::stepToString(ps);
+            UI_CHECK(!psStr.empty(), "stepToString must not be empty");
+        }
+
+        const std::vector<vigilio::CiMacOsStepStatus> sampleStepStatuses = {
+            vigilio::CiMacOsStepStatus::NotStarted, vigilio::CiMacOsStepStatus::InProgress,
+            vigilio::CiMacOsStepStatus::Success, vigilio::CiMacOsStepStatus::Failure,
+            vigilio::CiMacOsStepStatus::Omitted};
+        for (const auto& ss : sampleStepStatuses) {
+            const auto ssStr = vigilio::CiMacOsJobValidator::stepStatusToString(ss);
+            UI_CHECK(!ssStr.empty(), "stepStatusToString must not be empty");
+        }
+
+        const std::vector<vigilio::CiMacOsArchitecture> sampleArchitectures = {
+            vigilio::CiMacOsArchitecture::ARM64, vigilio::CiMacOsArchitecture::X86_64,
+            vigilio::CiMacOsArchitecture::Universal};
+        for (const auto& arch : sampleArchitectures) {
+            const auto archStr = vigilio::CiMacOsJobValidator::architectureToString(arch);
+            UI_CHECK(!archStr.empty(), "architectureToString must not be empty");
+        }
+
+        const std::vector<vigilio::CiMacOsCompiler> sampleCompilers = {
+            vigilio::CiMacOsCompiler::AppleClang, vigilio::CiMacOsCompiler::HomebrewClang};
+        for (const auto& comp : sampleCompilers) {
+            const auto compStr = vigilio::CiMacOsJobValidator::compilerToString(comp);
+            UI_CHECK(!compStr.empty(), "compilerToString must not be empty");
+        }
+
+        // TASK-008: Absence of forbidden internal engineering terms across all public CI macOS strings
+        for (const auto& js : sampleJobStatuses) {
+            const auto statusStr = vigilio::CiMacOsJobValidator::jobStatusToString(js);
+            UI_CHECK(statusStr.find("Senior Mode") == std::string::npos,
+                     "Public job status must not contain forbidden senior mode term");
+            UI_CHECK(statusStr.find("Modo Senior") == std::string::npos,
+                     "Public job status must not contain forbidden modo senior term");
+            UI_CHECK(statusStr.find("Prompt Builder") == std::string::npos,
+                     "Public job status must not contain forbidden prompt builder term");
+            UI_CHECK(statusStr.find("OpenSpec") == std::string::npos,
+                     "Public job status must not contain forbidden openspec term");
+            UI_CHECK(statusStr.find("DAG") == std::string::npos,
+                     "Public job status must not contain 'DAG'");
+            UI_CHECK(statusStr.find("Linter") == std::string::npos,
+                     "Public job status must not contain 'Linter'");
+            UI_CHECK(statusStr.find("CI macOS job") == std::string::npos,
+                     "Public job status must not contain 'CI macOS job'");
+        }
+        for (const auto& err : sampleJobErrors) {
+            const auto errStr = vigilio::CiMacOsJobValidator::jobErrorToString(err);
+            UI_CHECK(errStr.find("Senior Mode") == std::string::npos,
+                     "Public error string must not contain forbidden senior mode term");
+            UI_CHECK(errStr.find("Modo Senior") == std::string::npos,
+                     "Public error string must not contain forbidden modo senior term");
+            UI_CHECK(errStr.find("Prompt Builder") == std::string::npos,
+                     "Public error string must not contain forbidden prompt builder term");
+            UI_CHECK(errStr.find("OpenSpec") == std::string::npos,
+                     "Public error string must not contain forbidden openspec term");
+            UI_CHECK(errStr.find("DAG") == std::string::npos,
+                     "Public error string must not contain 'DAG'");
+            UI_CHECK(errStr.find("Linter") == std::string::npos,
+                     "Public error string must not contain 'Linter'");
+            UI_CHECK(errStr.find("CI macOS job") == std::string::npos,
+                     "Public error string must not contain 'CI macOS job'");
+
+            const auto hintStr = vigilio::CiMacOsJobValidator::generateRemediationHint(err);
+            UI_CHECK(hintStr.find("Senior Mode") == std::string::npos,
+                     "Public remediation hint must not contain forbidden senior mode term");
+            UI_CHECK(hintStr.find("Modo Senior") == std::string::npos,
+                     "Public remediation hint must not contain forbidden modo senior term");
+            UI_CHECK(hintStr.find("Prompt Builder") == std::string::npos,
+                     "Public remediation hint must not contain forbidden prompt builder term");
+            UI_CHECK(hintStr.find("OpenSpec") == std::string::npos,
+                     "Public remediation hint must not contain forbidden openspec term");
+            UI_CHECK(hintStr.find("DAG") == std::string::npos,
+                     "Public remediation hint must not contain 'DAG'");
+            UI_CHECK(hintStr.find("Linter") == std::string::npos,
+                     "Public remediation hint must not contain 'Linter'");
+            UI_CHECK(hintStr.find("CI macOS job") == std::string::npos,
+                     "Public remediation hint must not contain 'CI macOS job'");
+        }
+        const std::vector<vigilio::CiMacOsExecutionMode> sampleExecutionModes = {
+            vigilio::CiMacOsExecutionMode::DryRun, vigilio::CiMacOsExecutionMode::Simulated,
+            vigilio::CiMacOsExecutionMode::Live};
+        for (const auto& mode : sampleExecutionModes) {
+            const auto modeStr = vigilio::CiMacOsJobService::executionModeToString(mode);
+            UI_CHECK(modeStr.find("Senior Mode") == std::string::npos,
+                     "Public execution mode must not contain forbidden senior mode term");
+            UI_CHECK(modeStr.find("Modo Senior") == std::string::npos,
+                     "Public execution mode must not contain forbidden modo senior term");
+            UI_CHECK(modeStr.find("Prompt Builder") == std::string::npos,
+                     "Public execution mode must not contain forbidden prompt builder term");
+            UI_CHECK(modeStr.find("OpenSpec") == std::string::npos,
+                     "Public execution mode must not contain forbidden openspec term");
+            UI_CHECK(modeStr.find("DAG") == std::string::npos,
+                     "Public execution mode must not contain 'DAG'");
+            UI_CHECK(modeStr.find("Linter") == std::string::npos,
+                     "Public execution mode must not contain 'Linter'");
+            UI_CHECK(modeStr.find("CI macOS job") == std::string::npos,
+                     "Public execution mode must not contain 'CI macOS job'");
         }
     }
 
