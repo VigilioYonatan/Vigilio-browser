@@ -133,7 +133,9 @@ add_library(vigilio_core STATIC
   src/core/CiWindowsJobService.cpp
   src/core/CiMacOsJobValidator.cpp
   src/core/CiMacOsJobConfiguration.cpp
-  src/core/CiMacOsJobService.cpp)
+  src/core/CiMacOsJobService.cpp
+  src/core/MainWindowLayoutConfiguration.cpp
+  src/core/MainWindowLayoutValidator.cpp)
 target_include_directories(vigilio_core PUBLIC src)
 target_compile_features(vigilio_core PUBLIC cxx_std_20)
 target_link_libraries(vigilio_core PRIVATE SQLite::SQLite3 vigilio_compiler_warnings)
@@ -305,6 +307,11 @@ if(BUILD_TESTING)
   target_link_libraries(vigilio_ci_macos_job_service_tests PRIVATE vigilio_core vigilio_compiler_warnings)
   add_test(NAME ci_macos_job_service_tests COMMAND vigilio_ci_macos_job_service_tests)
   set_tests_properties(ci_macos_job_service_tests PROPERTIES LABELS "unit;fast" TIMEOUT 15)
+
+  add_executable(vigilio_main_window_layout_tests tests/unit/MainWindowLayoutTests.cpp)
+  target_link_libraries(vigilio_main_window_layout_tests PRIVATE vigilio_core vigilio_compiler_warnings)
+  add_test(NAME main_window_layout_tests COMMAND vigilio_main_window_layout_tests)
+  set_tests_properties(main_window_layout_tests PROPERTIES LABELS "unit;fast" TIMEOUT 15)
 endif()
 
 option(VIGILIO_ENABLE_E2E "Enable resource-intensive native browser E2E smoke" OFF)
