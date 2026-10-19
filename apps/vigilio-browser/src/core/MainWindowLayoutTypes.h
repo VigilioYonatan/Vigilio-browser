@@ -1,10 +1,27 @@
 #pragma once
 
+#include <atomic>
 #include <cstdint>
 #include <string>
 #include <vector>
 
 namespace vigilio {
+
+#ifndef VIGILIO_CANCELLATION_TOKEN_DEFINED
+#define VIGILIO_CANCELLATION_TOKEN_DEFINED
+/// @brief Token ligero para soporte de cancelación cooperativa multihilo.
+struct CancellationToken {
+    std::atomic<bool> cancelled{false};
+
+    void requestCancellation() noexcept {
+        cancelled.store(true, std::memory_order_release);
+    }
+
+    [[nodiscard]] bool isCancelled() const noexcept {
+        return cancelled.load(std::memory_order_acquire);
+    }
+};
+#endif
 
 /// @brief Zonas funcionales y estructurales de la ventana principal.
 enum class LayoutZone : uint8_t {
