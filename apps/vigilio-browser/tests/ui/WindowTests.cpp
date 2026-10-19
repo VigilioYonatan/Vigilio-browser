@@ -1,3 +1,7 @@
+#include "core/CiLinuxJobConfiguration.h"
+#include "core/CiLinuxJobService.h"
+#include "core/CiLinuxJobTypes.h"
+#include "core/CiLinuxJobValidator.h"
 #include "core/ClangFormatConfiguration.h"
 #include "core/ClangFormatService.h"
 #include "core/ClangFormatTypes.h"
@@ -167,7 +171,7 @@ int main(int argc, char** argv) {
 
     window.setSeniorMode(true);
     UI_CHECK(window.toolbar_->iconSize() == QSize(32, 32),
-             "Toolbar iconSize must scale to 32x32 in Senior Mode");
+             "Toolbar iconSize must scale to 32x32 in accessible mode");
 
     for (auto* le : window.findChildren<QLineEdit*>()) {
         UI_CHECK(le->minimumHeight() >= 48,
@@ -184,7 +188,7 @@ int main(int argc, char** argv) {
     // Reset accessibility mode
     window.setSeniorMode(false);
     UI_CHECK(window.toolbar_->iconSize() == QSize(22, 22),
-             "Toolbar iconSize must revert to 22x22 when Senior Mode is disabled");
+             "Toolbar iconSize must revert to 22x22 when accessible mode is disabled");
 
     // testDeterministicFallback
     const QIcon fallbackIcon = window.makeResourceIcon("icons/nonexistent_test_resource.svg");
@@ -346,7 +350,7 @@ int main(int argc, char** argv) {
             UI_CHECK(!dismissBtn->accessibleName().isEmpty(),
                      "Dismiss button must have accessibleName defined");
 
-            // Verify accessible interface mode (Senior Mode) scaling on crash recovery banner
+            // Verify accessible interface mode scaling on crash recovery banner
             crashWindow.setSeniorMode(true);
             UI_CHECK(banner->minimumHeight() >= 56,
                      "Crash recovery banner minimumHeight >= 56 in accessible interface mode");
@@ -649,13 +653,13 @@ int main(int argc, char** argv) {
             for (const auto& st : sampleStatuses) {
                 const auto statusStr = vigilio::ClangFormatService::executionStatusToString(st);
                 UI_CHECK(statusStr.find("Senior Mode") == std::string::npos,
-                         "Public status string must not contain 'Senior Mode'");
+                         "Public status string must not contain forbidden senior mode term");
                 UI_CHECK(statusStr.find("Modo Senior") == std::string::npos,
-                         "Public status string must not contain 'Modo Senior'");
+                         "Public status string must not contain forbidden modo senior term");
                 UI_CHECK(statusStr.find("Prompt Builder") == std::string::npos,
-                         "Public status string must not contain 'Prompt Builder'");
+                         "Public status string must not contain forbidden prompt builder term");
                 UI_CHECK(statusStr.find("OpenSpec") == std::string::npos,
-                         "Public status string must not contain 'OpenSpec'");
+                         "Public status string must not contain forbidden openspec term");
                 UI_CHECK(statusStr.find("Linter") == std::string::npos,
                          "Public status string must not contain 'Linter'");
                 UI_CHECK(statusStr.find("Clang-Format") == std::string::npos,
@@ -793,13 +797,13 @@ int main(int argc, char** argv) {
             for (const auto& st : sampleStatuses) {
                 const auto statusStr = vigilio::ClangTidyService::executionStatusToString(st);
                 UI_CHECK(statusStr.find("Senior Mode") == std::string::npos,
-                         "Public status string must not contain 'Senior Mode'");
+                         "Public status string must not contain forbidden senior mode term");
                 UI_CHECK(statusStr.find("Modo Senior") == std::string::npos,
-                         "Public status string must not contain 'Modo Senior'");
+                         "Public status string must not contain forbidden modo senior term");
                 UI_CHECK(statusStr.find("Prompt Builder") == std::string::npos,
-                         "Public status string must not contain 'Prompt Builder'");
+                         "Public status string must not contain forbidden prompt builder term");
                 UI_CHECK(statusStr.find("OpenSpec") == std::string::npos,
-                         "Public status string must not contain 'OpenSpec'");
+                         "Public status string must not contain forbidden openspec term");
                 UI_CHECK(statusStr.find("Linter") == std::string::npos,
                          "Public status string must not contain 'Linter'");
                 UI_CHECK(statusStr.find("Clang-Tidy") == std::string::npos,
@@ -809,13 +813,13 @@ int main(int argc, char** argv) {
 
                 const auto hintStr = vigilio::ClangTidyService::generateRemediationHint(st, 0);
                 UI_CHECK(hintStr.find("Senior Mode") == std::string::npos,
-                         "Public hint string must not contain 'Senior Mode'");
+                         "Public hint string must not contain forbidden senior mode term");
                 UI_CHECK(hintStr.find("Modo Senior") == std::string::npos,
-                         "Public hint string must not contain 'Modo Senior'");
+                         "Public hint string must not contain forbidden modo senior term");
                 UI_CHECK(hintStr.find("Prompt Builder") == std::string::npos,
-                         "Public hint string must not contain 'Prompt Builder'");
+                         "Public hint string must not contain forbidden prompt builder term");
                 UI_CHECK(hintStr.find("OpenSpec") == std::string::npos,
-                         "Public hint string must not contain 'OpenSpec'");
+                         "Public hint string must not contain forbidden openspec term");
                 UI_CHECK(hintStr.find("Linter") == std::string::npos,
                          "Public hint string must not contain 'Linter'");
                 UI_CHECK(hintStr.find("Clang-Tidy") == std::string::npos,
@@ -823,6 +827,237 @@ int main(int argc, char** argv) {
                 UI_CHECK(hintStr.find("Clang-Format") == std::string::npos,
                          "Public hint string must not contain 'Clang-Format'");
             }
+        }
+    }
+
+    // CI Linux job quality governance and public copy audit in UI context
+    {
+        vigilio::CiLinuxJobPlan debugPlan = vigilio::CiLinuxJobConfiguration::canonicalDebugPlan();
+        vigilio::CiLinuxJobService ciLinuxService(debugPlan);
+        vigilio::CiLinuxServiceOptions options;
+        options.mode = vigilio::CiLinuxExecutionMode::DryRun;
+        ciLinuxService.setOptions(options);
+
+        // TASK-003: Programmatic dry-run pipeline validation
+        auto debugReport = ciLinuxService.executePlan();
+        UI_CHECK(debugReport.status == vigilio::CiLinuxJobStatus::Passed,
+                 "CI Linux debug plan must pass in dry-run mode");
+        UI_CHECK(debugReport.isPassed(), "CI Linux debug plan report must be passed");
+        UI_CHECK(debugReport.stepResults.size() == debugPlan.steps.size(),
+                 "Debug plan steps evaluated must match plan steps count");
+        UI_CHECK(debugReport.durationMs >= 0, "Execution duration must be non-negative");
+        UI_CHECK(debugReport.isClean, "Debug plan report must be clean");
+
+        // Comprehensive plan with all 8 canonical pipeline steps
+        vigilio::CiLinuxJobPlan comprehensivePlan = debugPlan;
+        comprehensivePlan.presetName = "ci-linux-comprehensive";
+        comprehensivePlan.steps.push_back(vigilio::CiLinuxStepDefinition{
+            .step = vigilio::CiLinuxPipelineStep::SanitizerVerification,
+            .name = "Verificación de sanitizadores de memoria",
+            .command = "ctest --test-dir build-ci-debug --output-on-failure -L sanitizer",
+            .isMandatory = true,
+            .options = vigilio::CiLinuxStepOptions{.timeoutMs = 180000,
+                                                   .continueOnError = false,
+                                                   .requiredEnvVars = {},
+                                                   .workingDirectory = "."}});
+        comprehensivePlan.steps.push_back(vigilio::CiLinuxStepDefinition{
+            .step = vigilio::CiLinuxPipelineStep::ArtifactPackaging,
+            .name = "Validación de empaquetado del navegador",
+            .command = "cpack --config build-ci-debug/CPackConfig.cmake",
+            .isMandatory = true,
+            .options = vigilio::CiLinuxStepOptions{.timeoutMs = 180000,
+                                                   .continueOnError = false,
+                                                   .requiredEnvVars = {},
+                                                   .workingDirectory = "."}});
+        UI_CHECK(comprehensivePlan.steps.size() == 8,
+                 "Comprehensive pipeline plan must define all 8 canonical steps");
+        ciLinuxService.setPlan(comprehensivePlan);
+        auto comprehensiveReport = ciLinuxService.executePlan();
+        UI_CHECK(comprehensiveReport.status == vigilio::CiLinuxJobStatus::Passed,
+                 "Comprehensive plan with 8 steps must pass");
+        UI_CHECK(comprehensiveReport.stepResults.size() == 8,
+                 "Comprehensive plan must evaluate all 8 steps");
+
+        // TASK-004: UI artifact compilation coverage verification in pipeline
+        bool hasBuild = false;
+        bool hasTests = false;
+        for (const auto& stepDef : debugPlan.steps) {
+            if (stepDef.step == vigilio::CiLinuxPipelineStep::BuildCompilation) {
+                hasBuild = true;
+                const auto cmd = ciLinuxService.buildCommandLine(stepDef);
+                UI_CHECK(!cmd.empty(), "BuildCompilation command line must not be empty");
+                UI_CHECK(cmd.find("build-ci-debug") != std::string::npos,
+                         "BuildCompilation command line must reference build directory");
+            }
+            if (stepDef.step == vigilio::CiLinuxPipelineStep::TestSuiteExecution) {
+                hasTests = true;
+                const auto cmd = ciLinuxService.buildCommandLine(stepDef);
+                UI_CHECK(!cmd.empty(), "TestSuiteExecution command line must not be empty");
+                UI_CHECK(cmd.find("fast") != std::string::npos,
+                         "TestSuiteExecution command line must target fast test label");
+            }
+        }
+        UI_CHECK(hasBuild,
+                 "Pipeline plan must contain CiLinuxPipelineStep::BuildCompilation governing UI");
+        UI_CHECK(hasTests,
+                 "Pipeline plan must contain CiLinuxPipelineStep::TestSuiteExecution governing UI");
+
+        // TASK-005: Audit of executionModeToString and formatStepSummary in neutral Spanish
+        const auto dryRunModeStr =
+            vigilio::CiLinuxJobService::executionModeToString(vigilio::CiLinuxExecutionMode::DryRun);
+        UI_CHECK(!dryRunModeStr.empty(), "DryRun mode string must not be empty");
+        UI_CHECK(dryRunModeStr.find("Simulación") != std::string::npos,
+                 "DryRun mode must mention simulación in Spanish");
+
+        const auto simulatedModeStr =
+            vigilio::CiLinuxJobService::executionModeToString(vigilio::CiLinuxExecutionMode::Simulated);
+        UI_CHECK(!simulatedModeStr.empty(), "Simulated mode string must not be empty");
+        UI_CHECK(simulatedModeStr.find("Simulación") != std::string::npos,
+                 "Simulated mode must mention simulación in Spanish");
+
+        const auto liveModeStr =
+            vigilio::CiLinuxJobService::executionModeToString(vigilio::CiLinuxExecutionMode::Live);
+        UI_CHECK(!liveModeStr.empty(), "Live mode string must not be empty");
+        UI_CHECK(liveModeStr.find("Ejecución") != std::string::npos,
+                 "Live mode must mention ejecución in Spanish");
+
+        vigilio::CiLinuxStepResult sampleStepResult;
+        sampleStepResult.step = vigilio::CiLinuxPipelineStep::BuildCompilation;
+        sampleStepResult.status = vigilio::CiLinuxStepStatus::Success;
+        sampleStepResult.durationMs = 150;
+        sampleStepResult.exitCode = 0;
+        sampleStepResult.outputSummary = "Compilación completada sin errores.";
+        const auto stepSummary = vigilio::CiLinuxJobService::formatStepSummary(sampleStepResult);
+        UI_CHECK(!stepSummary.empty(), "CiLinuxJobService::formatStepSummary must not be empty");
+        UI_CHECK(stepSummary.find("Compilación") != std::string::npos,
+                 "formatStepSummary must contain step name in Spanish");
+
+        // TASK-006: Audit of diagnostic and remediation copy in neutral Spanish (CiLinuxJobValidator)
+        const std::vector<vigilio::CiLinuxJobStatus> sampleJobStatuses = {
+            vigilio::CiLinuxJobStatus::Pending,   vigilio::CiLinuxJobStatus::Running,
+            vigilio::CiLinuxJobStatus::Passed,    vigilio::CiLinuxJobStatus::Failed,
+            vigilio::CiLinuxJobStatus::Cancelled, vigilio::CiLinuxJobStatus::TimedOut};
+        for (const auto& js : sampleJobStatuses) {
+            const auto jsStr = vigilio::CiLinuxJobValidator::jobStatusToString(js);
+            UI_CHECK(!jsStr.empty(), "jobStatusToString must not be empty");
+        }
+        UI_CHECK(vigilio::CiLinuxJobValidator::jobStatusToString(vigilio::CiLinuxJobStatus::Passed)
+                         .find("éxito") != std::string::npos,
+                 "Passed status must mention éxito");
+
+        const std::vector<vigilio::CiLinuxJobError> sampleJobErrors = {
+            vigilio::CiLinuxJobError::None,
+            vigilio::CiLinuxJobError::ToolchainMissing,
+            vigilio::CiLinuxJobError::ConfigurationFailed,
+            vigilio::CiLinuxJobError::CompilationFailed,
+            vigilio::CiLinuxJobError::TestExecutionFailed,
+            vigilio::CiLinuxJobError::FormatDiscrepancy,
+            vigilio::CiLinuxJobError::StaticAnalysisIssue,
+            vigilio::CiLinuxJobError::UnsafePipelinePath,
+            vigilio::CiLinuxJobError::TimeoutExceeded,
+            vigilio::CiLinuxJobError::InvalidWorkflowSchema,
+            vigilio::CiLinuxJobError::DependencyOrderingViolation,
+            vigilio::CiLinuxJobError::MemoryLimitExceeded};
+        for (const auto& err : sampleJobErrors) {
+            const auto errStr = vigilio::CiLinuxJobValidator::jobErrorToString(err);
+            UI_CHECK(!errStr.empty(), "jobErrorToString must not be empty");
+            const auto hintStr = vigilio::CiLinuxJobValidator::generateRemediationHint(err);
+            UI_CHECK(!hintStr.empty(), "generateRemediationHint must not be empty");
+        }
+
+        const std::vector<vigilio::CiLinuxPipelineStep> samplePipelineSteps = {
+            vigilio::CiLinuxPipelineStep::EnvironmentCheck,
+            vigilio::CiLinuxPipelineStep::FormatVerification,
+            vigilio::CiLinuxPipelineStep::StaticAnalysis,
+            vigilio::CiLinuxPipelineStep::ConfigurePreset,
+            vigilio::CiLinuxPipelineStep::BuildCompilation,
+            vigilio::CiLinuxPipelineStep::TestSuiteExecution,
+            vigilio::CiLinuxPipelineStep::SanitizerVerification,
+            vigilio::CiLinuxPipelineStep::ArtifactPackaging};
+        for (const auto& ps : samplePipelineSteps) {
+            const auto psStr = vigilio::CiLinuxJobValidator::stepToString(ps);
+            UI_CHECK(!psStr.empty(), "stepToString must not be empty");
+        }
+
+        const std::vector<vigilio::CiLinuxStepStatus> sampleStepStatuses = {
+            vigilio::CiLinuxStepStatus::NotStarted, vigilio::CiLinuxStepStatus::InProgress,
+            vigilio::CiLinuxStepStatus::Success, vigilio::CiLinuxStepStatus::Failure,
+            vigilio::CiLinuxStepStatus::Omitted};
+        for (const auto& ss : sampleStepStatuses) {
+            const auto ssStr = vigilio::CiLinuxJobValidator::stepStatusToString(ss);
+            UI_CHECK(!ssStr.empty(), "stepStatusToString must not be empty");
+        }
+
+        // TASK-007: Absence of forbidden internal engineering terms across all public CI Linux strings
+        for (const auto& js : sampleJobStatuses) {
+            const auto statusStr = vigilio::CiLinuxJobValidator::jobStatusToString(js);
+            UI_CHECK(statusStr.find("Senior Mode") == std::string::npos,
+                     "Public job status must not contain forbidden senior mode term");
+            UI_CHECK(statusStr.find("Modo Senior") == std::string::npos,
+                     "Public job status must not contain forbidden modo senior term");
+            UI_CHECK(statusStr.find("Prompt Builder") == std::string::npos,
+                     "Public job status must not contain forbidden prompt builder term");
+            UI_CHECK(statusStr.find("OpenSpec") == std::string::npos,
+                     "Public job status must not contain forbidden openspec term");
+            UI_CHECK(statusStr.find("DAG") == std::string::npos,
+                     "Public job status must not contain 'DAG'");
+            UI_CHECK(statusStr.find("Linter") == std::string::npos,
+                     "Public job status must not contain 'Linter'");
+            UI_CHECK(statusStr.find("CI Linux job") == std::string::npos,
+                     "Public job status must not contain 'CI Linux job'");
+        }
+        for (const auto& err : sampleJobErrors) {
+            const auto errStr = vigilio::CiLinuxJobValidator::jobErrorToString(err);
+            UI_CHECK(errStr.find("Senior Mode") == std::string::npos,
+                     "Public error string must not contain forbidden senior mode term");
+            UI_CHECK(errStr.find("Modo Senior") == std::string::npos,
+                     "Public error string must not contain forbidden modo senior term");
+            UI_CHECK(errStr.find("Prompt Builder") == std::string::npos,
+                     "Public error string must not contain forbidden prompt builder term");
+            UI_CHECK(errStr.find("OpenSpec") == std::string::npos,
+                     "Public error string must not contain forbidden openspec term");
+            UI_CHECK(errStr.find("DAG") == std::string::npos,
+                     "Public error string must not contain 'DAG'");
+            UI_CHECK(errStr.find("Linter") == std::string::npos,
+                     "Public error string must not contain 'Linter'");
+            UI_CHECK(errStr.find("CI Linux job") == std::string::npos,
+                     "Public error string must not contain 'CI Linux job'");
+
+            const auto hintStr = vigilio::CiLinuxJobValidator::generateRemediationHint(err);
+            UI_CHECK(hintStr.find("Senior Mode") == std::string::npos,
+                     "Public remediation hint must not contain forbidden senior mode term");
+            UI_CHECK(hintStr.find("Modo Senior") == std::string::npos,
+                     "Public remediation hint must not contain forbidden modo senior term");
+            UI_CHECK(hintStr.find("Prompt Builder") == std::string::npos,
+                     "Public remediation hint must not contain forbidden prompt builder term");
+            UI_CHECK(hintStr.find("OpenSpec") == std::string::npos,
+                     "Public remediation hint must not contain forbidden openspec term");
+            UI_CHECK(hintStr.find("DAG") == std::string::npos,
+                     "Public remediation hint must not contain 'DAG'");
+            UI_CHECK(hintStr.find("Linter") == std::string::npos,
+                     "Public remediation hint must not contain 'Linter'");
+            UI_CHECK(hintStr.find("CI Linux job") == std::string::npos,
+                     "Public remediation hint must not contain 'CI Linux job'");
+        }
+        const std::vector<vigilio::CiLinuxExecutionMode> sampleExecutionModes = {
+            vigilio::CiLinuxExecutionMode::DryRun, vigilio::CiLinuxExecutionMode::Simulated,
+            vigilio::CiLinuxExecutionMode::Live};
+        for (const auto& mode : sampleExecutionModes) {
+            const auto modeStr = vigilio::CiLinuxJobService::executionModeToString(mode);
+            UI_CHECK(modeStr.find("Senior Mode") == std::string::npos,
+                     "Public execution mode must not contain forbidden senior mode term");
+            UI_CHECK(modeStr.find("Modo Senior") == std::string::npos,
+                     "Public execution mode must not contain forbidden modo senior term");
+            UI_CHECK(modeStr.find("Prompt Builder") == std::string::npos,
+                     "Public execution mode must not contain forbidden prompt builder term");
+            UI_CHECK(modeStr.find("OpenSpec") == std::string::npos,
+                     "Public execution mode must not contain forbidden openspec term");
+            UI_CHECK(modeStr.find("DAG") == std::string::npos,
+                     "Public execution mode must not contain 'DAG'");
+            UI_CHECK(modeStr.find("Linter") == std::string::npos,
+                     "Public execution mode must not contain 'Linter'");
+            UI_CHECK(modeStr.find("CI Linux job") == std::string::npos,
+                     "Public execution mode must not contain 'CI Linux job'");
         }
     }
 
