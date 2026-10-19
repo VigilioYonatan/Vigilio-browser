@@ -1,6 +1,9 @@
 #pragma once
 #include "core/ApplicationLifetimeCoordinator.h"
 #include "core/CrashRecoveryCoordinator.h"
+#include "core/MainWindowLayoutConfiguration.h"
+#include "core/MainWindowLayoutService.h"
+#include "core/MainWindowLayoutTypes.h"
 #include "core/StartupTypes.h"
 #include "storage/LocalRepository.h"
 #include <QIcon>
@@ -17,6 +20,9 @@ class QTimer;
 class QToolBar;
 class QWebEngineView;
 class QAction;
+class QFrame;
+class QPushButton;
+class QResizeEvent;
 
 class BrowserWindow final : public QMainWindow {
   public:
@@ -28,6 +34,18 @@ class BrowserWindow final : public QMainWindow {
     [[nodiscard]] QWebEngineView* currentWebView() const;
     void setSeniorMode(bool enabled);
     [[nodiscard]] QIcon makeResourceIcon(std::string_view alias) const;
+    void handleSidebarToggle();
+
+    [[nodiscard]] vigilio::MainWindowLayoutService* layoutService() const noexcept {
+        return layoutService_.get();
+    }
+    [[nodiscard]] QFrame* sidebar() const noexcept {
+        return sidebar_;
+    }
+    [[nodiscard]] QPushButton* sidebarToggleButton() const noexcept {
+        return sidebarToggleBtn_;
+    }
+    [[nodiscard]] bool isSidebarExpanded() const noexcept;
 
     [[nodiscard]] bool isIncognitoSession() const noexcept {
         return isIncognito_;
@@ -56,10 +74,14 @@ class BrowserWindow final : public QMainWindow {
 
   protected:
     void closeEvent(QCloseEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
   private:
     friend int main(int argc, char** argv);
     void setupUi();
+    void setupLayoutService(const vigilio::StartupDiagnosticReport& report);
+    void setupSidebar();
+    void applyLayoutPlan(const vigilio::MainWindowLayoutPlan& plan);
     void setupStartupVisuals(const vigilio::StartupCommandLine& cmdLine,
                              const vigilio::StartupDiagnosticReport& report);
     void setupSafeModeBanner();
@@ -90,6 +112,12 @@ class BrowserWindow final : public QMainWindow {
 
     std::unique_ptr<vigilio::ApplicationLifetimeCoordinator> lifetimeCoordinator_;
     std::unique_ptr<vigilio::CrashRecoveryService> crashRecoveryService_;
+    std::unique_ptr<vigilio::MainWindowLayoutService> layoutService_;
+    QFrame* sidebar_{nullptr};
+    QPushButton* sidebarToggleBtn_{nullptr};
+    QWidget* mainContainer_{nullptr};
+    QAction* toggleSidebarAction_{nullptr};
+
     QWidget* safeModeBanner_{nullptr};
     QWidget* crashRecoveryBanner_{nullptr};
     QLabel* incognitoBadge_{nullptr};

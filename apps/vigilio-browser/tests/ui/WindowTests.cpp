@@ -19,6 +19,10 @@
 #include "core/ClangTidyTypes.h"
 #include "core/ClangTidyValidator.h"
 #include "core/CrashRecoveryCoordinator.h"
+#include "core/MainWindowLayoutConfiguration.h"
+#include "core/MainWindowLayoutService.h"
+#include "core/MainWindowLayoutTypes.h"
+#include "core/MainWindowLayoutValidator.h"
 #include "core/SessionFile.h"
 #include "core/TestFixtureFoundation.h"
 #include "core/TestFixtureService.h"
@@ -204,6 +208,36 @@ int main(int argc, char** argv) {
              "makeResourceIcon must return valid fallback QIcon for unknown alias");
 
     errorPage->deleteLater();
+
+    // TASK-008: MainWindow layout and sidebar widget hierarchy verification
+    UI_CHECK(window.layoutService() != nullptr, "Window must initialize MainWindowLayoutService");
+    UI_CHECK(window.sidebar() != nullptr, "Window must create sidebar frame");
+    UI_CHECK(window.sidebarToggleButton() != nullptr, "Window must create sidebarToggleButton");
+    UI_CHECK(window.mainContainer_ != nullptr, "Window must create mainContainer_");
+    UI_CHECK(window.sidebar()->objectName() == "vigilio-sidebar",
+             "Sidebar objectName must match vigilio-sidebar");
+    UI_CHECK(window.sidebarToggleButton()->objectName() == "vigilio-sidebar-toggle",
+             "Sidebar toggle button objectName must match vigilio-sidebar-toggle");
+    UI_CHECK(window.sidebar()->width() == 48, "Initial sidebar width must be collapsed (48 px)");
+    UI_CHECK(!window.isSidebarExpanded(), "Sidebar must initially be collapsed");
+
+    // TASK-009: Sidebar toggling and minimum tap targets under accessible mode
+    window.handleSidebarToggle();
+    UI_CHECK(window.isSidebarExpanded(), "Sidebar must be expanded after toggle");
+    UI_CHECK(window.sidebar()->width() == 240, "Sidebar width must be 240 px when expanded");
+
+    window.setSeniorMode(true);
+    UI_CHECK(window.sidebarToggleButton()->minimumHeight() >= 48,
+             "Sidebar toggle button minimumHeight >= 48 in accessible interface mode");
+    for (auto* btn : window.sidebar()->findChildren<QPushButton*>()) {
+        UI_CHECK(btn->minimumHeight() >= 48,
+                 "Sidebar button minimumHeight >= 48 in accessible interface mode");
+    }
+
+    window.handleSidebarToggle();
+    UI_CHECK(!window.isSidebarExpanded(), "Sidebar must be collapsed after second toggle");
+    UI_CHECK(window.sidebar()->width() == 48, "Sidebar width must revert to 48 px when collapsed");
+    window.setSeniorMode(false);
 
     // testStartupSafeModeBanner
     {
@@ -1563,6 +1597,105 @@ int main(int argc, char** argv) {
                      "Public execution mode must not contain 'Linter'");
             UI_CHECK(modeStr.find("CI macOS job") == std::string::npos,
                      "Public execution mode must not contain 'CI macOS job'");
+        }
+
+        // 13. MainWindowLayout quality governance and public copy audit (TASK-010)
+        const std::vector<vigilio::MainWindowLayoutError> sampleLayoutErrors = {
+            vigilio::MainWindowLayoutError::None,
+            vigilio::MainWindowLayoutError::DimensionsBelowMinimum,
+            vigilio::MainWindowLayoutError::InvalidSidebarWidth,
+            vigilio::MainWindowLayoutError::ConflictingZoneAnchors,
+            vigilio::MainWindowLayoutError::ZeroContentAreaBudget,
+            vigilio::MainWindowLayoutError::NegativeMarginOrPadding,
+            vigilio::MainWindowLayoutError::InvalidDensityConfiguration,
+            vigilio::MainWindowLayoutError::LayoutPersistenceCorrupted};
+        for (const auto& err : sampleLayoutErrors) {
+            const auto errStr = vigilio::MainWindowLayoutValidator::layoutErrorToString(err);
+            UI_CHECK(errStr.find("Senior Mode") == std::string::npos,
+                     "Public layout error string must not contain forbidden senior mode term");
+            UI_CHECK(errStr.find("Modo Senior") == std::string::npos,
+                     "Public layout error string must not contain forbidden modo senior term");
+            UI_CHECK(errStr.find("Prompt Builder") == std::string::npos,
+                     "Public layout error string must not contain forbidden prompt builder term");
+            UI_CHECK(errStr.find("OpenSpec") == std::string::npos,
+                     "Public layout error string must not contain forbidden openspec term");
+            UI_CHECK(errStr.find("DAG") == std::string::npos,
+                     "Public layout error string must not contain 'DAG'");
+            UI_CHECK(errStr.find("Linter") == std::string::npos,
+                     "Public layout error string must not contain 'Linter'");
+
+            const auto hintStr = vigilio::MainWindowLayoutValidator::generateRemediationHint(err);
+            UI_CHECK(hintStr.find("Senior Mode") == std::string::npos,
+                     "Public layout remediation hint must not contain forbidden senior mode term");
+            UI_CHECK(hintStr.find("Modo Senior") == std::string::npos,
+                     "Public layout remediation hint must not contain forbidden modo senior term");
+            UI_CHECK(hintStr.find("Prompt Builder") == std::string::npos,
+                     "Public layout remediation hint must not contain forbidden prompt builder term");
+            UI_CHECK(hintStr.find("OpenSpec") == std::string::npos,
+                     "Public layout remediation hint must not contain forbidden openspec term");
+            UI_CHECK(hintStr.find("DAG") == std::string::npos,
+                     "Public layout remediation hint must not contain 'DAG'");
+            UI_CHECK(hintStr.find("Linter") == std::string::npos,
+                     "Public layout remediation hint must not contain 'Linter'");
+        }
+
+        const std::vector<vigilio::LayoutDensity> sampleDensities = {vigilio::LayoutDensity::Compact,
+                                                                     vigilio::LayoutDensity::Default,
+                                                                     vigilio::LayoutDensity::Senior};
+        for (const auto& density : sampleDensities) {
+            const auto densityStr = vigilio::MainWindowLayoutValidator::layoutDensityToString(density);
+            UI_CHECK(densityStr.find("Senior Mode") == std::string::npos,
+                     "Public layout density must not contain forbidden senior mode term");
+            UI_CHECK(densityStr.find("Modo Senior") == std::string::npos,
+                     "Public layout density must not contain forbidden modo senior term");
+            UI_CHECK(densityStr.find("Prompt Builder") == std::string::npos,
+                     "Public layout density must not contain forbidden prompt builder term");
+            UI_CHECK(densityStr.find("OpenSpec") == std::string::npos,
+                     "Public layout density must not contain forbidden openspec term");
+            UI_CHECK(densityStr.find("DAG") == std::string::npos,
+                     "Public layout density must not contain 'DAG'");
+            UI_CHECK(densityStr.find("Linter") == std::string::npos,
+                     "Public layout density must not contain 'Linter'");
+        }
+
+        const std::vector<vigilio::SidebarState> sampleSidebarStates = {vigilio::SidebarState::Hidden,
+                                                                        vigilio::SidebarState::Collapsed,
+                                                                        vigilio::SidebarState::Expanded};
+        for (const auto& sbState : sampleSidebarStates) {
+            const auto sbStr = vigilio::MainWindowLayoutValidator::sidebarStateToString(sbState);
+            UI_CHECK(sbStr.find("Senior Mode") == std::string::npos,
+                     "Public sidebar state string must not contain forbidden senior mode term");
+            UI_CHECK(sbStr.find("Modo Senior") == std::string::npos,
+                     "Public sidebar state string must not contain forbidden modo senior term");
+            UI_CHECK(sbStr.find("Prompt Builder") == std::string::npos,
+                     "Public sidebar state string must not contain forbidden prompt builder term");
+            UI_CHECK(sbStr.find("OpenSpec") == std::string::npos,
+                     "Public sidebar state string must not contain forbidden openspec term");
+            UI_CHECK(sbStr.find("DAG") == std::string::npos,
+                     "Public sidebar state string must not contain 'DAG'");
+            UI_CHECK(sbStr.find("Linter") == std::string::npos,
+                     "Public sidebar state string must not contain 'Linter'");
+        }
+
+        const std::vector<vigilio::LayoutZone> sampleLayoutZones = {
+            vigilio::LayoutZone::TitleBar, vigilio::LayoutZone::TabStrip,
+            vigilio::LayoutZone::ToolBar,  vigilio::LayoutZone::NotificationBanner,
+            vigilio::LayoutZone::Sidebar,  vigilio::LayoutZone::Content,
+            vigilio::LayoutZone::StatusBar};
+        for (const auto& zone : sampleLayoutZones) {
+            const auto zoneStr = vigilio::MainWindowLayoutValidator::layoutZoneToString(zone);
+            UI_CHECK(zoneStr.find("Senior Mode") == std::string::npos,
+                     "Public layout zone string must not contain forbidden senior mode term");
+            UI_CHECK(zoneStr.find("Modo Senior") == std::string::npos,
+                     "Public layout zone string must not contain forbidden modo senior term");
+            UI_CHECK(zoneStr.find("Prompt Builder") == std::string::npos,
+                     "Public layout zone string must not contain forbidden prompt builder term");
+            UI_CHECK(zoneStr.find("OpenSpec") == std::string::npos,
+                     "Public layout zone string must not contain forbidden openspec term");
+            UI_CHECK(zoneStr.find("DAG") == std::string::npos,
+                     "Public layout zone string must not contain 'DAG'");
+            UI_CHECK(zoneStr.find("Linter") == std::string::npos,
+                     "Public layout zone string must not contain 'Linter'");
         }
     }
 

@@ -23,6 +23,7 @@
 #include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QSaveFile>
 #include <QSettings>
 #include <QShortcut>
@@ -79,6 +80,7 @@ BrowserWindow::BrowserWindow(const vigilio::StartupCommandLine& cmdLine,
     lifetimeConfig.sessionFilePath = profileDir + "/session.json";
     lifetimeCoordinator_ = std::make_unique<vigilio::ApplicationLifetimeCoordinator>(lifetimeConfig);
 
+    setupLayoutService(report);
     setupUi();
     setupStartupVisuals(cmdLine, report);
     setupCrashRecovery(cmdLine, report);
@@ -129,19 +131,237 @@ QIcon BrowserWindow::makeResourceIcon(std::string_view alias) const {
     return QIcon(QString::fromStdString(qrcPath));
 }
 
+void BrowserWindow::setupLayoutService(const vigilio::StartupDiagnosticReport& report) {
+    QSettings settings;
+    const bool seniorPref = settings.value("accessibility/senior", false).toBool();
+    const auto initialPlan = seniorPref
+                                 ? vigilio::MainWindowLayoutConfiguration::canonicalSeniorLayout()
+                                 : vigilio::MainWindowLayoutConfiguration::canonicalDefaultLayout();
+
+    vigilio::MainWindowLayoutServiceOptions layoutOptions;
+    layoutOptions.isIncognitoSession = isIncognito_;
+    layoutOptions.enablePersistence = !isIncognito_;
+    if (!report.storagePath.empty()) {
+        layoutOptions.stateFilePath = std::filesystem::path(report.storagePath) / "layout_state.json";
+    } else {
+        layoutOptions.stateFilePath =
+            std::filesystem::path(profileLocation().toStdString()) / "layout_state.json";
+    }
+
+    layoutService_ = std::make_unique<vigilio::MainWindowLayoutService>(initialPlan, layoutOptions);
+    layoutService_->setIncognitoMode(isIncognito_);
+    layoutService_->setLayoutChangedCallback(
+        [this](const vigilio::MainWindowLayoutPlan& plan,
+               const vigilio::MainWindowLayoutReport& /*report*/) { applyLayoutPlan(plan); });
+}
+
+bool BrowserWindow::isSidebarExpanded() const noexcept {
+    if (layoutService_) {
+        return layoutService_->plan().sidebar.state == vigilio::SidebarState::Expanded;
+    }
+    return sidebar_ &&
+           sidebar_->width() > vigilio::MainWindowLayoutConfiguration::kCanonicalSidebarCollapsedWidth;
+}
+
+void BrowserWindow::handleSidebarToggle() {
+    if (!layoutService_ || !sidebar_) {
+        return;
+    }
+    layoutService_->toggleSidebar();
+    const auto& plan = layoutService_->plan();
+    applyLayoutPlan(plan);
+}
+
+void BrowserWindow::applyLayoutPlan(const vigilio::MainWindowLayoutPlan& plan) {
+    if (!sidebar_) {
+        return;
+    }
+
+    const bool expanded = (plan.sidebar.state == vigilio::SidebarState::Expanded);
+    const bool visible = (plan.sidebar.state != vigilio::SidebarState::Hidden) && plan.showSidebar;
+
+    sidebar_->setVisible(visible);
+    if (visible) {
+        const int targetWidth = plan.sidebar.width;
+        sidebar_->setFixedWidth(targetWidth);
+        sidebar_->resize(targetWidth, sidebar_->height());
+
+        if (sidebarToggleBtn_) {
+            sidebarToggleBtn_->setToolTip(expanded ? "Plegar panel lateral (Ctrl+Alt+S)"
+                                                   : "Desplegar panel lateral (Ctrl+Alt+S)");
+            sidebarToggleBtn_->setAccessibleName(expanded ? "Plegar panel lateral"
+                                                          : "Desplegar panel lateral");
+        }
+
+        auto updateBtnText = [this, expanded](const char* name, const QString& text) {
+            if (auto* btn = sidebar_->findChild<QPushButton*>(name)) {
+                btn->setText(expanded ? text : QString());
+            }
+        };
+        updateBtnText("vigilio-sidebar-workspaces", "Espacios");
+        updateBtnText("vigilio-sidebar-tools", "Herramientas");
+        updateBtnText("vigilio-sidebar-downloads", "Descargas");
+        updateBtnText("vigilio-sidebar-history", "Historial");
+        updateBtnText("vigilio-sidebar-bookmarks", "Favoritos");
+        updateBtnText("vigilio-sidebar-settings", "Ajustes");
+
+        if (statusBar()) {
+            statusBar()->showMessage(expanded ? "Panel lateral desplegado" : "Panel lateral plegado",
+                                     3000);
+        }
+    }
+}
+
+void BrowserWindow::resizeEvent(QResizeEvent* event) {
+    QMainWindow::resizeEvent(event);
+    if (layoutService_) {
+        layoutService_->resizeWindow(width(), height());
+    }
+}
+
+void BrowserWindow::setupSidebar() {
+    sidebar_ = new QFrame(this);
+    sidebar_->setObjectName("vigilio-sidebar");
+    sidebar_->setFixedWidth(vigilio::MainWindowLayoutConfiguration::kCanonicalSidebarCollapsedWidth);
+    sidebar_->setAccessibleName("Panel lateral de navegación y herramientas");
+    sidebar_->setAccessibleDescription(
+        "Barra lateral con accesos rápidos a espacios de trabajo, descargas, historial y marcadores");
+
+    auto* sideLayout = new QVBoxLayout(sidebar_);
+    sideLayout->setContentsMargins(4, 6, 4, 6);
+    sideLayout->setSpacing(6);
+
+    sidebarToggleBtn_ = new QPushButton(sidebar_);
+    sidebarToggleBtn_->setObjectName("vigilio-sidebar-toggle");
+    sidebarToggleBtn_->setIcon(makeResourceIcon("icons/tools/split.svg"));
+    sidebarToggleBtn_->setIconSize(QSize(20, 20));
+    sidebarToggleBtn_->setToolTip("Alternar panel lateral (Ctrl+Alt+S)");
+    sidebarToggleBtn_->setAccessibleName("Desplegar panel lateral");
+    sidebarToggleBtn_->setAccessibleDescription("Plegar o desplegar la barra lateral de navegación");
+    sidebarToggleBtn_->setMinimumHeight(32);
+    sidebarToggleBtn_->setFocusPolicy(Qt::StrongFocus);
+    connect(sidebarToggleBtn_, &QPushButton::clicked, this, &BrowserWindow::handleSidebarToggle);
+    sideLayout->addWidget(sidebarToggleBtn_);
+
+    struct SidebarButtonSpec {
+        QString objName;
+        std::string_view iconAlias;
+        QString text;
+        QString accName;
+        QString accDesc;
+    };
+
+    auto addSidebarBtn = [this, sideLayout](const SidebarButtonSpec& spec) -> QPushButton* {
+        auto* btn = new QPushButton(sidebar_);
+        btn->setObjectName(spec.objName);
+        btn->setProperty("class", "vigilio-sidebar-btn");
+        btn->setIcon(makeResourceIcon(spec.iconAlias));
+        btn->setIconSize(QSize(20, 20));
+        btn->setToolTip(spec.text);
+        btn->setAccessibleName(spec.accName);
+        btn->setAccessibleDescription(spec.accDesc);
+        btn->setMinimumHeight(32);
+        btn->setFocusPolicy(Qt::StrongFocus);
+        sideLayout->addWidget(btn);
+        return btn;
+    };
+
+    auto* workspacesBtn =
+        addSidebarBtn({.objName = "vigilio-sidebar-workspaces",
+                       .iconAlias = "icons/navigation/tabs.svg",
+                       .text = "Espacios de trabajo",
+                       .accName = "Espacios de trabajo",
+                       .accDesc = "Organizar pestañas y ventanas en espacios temáticos"});
+    connect(workspacesBtn, &QPushButton::clicked, this, [this]() {
+        if (statusBar()) {
+            statusBar()->showMessage("Espacios de trabajo", 3000);
+        }
+    });
+
+    auto* toolsBtn = addSidebarBtn({.objName = "vigilio-sidebar-tools",
+                                    .iconAlias = "icons/tools/tools.svg",
+                                    .text = "Herramientas",
+                                    .accName = "Herramientas de navegación",
+                                    .accDesc = "Acceso a utilidades locales de inspección y lectura"});
+    connect(toolsBtn, &QPushButton::clicked, this, [this]() {
+        if (statusBar()) {
+            statusBar()->showMessage("Herramientas de navegación", 3000);
+        }
+    });
+
+    auto* downloadsBtn =
+        addSidebarBtn({.objName = "vigilio-sidebar-downloads",
+                       .iconAlias = "icons/navigation/download.svg",
+                       .text = "Descargas",
+                       .accName = "Descargas",
+                       .accDesc = "Ver el progreso y la lista de archivos descargados localmente"});
+    connect(downloadsBtn, &QPushButton::clicked, this, [this]() {
+        if (statusBar()) {
+            statusBar()->showMessage("Descargas", 3000);
+        }
+    });
+
+    auto* historyBtn = addSidebarBtn(
+        {.objName = "vigilio-sidebar-history",
+         .iconAlias = "icons/navigation/history.svg",
+         .text = "Historial",
+         .accName = "Historial local de navegación",
+         .accDesc = "Consultar el registro de páginas visitadas guardadas en este equipo"});
+    connect(historyBtn, &QPushButton::clicked, this, [this]() {
+        if (statusBar()) {
+            statusBar()->showMessage("Historial local", 3000);
+        }
+    });
+
+    auto* bookmarksBtn =
+        addSidebarBtn({.objName = "vigilio-sidebar-bookmarks",
+                       .iconAlias = "icons/navigation/bookmarks.svg",
+                       .text = "Marcadores",
+                       .accName = "Marcadores favoritos",
+                       .accDesc = "Abrir y gestionar la lista de páginas web guardadas en favoritos"});
+    connect(bookmarksBtn, &QPushButton::clicked, this, &BrowserWindow::showBookmarks);
+
+    sideLayout->addStretch(1);
+
+    auto* settingsBtn =
+        addSidebarBtn({.objName = "vigilio-sidebar-settings",
+                       .iconAlias = "icons/navigation/settings.svg",
+                       .text = "Configuración",
+                       .accName = "Configuración y accesibilidad",
+                       .accDesc = "Abrir opciones de apariencia, privacidad y accesibilidad"});
+    connect(settingsBtn, &QPushButton::clicked, this, [this]() {
+        if (menuAction_) {
+            menuAction_->trigger();
+        }
+    });
+}
+
 void BrowserWindow::setupUi() {
     setWindowTitle("Vigilio Browser");
     setWindowIcon(makeResourceIcon("branding/vigilio-logo.svg"));
+
     auto* central = new QWidget(this);
-    auto* centralLayout = new QVBoxLayout(central);
-    centralLayout->setContentsMargins(0, 0, 0, 0);
-    centralLayout->setSpacing(0);
-    tabs_ = new QTabWidget(central);
+    auto* rootLayout = new QHBoxLayout(central);
+    rootLayout->setContentsMargins(0, 0, 0, 0);
+    rootLayout->setSpacing(0);
+
+    setupSidebar();
+    rootLayout->addWidget(sidebar_);
+
+    mainContainer_ = new QWidget(central);
+    mainContainer_->setObjectName("vigilio-main-container");
+    auto* mainLayout = new QVBoxLayout(mainContainer_);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
+
+    tabs_ = new QTabWidget(mainContainer_);
     tabs_->setObjectName("vigilio-tabs");
     tabs_->setTabsClosable(true);
     tabs_->setMovable(true);
     tabs_->setDocumentMode(true);
-    centralLayout->addWidget(tabs_);
+    mainLayout->addWidget(tabs_);
+
+    rootLayout->addWidget(mainContainer_, 1);
     setCentralWidget(central);
     connect(tabs_, &QTabWidget::currentChanged, this, [this](int index) {
         refreshAddressBar();
@@ -298,6 +518,18 @@ void BrowserWindow::setupUi() {
         address_->setFocus();
         address_->selectAll();
     });
+
+    toggleSidebarAction_ =
+        new QAction(makeResourceIcon("icons/tools/split.svg"), "Alternar panel lateral", this);
+    toggleSidebarAction_->setObjectName("vigilio-action-toggle-sidebar");
+    toggleSidebarAction_->setShortcut(QKeySequence("Ctrl+Alt+S"));
+    toggleSidebarAction_->setAccessibleName("Alternar panel lateral");
+    toggleSidebarAction_->setAccessibleDescription("Plegar o desplegar la barra lateral de navegación");
+    connect(toggleSidebarAction_, &QAction::triggered, this, &BrowserWindow::handleSidebarToggle);
+    addAction(toggleSidebarAction_);
+
+    auto* altSidebarShortcut = new QShortcut(QKeySequence("Alt+S"), this);
+    connect(altSidebarShortcut, &QShortcut::activated, this, &BrowserWindow::handleSidebarToggle);
 }
 
 void BrowserWindow::setupStartupVisuals(const vigilio::StartupCommandLine& /*cmdLine*/,
@@ -356,7 +588,11 @@ void BrowserWindow::setupSafeModeBanner() {
     bannerLayout->addWidget(dismissBtn);
 
     safeModeBanner_ = banner;
-    if (auto* central = centralWidget()) {
+    if (mainContainer_ && mainContainer_->layout()) {
+        if (auto* lay = qobject_cast<QVBoxLayout*>(mainContainer_->layout())) {
+            lay->insertWidget(0, safeModeBanner_);
+        }
+    } else if (auto* central = centralWidget()) {
         if (auto* lay = qobject_cast<QVBoxLayout*>(central->layout())) {
             lay->insertWidget(0, safeModeBanner_);
         }
@@ -503,7 +739,12 @@ void BrowserWindow::setupCrashRecoveryBanner(const vigilio::CrashRecoveryReport&
     bannerLayout->addWidget(dismissBtn);
 
     crashRecoveryBanner_ = banner;
-    if (auto* central = centralWidget()) {
+    if (mainContainer_ && mainContainer_->layout()) {
+        if (auto* lay = qobject_cast<QVBoxLayout*>(mainContainer_->layout())) {
+            const int insertIndex = safeModeBanner_ ? 1 : 0;
+            lay->insertWidget(insertIndex, crashRecoveryBanner_);
+        }
+    } else if (auto* central = centralWidget()) {
         if (auto* lay = qobject_cast<QVBoxLayout*>(central->layout())) {
             const int insertIndex = safeModeBanner_ ? 1 : 0;
             lay->insertWidget(insertIndex, crashRecoveryBanner_);
@@ -988,15 +1229,40 @@ void BrowserWindow::setSeniorMode(bool enabled) {
     senior_ = enabled;
     seniorAction_->setChecked(enabled);
     QSettings().setValue("accessibility/senior", enabled);
+    if (layoutService_) {
+        layoutService_->setDensity(enabled ? vigilio::LayoutDensity::Senior
+                                           : vigilio::LayoutDensity::Default);
+    }
+    if (enabled) {
+        setMinimumSize(vigilio::MainWindowLayoutConfiguration::kMinWindowWidthSenior,
+                       vigilio::MainWindowLayoutConfiguration::kMinWindowHeightSenior);
+    } else {
+        setMinimumSize(vigilio::MainWindowLayoutConfiguration::kMinWindowWidthDefault,
+                       vigilio::MainWindowLayoutConfiguration::kMinWindowHeightDefault);
+    }
     if (toolbar_) {
         toolbar_->setIconSize(enabled ? QSize(32, 32) : QSize(22, 22));
-        toolbar_->setMinimumHeight(enabled ? 55 : 40);
+        toolbar_->setMinimumHeight(enabled ? 56 : 42);
     }
     QFont font = qApp->font();
     font.setPointSize(enabled ? 14 : 10);
     qApp->setFont(font);
-    // All visible controls inherit a larger font and touch target when 'Interfaz más fácil de usar' is
-    // active.
+
+    if (sidebar_) {
+        const QSize sideIconSize = enabled ? QSize(28, 28) : QSize(20, 20);
+        for (auto* btn : sidebar_->findChildren<QPushButton*>()) {
+            btn->setMinimumHeight(enabled ? 48 : 32);
+            btn->setIconSize(sideIconSize);
+            QFont f = btn->font();
+            f.setPointSize(enabled ? 14 : 10);
+            btn->setFont(f);
+        }
+        if (sidebarToggleBtn_) {
+            sidebarToggleBtn_->setMinimumHeight(enabled ? 48 : 32);
+            sidebarToggleBtn_->setIconSize(sideIconSize);
+        }
+    }
+
     for (auto* child : findChildren<QLineEdit*>()) {
         child->setMinimumHeight(enabled ? 48 : 32);
     }
@@ -1004,7 +1270,7 @@ void BrowserWindow::setSeniorMode(bool enabled) {
         child->setMinimumHeight(enabled ? 48 : 32);
     }
     for (auto* child : findChildren<QToolBar*>()) {
-        child->setMinimumHeight(enabled ? 55 : 40);
+        child->setMinimumHeight(enabled ? 56 : 42);
     }
     for (auto* dialog : findChildren<QDialog*>()) {
         for (auto* btn : dialog->findChildren<QPushButton*>()) {
@@ -1017,7 +1283,7 @@ void BrowserWindow::setSeniorMode(bool enabled) {
     }
 
     if (safeModeBanner_) {
-        safeModeBanner_->setMinimumHeight(enabled ? 55 : 42); // safeModeBanner_ minimumHeight scaling
+        safeModeBanner_->setMinimumHeight(enabled ? 56 : 42);
         if (auto* dismiss = safeModeBanner_->findChild<QPushButton*>("vigilio-safe-mode-dismiss")) {
             dismiss->setMinimumHeight(enabled ? 48 : 32);
         }
@@ -1062,8 +1328,10 @@ void BrowserWindow::setDarkTheme(bool enabled) {
             ? "QMainWindow,QWidget{background:#141D2B;color:#E9EDF5;}"
               "QLineEdit,QTabWidget::pane{background:#222D3E;color:#FFFFFF;border:"
               "1px solid #394557;border-radius:7px;}"
+              "QLineEdit:focus{border:2px solid #3B82F6;}"
               "QTabBar::tab{background:#1C2839;color:#E8ECF3;padding:8px 12px;}"
               "QTabBar::tab:selected{background:#33435A;}"
+              "QTabBar::tab:focus{border:2px solid #3B82F6;}"
               "QToolBar{background:#182334;spacing:8px;border:0;}"
               "QMenu{background:#1A2637;color:#FFFFFF;border:1px solid #40516A;}"
               "QMenu::item:selected{background:#294F89;}"
@@ -1074,28 +1342,34 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QPushButton#vigilio-error-retry{background:#294F89;color:#FFFFFF;border:"
               "none;border-radius:6px;padding:8px 20px;font-weight:500;}"
               "QPushButton#vigilio-error-retry:hover{background:#3B82F6;}"
+              "QPushButton#vigilio-error-retry:focus{border:2px solid #3B82F6;}"
               "QPushButton#vigilio-error-home{background:#222D3E;color:#FFFFFF;border:"
               "1px solid #394557;border-radius:6px;padding:8px 20px;}"
               "QPushButton#vigilio-error-home:hover{background:#2D3B50;}"
+              "QPushButton#vigilio-error-home:focus{border:2px solid #3B82F6;}"
               "QFrame#vigilio-safe-mode-banner{background:#1E293B;color:#E9EDF5;border-bottom:1px "
               "solid #334155;}"
               "QLabel#vigilio-safe-mode-label{color:#E9EDF5;font-size:13px;}"
               "QPushButton#vigilio-safe-mode-dismiss{background:#334155;color:#FFFFFF;border:none;"
               "border-radius:4px;padding:4px 12px;}"
               "QPushButton#vigilio-safe-mode-dismiss:hover{background:#475569;}"
+              "QPushButton#vigilio-safe-mode-dismiss:focus{border:2px solid #3B82F6;}"
               "QFrame#vigilio-crash-recovery-banner{background:#1E293B;color:#E9EDF5;border-bottom:1px "
               "solid #334155;}"
               "QLabel#vigilio-crash-recovery-label{color:#E9EDF5;font-size:13px;}"
               "QPushButton#vigilio-crash-recovery-restore{background:#2563EB;color:#FFFFFF;border:none;"
               "border-radius:4px;padding:4px 14px;font-weight:500;}"
               "QPushButton#vigilio-crash-recovery-restore:hover{background:#1D4ED8;}"
+              "QPushButton#vigilio-crash-recovery-restore:focus{border:2px solid #3B82F6;}"
               "QPushButton#vigilio-crash-recovery-discard{background:#334155;color:#E2E8F0;border:none;"
               "border-radius:4px;padding:4px 12px;}"
               "QPushButton#vigilio-crash-recovery-discard:hover{background:#475569;}"
+              "QPushButton#vigilio-crash-recovery-discard:focus{border:2px solid #3B82F6;}"
               "QPushButton#vigilio-crash-recovery-dismiss{background:transparent;color:#94A3B8;border:"
               "none;"
               "border-radius:4px;padding:4px 10px;}"
               "QPushButton#vigilio-crash-recovery-dismiss:hover{background:#334155;color:#FFFFFF;}"
+              "QPushButton#vigilio-crash-recovery-dismiss:focus{border:2px solid #3B82F6;}"
               "QLabel#vigilio-incognito-badge{color:#94A3B8;padding:2px 8px;font-weight:500;}"
               "QDialog#vigilio-confirm-close-dialog{background:#1E293B;color:#E9EDF5;}"
               "QLabel#vigilio-confirm-close-title{color:#E9EDF5;font-weight:600;}"
@@ -1103,14 +1377,29 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QPushButton#vigilio-confirm-close-cancel{background:#334155;color:#FFFFFF;border:none;"
               "border-radius:6px;padding:8px 16px;}"
               "QPushButton#vigilio-confirm-close-cancel:hover{background:#475569;}"
+              "QPushButton#vigilio-confirm-close-cancel:focus{border:2px solid #3B82F6;}"
               "QPushButton#vigilio-confirm-close-confirm{background:#294F89;color:#FFFFFF;border:none;"
               "border-radius:6px;padding:8px 20px;font-weight:500;}"
               "QPushButton#vigilio-confirm-close-confirm:hover{background:#3B82F6;}"
+              "QPushButton#vigilio-confirm-close-confirm:focus{border:2px solid #3B82F6;}"
+              "QFrame#vigilio-sidebar{background:#141D2B;border-right:1px solid #394557;}"
+              "QPushButton#vigilio-sidebar-toggle{background:transparent;color:#E9EDF5;border:none;"
+              "border-radius:6px;padding:6px;}"
+              "QPushButton#vigilio-sidebar-toggle:hover{background:#1E293B;}"
+              "QPushButton#vigilio-sidebar-toggle:focus{border:2px solid #3B82F6;outline:none;}"
+              "QPushButton[class~=\"vigilio-sidebar-btn\"]{background:transparent;color:#94A3B8;border:"
+              "none;border-radius:6px;text-align:left;padding:8px;}"
+              "QPushButton[class~=\"vigilio-sidebar-btn\"]:hover{background:#1E293B;color:#E9EDF5;}"
+              "QPushButton[class~=\"vigilio-sidebar-btn\"]:focus{border:2px solid #3B82F6;outline:none;}"
+              "QPushButton[class~=\"vigilio-sidebar-btn\"]:pressed{background:#2563EB;color:#FFFFFF;}"
+              "QWidget#vigilio-main-container{background:#141D2B;}"
             : "QMainWindow,QWidget{background:#F7F9FC;color:#192538;}"
               "QLineEdit,QTabWidget::pane{background:#FFFFFF;color:#192538;border:"
               "1px solid #D9E0EA;border-radius:7px;}"
+              "QLineEdit:focus{border:2px solid #2563EB;}"
               "QTabBar::tab{background:#E9EEF6;color:#192538;padding:8px 12px;}"
               "QTabBar::tab:selected{background:#FFFFFF;}"
+              "QTabBar::tab:focus{border:2px solid #2563EB;}"
               "QToolBar{background:#F3F6FB;spacing:8px;border:0;}"
               "QMenu{background:#FFFFFF;color:#192538;border:1px solid #D9E0EA;}"
               "QMenu::item:selected{background:#DCE9FA;}"
@@ -1121,28 +1410,34 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QPushButton#vigilio-error-retry{background:#2563EB;color:#FFFFFF;border:"
               "none;border-radius:6px;padding:8px 20px;font-weight:500;}"
               "QPushButton#vigilio-error-retry:hover{background:#1D4ED8;}"
+              "QPushButton#vigilio-error-retry:focus{border:2px solid #2563EB;}"
               "QPushButton#vigilio-error-home{background:#FFFFFF;color:#192538;border:"
               "1px solid #D9E0EA;border-radius:6px;padding:8px 20px;}"
               "QPushButton#vigilio-error-home:hover{background:#F1F4F9;}"
+              "QPushButton#vigilio-error-home:focus{border:2px solid #2563EB;}"
               "QFrame#vigilio-safe-mode-banner{background:#EFF6FF;color:#1E3A8A;border-bottom:1px "
               "solid #BFDBFE;}"
               "QLabel#vigilio-safe-mode-label{color:#1E3A8A;font-size:13px;}"
               "QPushButton#vigilio-safe-mode-dismiss{background:#DBEAFE;color:#1E40AF;border:none;"
               "border-radius:4px;padding:4px 12px;}"
               "QPushButton#vigilio-safe-mode-dismiss:hover{background:#BFDBFE;}"
+              "QPushButton#vigilio-safe-mode-dismiss:focus{border:2px solid #2563EB;}"
               "QFrame#vigilio-crash-recovery-banner{background:#EFF6FF;color:#1E3A8A;border-bottom:1px "
               "solid #BFDBFE;}"
               "QLabel#vigilio-crash-recovery-label{color:#1E3A8A;font-size:13px;}"
               "QPushButton#vigilio-crash-recovery-restore{background:#2563EB;color:#FFFFFF;border:none;"
               "border-radius:4px;padding:4px 14px;font-weight:500;}"
               "QPushButton#vigilio-crash-recovery-restore:hover{background:#1D4ED8;}"
+              "QPushButton#vigilio-crash-recovery-restore:focus{border:2px solid #2563EB;}"
               "QPushButton#vigilio-crash-recovery-discard{background:#DBEAFE;color:#1E40AF;border:none;"
               "border-radius:4px;padding:4px 12px;}"
               "QPushButton#vigilio-crash-recovery-discard:hover{background:#BFDBFE;}"
+              "QPushButton#vigilio-crash-recovery-discard:focus{border:2px solid #2563EB;}"
               "QPushButton#vigilio-crash-recovery-dismiss{background:transparent;color:#64748B;border:"
               "none;"
               "border-radius:4px;padding:4px 10px;}"
               "QPushButton#vigilio-crash-recovery-dismiss:hover{background:#E2E8F0;color:#0F172A;}"
+              "QPushButton#vigilio-crash-recovery-dismiss:focus{border:2px solid #2563EB;}"
               "QLabel#vigilio-incognito-badge{color:#475569;padding:2px 8px;font-weight:500;}"
               "QDialog#vigilio-confirm-close-dialog{background:#FFFFFF;color:#192538;}"
               "QLabel#vigilio-confirm-close-title{color:#192538;font-weight:600;}"
@@ -1150,9 +1445,22 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QPushButton#vigilio-confirm-close-cancel{background:#E9EEF6;color:#192538;border:1px "
               "solid #D9E0EA;border-radius:6px;padding:8px 16px;}"
               "QPushButton#vigilio-confirm-close-cancel:hover{background:#DCE9FA;}"
+              "QPushButton#vigilio-confirm-close-cancel:focus{border:2px solid #2563EB;}"
               "QPushButton#vigilio-confirm-close-confirm{background:#2563EB;color:#FFFFFF;border:none;"
               "border-radius:6px;padding:8px 20px;font-weight:500;}"
-              "QPushButton#vigilio-confirm-close-confirm:hover{background:#1D4ED8;}");
+              "QPushButton#vigilio-confirm-close-confirm:hover{background:#1D4ED8;}"
+              "QPushButton#vigilio-confirm-close-confirm:focus{border:2px solid #2563EB;}"
+              "QFrame#vigilio-sidebar{background:#F7F9FC;border-right:1px solid #D9E0EA;}"
+              "QPushButton#vigilio-sidebar-toggle{background:transparent;color:#192538;border:none;"
+              "border-radius:6px;padding:6px;}"
+              "QPushButton#vigilio-sidebar-toggle:hover{background:#E9EEF6;}"
+              "QPushButton#vigilio-sidebar-toggle:focus{border:2px solid #2563EB;outline:none;}"
+              "QPushButton[class~=\"vigilio-sidebar-btn\"]{background:transparent;color:#5A6A80;border:"
+              "none;border-radius:6px;text-align:left;padding:8px;}"
+              "QPushButton[class~=\"vigilio-sidebar-btn\"]:hover{background:#E9EEF6;color:#192538;}"
+              "QPushButton[class~=\"vigilio-sidebar-btn\"]:focus{border:2px solid #2563EB;outline:none;}"
+              "QPushButton[class~=\"vigilio-sidebar-btn\"]:pressed{background:#2563EB;color:#FFFFFF;}"
+              "QWidget#vigilio-main-container{background:#F7F9FC;}");
 }
 void BrowserWindow::saveSession() {
     if (isIncognito_) {
