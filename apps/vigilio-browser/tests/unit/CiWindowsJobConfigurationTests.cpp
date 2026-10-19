@@ -557,6 +557,399 @@ void test_ci_windows_remediation_hints() {
     }
 }
 
+// TEST-013: test_ci_windows_plan_validation_boundaries (TASK-001)
+void test_ci_windows_plan_validation_boundaries() {
+    auto plan = CiWindowsJobConfiguration::canonicalDebugPlan();
+
+    // Límites de tiempo total (totalTimeoutSeconds)
+    plan.totalTimeoutSeconds = 0;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::InvalidWorkflowSchema);
+
+    plan.totalTimeoutSeconds = 3601;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::InvalidWorkflowSchema);
+
+    plan.totalTimeoutSeconds = 7200;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::InvalidWorkflowSchema);
+
+    // Límite superior válido: 3600 segundos
+    plan.totalTimeoutSeconds = 3600;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::None);
+
+    // Límite inferior válido: 1 segundo
+    plan.totalTimeoutSeconds = 1;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::None);
+
+    plan.totalTimeoutSeconds = 600;
+
+    // Límites de cuota de memoria RAM (maxMemoryBytes)
+    plan.maxMemoryBytes = 0;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::MemoryLimitExceeded);
+
+    plan.maxMemoryBytes = 8589934593ULL;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::MemoryLimitExceeded);
+
+    plan.maxMemoryBytes = 16ULL * 1024 * 1024 * 1024;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::MemoryLimitExceeded);
+
+    plan.maxMemoryBytes = 64ULL * 1024 * 1024 * 1024;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::MemoryLimitExceeded);
+
+    // Límite superior permitido: exactamente 8 GB
+    plan.maxMemoryBytes = 8589934592ULL;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::None);
+
+    plan.maxMemoryBytes = 4294967296ULL;
+
+    // Preset name vacío
+    plan.presetName = "";
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::InvalidWorkflowSchema);
+    plan.presetName = "ci-windows-debug";
+
+    // Pasos con nombres vacíos o comandos vacíos
+    auto stepCopy = plan.steps;
+    plan.steps[0].name = "";
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::InvalidWorkflowSchema);
+    plan.steps = stepCopy;
+
+    plan.steps[1].command = "";
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::InvalidWorkflowSchema);
+    plan.steps = stepCopy;
+
+    // Paso con timeoutMs == 0
+    plan.steps[2].options.timeoutMs = 0;
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::InvalidWorkflowSchema);
+    plan.steps = stepCopy;
+
+    // Ruta de compilación insegura
+    plan.buildDir = "../escape";
+    CHECK(CiWindowsJobValidator::validatePlan(plan) == CiWindowsJobError::UnsafePipelinePath);
+}
+
+// TEST-014: test_ci_windows_step_sequence_topological_violations (TASK-002)
+void test_ci_windows_step_sequence_topological_violations() {
+    // Secuencia vacía -> InvalidWorkflowSchema
+    CHECK(CiWindowsJobValidator::validateStepSequence({}) == CiWindowsJobError::InvalidWorkflowSchema);
+
+    // TestSuiteExecution antes de BuildCompilation
+    std::vector<CiWindowsPipelineStep> testBeforeBuild = {CiWindowsPipelineStep::ConfigurePreset,
+                                                          CiWindowsPipelineStep::TestSuiteExecution,
+                                                          CiWindowsPipelineStep::BuildCompilation};
+    CHECK(CiWindowsJobValidator::validateStepSequence(testBeforeBuild) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    // ArtifactPackaging antes de TestSuiteExecution (cuando hay tests)
+    std::vector<CiWindowsPipelineStep> packageBeforeTest = {
+        CiWindowsPipelineStep::ConfigurePreset, CiWindowsPipelineStep::BuildCompilation,
+        CiWindowsPipelineStep::ArtifactPackaging, CiWindowsPipelineStep::TestSuiteExecution};
+    CHECK(CiWindowsJobValidator::validateStepSequence(packageBeforeTest) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    // ArtifactPackaging sin BuildCompilation
+    std::vector<CiWindowsPipelineStep> packageNoBuild = {CiWindowsPipelineStep::ConfigurePreset,
+                                                         CiWindowsPipelineStep::ArtifactPackaging};
+    CHECK(CiWindowsJobValidator::validateStepSequence(packageNoBuild) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    // SanitizerVerification antes de BuildCompilation
+    std::vector<CiWindowsPipelineStep> sanitizerBeforeBuild = {
+        CiWindowsPipelineStep::SanitizerVerification, CiWindowsPipelineStep::ConfigurePreset,
+        CiWindowsPipelineStep::BuildCompilation};
+    CHECK(CiWindowsJobValidator::validateStepSequence(sanitizerBeforeBuild) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    // BuildCompilation sin ConfigurePreset
+    std::vector<CiWindowsPipelineStep> buildNoConfig = {CiWindowsPipelineStep::BuildCompilation,
+                                                        CiWindowsPipelineStep::TestSuiteExecution};
+    CHECK(CiWindowsJobValidator::validateStepSequence(buildNoConfig) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    // EnvironmentCheck después de BuildCompilation
+    std::vector<CiWindowsPipelineStep> envAfterBuild = {CiWindowsPipelineStep::ConfigurePreset,
+                                                        CiWindowsPipelineStep::BuildCompilation,
+                                                        CiWindowsPipelineStep::EnvironmentCheck};
+    CHECK(CiWindowsJobValidator::validateStepSequence(envAfterBuild) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    // FormatVerification después de BuildCompilation
+    std::vector<CiWindowsPipelineStep> formatAfterBuild = {CiWindowsPipelineStep::ConfigurePreset,
+                                                           CiWindowsPipelineStep::BuildCompilation,
+                                                           CiWindowsPipelineStep::FormatVerification};
+    CHECK(CiWindowsJobValidator::validateStepSequence(formatAfterBuild) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    // StaticAnalysis después de BuildCompilation
+    std::vector<CiWindowsPipelineStep> staticAfterBuild = {CiWindowsPipelineStep::ConfigurePreset,
+                                                           CiWindowsPipelineStep::BuildCompilation,
+                                                           CiWindowsPipelineStep::StaticAnalysis};
+    CHECK(CiWindowsJobValidator::validateStepSequence(staticAfterBuild) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    // Pasos duplicados
+    std::vector<CiWindowsPipelineStep> duplicateSteps = {
+        CiWindowsPipelineStep::EnvironmentCheck, CiWindowsPipelineStep::EnvironmentCheck,
+        CiWindowsPipelineStep::ConfigurePreset, CiWindowsPipelineStep::BuildCompilation};
+    CHECK(CiWindowsJobValidator::validateStepSequence(duplicateSteps) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+
+    std::vector<CiWindowsPipelineStep> duplicateBuild = {CiWindowsPipelineStep::ConfigurePreset,
+                                                         CiWindowsPipelineStep::BuildCompilation,
+                                                         CiWindowsPipelineStep::BuildCompilation};
+    CHECK(CiWindowsJobValidator::validateStepSequence(duplicateBuild) ==
+          CiWindowsJobError::DependencyOrderingViolation);
+}
+
+// TEST-015: test_ci_windows_advanced_path_traversal (TASK-003)
+void test_ci_windows_advanced_path_traversal() {
+    const std::vector<std::string> maliciousVectors = {"./../..",
+                                                       "build/../../etc",
+                                                       "build\\..\\..\\windows",
+                                                       "build\\..\\..\\windows\\system32",
+                                                       "..\\..\\system32",
+                                                       "..\\windows\\path",
+                                                       "build/..\\escape",
+                                                       "..",
+                                                       "../",
+                                                       "../../",
+                                                       "/etc/shadow",
+                                                       "/var/run",
+                                                       "/proc/sys",
+                                                       "/",
+                                                       "\\",
+                                                       "/tmp",
+                                                       "/var/tmp",
+                                                       "",
+                                                       "C:/build",
+                                                       "C:\\build",
+                                                       "D:\\build",
+                                                       "D:/path",
+                                                       "\\\\server\\share",
+                                                       "//server/share",
+                                                       "\\\\server\\share\\build",
+                                                       "//server/share/build",
+                                                       "\\\\?\\C:\\build",
+                                                       "${sourceDir}/../escape",
+                                                       "build-ci-win-debug/../../root",
+                                                       "build-ci-win-debug/subdir/../../../escape",
+                                                       "etc/passwd",
+                                                       "var/log",
+                                                       "usr/local",
+                                                       "home/user/build",
+                                                       "src/build",
+                                                       "custom/build",
+                                                       "CON",
+                                                       "PRN",
+                                                       "AUX",
+                                                       "NUL",
+                                                       "COM1",
+                                                       "COM9",
+                                                       "LPT1",
+                                                       "LPT9",
+                                                       "aux.json",
+                                                       "con.txt",
+                                                       "nul.log",
+                                                       "com1.dat",
+                                                       "lpt1.tmp",
+                                                       "build-ci-win-debug/aux.json",
+                                                       "build-ci-win-debug\\con.txt",
+                                                       "_build/nul.log",
+                                                       "_build\\com2.dat"};
+
+    for (const auto& vec : maliciousVectors) {
+        CHECK(!CiWindowsJobValidator::isSafeBuildPath(vec));
+    }
+
+    // Ruta con carácter nulo embebido
+    const std::string nullVector("build-ci-win-debug\0malicious", 27);
+    CHECK(!CiWindowsJobValidator::isSafeBuildPath(nullVector));
+
+    // Rutas legítimas que deben ser aceptadas
+    const std::vector<std::string> legitimatePaths = {"build-ci-win-debug",
+                                                      "build-ci-win-release",
+                                                      "_build",
+                                                      "_build/tests",
+                                                      "_build/sub/deep",
+                                                      "build-test",
+                                                      "build-custom-preset",
+                                                      "${sourceDir}/build-ci-win-debug",
+                                                      "${sourceDir}\\build-ci-win-release",
+                                                      "${sourceDir}/_build",
+                                                      "${sourceDir}/build-test/artifacts"};
+
+    for (const auto& path : legitimatePaths) {
+        CHECK(CiWindowsJobValidator::isSafeBuildPath(path));
+    }
+}
+
+// TEST-016: test_ci_windows_environment_boundaries (TASK-004)
+void test_ci_windows_environment_boundaries() {
+    CiWindowsEnvironment env;
+    env.compiler = CiWindowsCompiler::MSVC;
+    env.compilerMajorVersion = 19;
+    env.compilerMinorVersion = 38;
+    env.windowsSdkVersion = "10.0.22621.0";
+    env.cmakeMajorVersion = 3;
+    env.cmakeMinorVersion = 28;
+    env.ninjaMajorVersion = 1;
+    env.ninjaMinorVersion = 12;
+    env.architecture = CiWindowsArchitecture::X86_64;
+    env.windowsVersion = "Windows 11 23H2";
+    env.totalMemoryBytes = 4294967296ULL;
+    env.availableCores = 4;
+
+    // Entorno nominal válido
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    // Límites de MSVC: 19.38 es el mínimo permitido para C++20
+    env.compiler = CiWindowsCompiler::MSVC;
+    env.compilerMajorVersion = 19;
+    env.compilerMinorVersion = 38;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.compilerMinorVersion = 39;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.compilerMinorVersion = 37;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.compilerMajorVersion = 18;
+    env.compilerMinorVersion = 0;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    // Restaurar MSVC válido
+    env.compilerMajorVersion = 19;
+    env.compilerMinorVersion = 38;
+
+    // Límites de ClangCl: 18 es el mínimo permitido para C++20
+    env.compiler = CiWindowsCompiler::ClangCl;
+    env.compilerMajorVersion = 18;
+    env.compilerMinorVersion = 0;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.compilerMajorVersion = 19;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.compilerMajorVersion = 17;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.compilerMajorVersion = 16;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    // Límites de MinGW: 13 es el mínimo permitido para C++20
+    env.compiler = CiWindowsCompiler::MinGW;
+    env.compilerMajorVersion = 13;
+    env.compilerMinorVersion = 0;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.compilerMajorVersion = 14;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.compilerMajorVersion = 12;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.compilerMajorVersion = 11;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    // Restaurar compilador válido
+    env.compiler = CiWindowsCompiler::MSVC;
+    env.compilerMajorVersion = 19;
+    env.compilerMinorVersion = 38;
+
+    // Windows SDK: mínimo build 19041 y prefijo 10.0.
+    env.windowsSdkVersion = "10.0.19041.0";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.windowsSdkVersion = "10.0.19040.0";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::WindowsSdkMissing);
+
+    env.windowsSdkVersion = "10.0.10240.0";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::WindowsSdkMissing);
+
+    env.windowsSdkVersion = "8.1";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::WindowsSdkMissing);
+
+    env.windowsSdkVersion = "";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::WindowsSdkMissing);
+
+    env.windowsSdkVersion = "10.0.invalid";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::WindowsSdkMissing);
+
+    env.windowsSdkVersion = "10.0.22621.0";
+
+    // Límites de CMake: 3.28 es el mínimo
+    env.cmakeMajorVersion = 3;
+    env.cmakeMinorVersion = 28;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.cmakeMinorVersion = 27;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.cmakeMajorVersion = 2;
+    env.cmakeMinorVersion = 8;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.cmakeMajorVersion = 3;
+    env.cmakeMinorVersion = 28;
+
+    // Límites de Ninja: 1.12 es el mínimo
+    env.ninjaMajorVersion = 1;
+    env.ninjaMinorVersion = 12;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.ninjaMinorVersion = 11;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.ninjaMajorVersion = 0;
+    env.ninjaMinorVersion = 10;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.ninjaMajorVersion = 1;
+    env.ninjaMinorVersion = 12;
+
+    // Versiones no soportadas de Windows
+    env.windowsVersion = "Windows 7";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.windowsVersion = "Windows 8";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.windowsVersion = "Windows 8.1";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.windowsVersion = "Windows XP";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.windowsVersion = "Windows 11 23H2";
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    // Memoria RAM: mínimo 2 GB (2147483648ULL)
+    env.totalMemoryBytes = 2147483648ULL;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.totalMemoryBytes = 2147483647ULL; // 2 GB - 1 byte
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.totalMemoryBytes = 4294967296ULL;
+
+    // Núcleos disponibles: mínimo 1 núcleo
+    env.availableCores = 1;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.availableCores = 0;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+
+    env.availableCores = 4;
+
+    // Arquitecturas soportadas (x86_64, arm64) y desconocidas
+    env.architecture = CiWindowsArchitecture::X86_64;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.architecture = CiWindowsArchitecture::ARM64;
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::None);
+
+    env.architecture = static_cast<CiWindowsArchitecture>(99);
+    CHECK(CiWindowsJobValidator::validateEnvironment(env) == CiWindowsJobError::ToolchainMissing);
+}
+
 } // namespace
 
 int main() {
@@ -587,6 +980,14 @@ int main() {
         std::cout << "  [PASS] test_ci_windows_ux_copy_public_compliance\n";
         test_ci_windows_remediation_hints();
         std::cout << "  [PASS] test_ci_windows_remediation_hints\n";
+        test_ci_windows_plan_validation_boundaries();
+        std::cout << "  [PASS] test_ci_windows_plan_validation_boundaries\n";
+        test_ci_windows_step_sequence_topological_violations();
+        std::cout << "  [PASS] test_ci_windows_step_sequence_topological_violations\n";
+        test_ci_windows_advanced_path_traversal();
+        std::cout << "  [PASS] test_ci_windows_advanced_path_traversal\n";
+        test_ci_windows_environment_boundaries();
+        std::cout << "  [PASS] test_ci_windows_environment_boundaries\n";
 
         std::cout << "Todas las pruebas de dominio de CI Windows job pasaron exitosamente.\n";
         return 0;

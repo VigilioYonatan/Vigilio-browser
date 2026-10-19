@@ -573,6 +573,250 @@ void test_ci_windows_service_retry_backoff_on_contention() {
     CHECK(!std::filesystem::exists(retryDir));
 }
 
+// TEST-CI-WIN-SRV-014: test_ci_windows_service_cooperative_cancellation_stress (TASK-006)
+void test_ci_windows_service_cooperative_cancellation_stress() {
+    CiWindowsJobService service;
+    auto plan = CiWindowsJobConfiguration::canonicalReleasePlan();
+    service.setPlan(plan);
+
+    CiWindowsServiceOptions opts;
+    opts.mode = CiWindowsExecutionMode::Simulated;
+    service.setOptions(opts);
+
+    for (int iter = 0; iter < 4; ++iter) {
+        CancellationToken cancelToken;
+        std::atomic<bool> threadStarted{false};
+        CiWindowsJobReport report;
+
+        std::thread worker([&]() {
+            threadStarted.store(true, std::memory_order_release);
+            report = service.executePlan(&cancelToken);
+        });
+
+        while (!threadStarted.load(std::memory_order_acquire)) {
+            std::this_thread::yield();
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(iter * 3 + 2));
+        cancelToken.requestCancellation();
+
+        worker.join();
+
+        CHECK(report.status == CiWindowsJobStatus::Cancelled);
+        CHECK(!report.isPassed());
+        CHECK(cancelToken.isCancelled());
+
+        bool hasOmitted = false;
+        for (const auto& stepRes : report.stepResults) {
+            if (stepRes.status == CiWindowsStepStatus::Omitted) {
+                hasOmitted = true;
+                break;
+            }
+        }
+        CHECK(hasOmitted);
+    }
+}
+
+// TEST-CI-WIN-SRV-015: test_ci_windows_service_permission_failure_injection (TASK-007)
+void test_ci_windows_service_permission_failure_injection() {
+    const std::filesystem::path permDir = "build-ci-win-test-perm-dir";
+    std::error_code ec;
+    std::filesystem::remove_all(permDir, ec);
+
+    const auto subDir = permDir / "nested";
+    writeFile(subDir / "protected.bin", "permiso restringido");
+    CHECK(std::filesystem::exists(subDir / "protected.bin"));
+
+    std::filesystem::permissions(subDir, std::filesystem::perms::owner_read, ec);
+
+    auto plan = CiWindowsJobConfiguration::canonicalDebugPlan();
+    plan.buildDir = permDir;
+
+    CiWindowsJobService service(plan);
+    CiWindowsServiceOptions opts;
+    opts.maxRetries = 1;
+    opts.retryBackoffMs = 5;
+    service.setOptions(opts);
+
+    std::string errorMsg;
+    bool cleaned = service.cleanBuildDirectory(&errorMsg);
+
+    std::filesystem::permissions(subDir, std::filesystem::perms::all, ec);
+    std::filesystem::remove_all(permDir, ec);
+
+    if (!cleaned) {
+        CHECK(!errorMsg.empty());
+        CHECK(errorMsg.find("No fue posible limpiar") != std::string::npos);
+    }
+
+    plan.buildDir = "../traversal_injection";
+    service.setPlan(plan);
+    errorMsg.clear();
+    CHECK(!service.cleanBuildDirectory(&errorMsg));
+    CHECK(!errorMsg.empty());
+    CHECK(errorMsg.find("no segura") != std::string::npos);
+}
+
+// TEST-CI-WIN-SRV-016: test_ci_windows_service_retry_backoff_transient (TASK-008)
+void test_ci_windows_service_retry_backoff_transient() {
+    const std::filesystem::path retryDir = "build-ci-win-test-backoff-transient";
+    std::error_code ec;
+    std::filesystem::remove_all(retryDir, ec);
+
+    const auto subDir = retryDir / "sub";
+    writeFile(subDir / "transient.txt", "contención transitoria");
+    CHECK(std::filesystem::exists(subDir / "transient.txt"));
+
+    std::filesystem::permissions(subDir, std::filesystem::perms::none, ec);
+
+    auto plan = CiWindowsJobConfiguration::canonicalDebugPlan();
+    plan.buildDir = retryDir;
+
+    CiWindowsJobService service(plan);
+    CiWindowsServiceOptions opts;
+    opts.maxRetries = 4;
+    opts.retryBackoffMs = 15;
+    service.setOptions(opts);
+
+    CHECK(service.options().maxRetries == 4);
+    CHECK(service.options().retryBackoffMs == 15);
+
+    std::thread unblocker([&]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::error_code uec;
+        std::filesystem::permissions(subDir, std::filesystem::perms::all, uec);
+    });
+
+    std::string errorMsg;
+    bool cleaned = service.cleanBuildDirectory(&errorMsg);
+    unblocker.join();
+
+    std::filesystem::permissions(subDir, std::filesystem::perms::all, ec);
+    std::filesystem::remove_all(retryDir, ec);
+
+    CHECK(cleaned);
+    CHECK(!std::filesystem::exists(retryDir));
+}
+
+// TEST-CI-WIN-SRV-017: test_ci_windows_service_fail_fast_vs_continue_on_error (TASK-009)
+void test_ci_windows_service_fail_fast_vs_continue_on_error() {
+    // Escenario 1: failFast == true, continueOnError == false
+    {
+        auto plan = CiWindowsJobConfiguration::canonicalDebugPlan();
+        plan.steps[1].command = "false";
+        plan.steps[1].name = "Formato con fallo";
+        plan.steps[1].options.continueOnError = false;
+        plan.failFast = true;
+
+        CiWindowsJobService service(plan);
+        CiWindowsServiceOptions opts;
+        opts.failFast = true;
+        service.setOptions(opts);
+
+        auto report = service.executePlan();
+        CHECK(report.status == CiWindowsJobStatus::Failed);
+        CHECK(!report.isPassed());
+        CHECK(report.stepResults.size() == 6);
+        CHECK(report.stepResults[0].status == CiWindowsStepStatus::Success);
+        CHECK(report.stepResults[1].status == CiWindowsStepStatus::Failure);
+        CHECK(report.successfulStepsCount() == 1);
+        CHECK(report.failedStepsCount() == 1);
+
+        for (std::size_t i = 2; i < 6; ++i) {
+            CHECK(report.stepResults[i].status == CiWindowsStepStatus::Omitted);
+        }
+    }
+
+    // Escenario 2: failFast == false, continueOnError == true en etapa no obligatoria
+    {
+        auto plan = CiWindowsJobConfiguration::canonicalDebugPlan();
+        plan.steps[1].command = "false";
+        plan.steps[1].name = "Formato no obligatorio con fallo";
+        plan.steps[1].isMandatory = false;
+        plan.steps[1].options.continueOnError = true;
+        plan.failFast = false;
+
+        CiWindowsJobService service(plan);
+        CiWindowsServiceOptions opts;
+        opts.failFast = false;
+        service.setOptions(opts);
+
+        auto report = service.executePlan();
+        CHECK(report.stepResults.size() == 6);
+        CHECK(report.stepResults[0].status == CiWindowsStepStatus::Success);
+        CHECK(report.stepResults[1].status == CiWindowsStepStatus::Failure);
+        CHECK(report.stepResults[2].status == CiWindowsStepStatus::Success);
+        CHECK(report.stepResults[3].status == CiWindowsStepStatus::Success);
+        CHECK(report.stepResults[4].status == CiWindowsStepStatus::Success);
+        CHECK(report.stepResults[5].status == CiWindowsStepStatus::Success);
+
+        CHECK(report.successfulStepsCount() == 5);
+        CHECK(report.failedStepsCount() == 1);
+        CHECK(report.isPassed());
+        CHECK(report.status == CiWindowsJobStatus::Passed);
+    }
+}
+
+// TEST-CI-WIN-SRV-018: test_ci_windows_service_cli_synthesis_advanced (TASK-010)
+void test_ci_windows_service_cli_synthesis_advanced() {
+    CiWindowsJobPlan customPlan;
+    customPlan.presetName = "ci-windows-release-optimized";
+    customPlan.buildDir = "_build/nested/win-ci";
+    customPlan.totalTimeoutSeconds = 1200;
+    customPlan.maxMemoryBytes = 4294967296ULL;
+    customPlan.failFast = true;
+
+    CiWindowsJobService service(customPlan);
+
+    // ConfigurePreset
+    CiWindowsStepDefinition stepConfig;
+    stepConfig.step = CiWindowsPipelineStep::ConfigurePreset;
+    const std::string configCli = service.buildCommandLine(stepConfig);
+    CHECK(configCli.find("cmake --preset ci-windows-release-optimized") != std::string::npos);
+    CHECK(configCli.find("-B _build/nested/win-ci") != std::string::npos);
+
+    // BuildCompilation
+    CiWindowsStepDefinition stepBuild;
+    stepBuild.step = CiWindowsPipelineStep::BuildCompilation;
+    const std::string buildCli = service.buildCommandLine(stepBuild);
+    CHECK(buildCli.find("cmake --build _build/nested/win-ci --parallel") != std::string::npos);
+
+    // TestSuiteExecution
+    CiWindowsStepDefinition stepTest;
+    stepTest.step = CiWindowsPipelineStep::TestSuiteExecution;
+    const std::string testCli = service.buildCommandLine(stepTest);
+    CHECK(testCli.find("ctest --test-dir _build/nested/win-ci --output-on-failure -L fast") !=
+          std::string::npos);
+
+    // SanitizerVerification
+    CiWindowsStepDefinition stepSanitizer;
+    stepSanitizer.step = CiWindowsPipelineStep::SanitizerVerification;
+    const std::string sanitizerCli = service.buildCommandLine(stepSanitizer);
+    CHECK(sanitizerCli.find("ctest --test-dir _build/nested/win-ci --output-on-failure -L sanitizer") !=
+          std::string::npos);
+
+    // ArtifactPackaging
+    CiWindowsStepDefinition stepPack;
+    stepPack.step = CiWindowsPipelineStep::ArtifactPackaging;
+    const std::string packCli = service.buildCommandLine(stepPack);
+    CHECK(packCli.find("cpack --config _build/nested/win-ci/CPackConfig.cmake") != std::string::npos);
+
+    // StaticAnalysis
+    CiWindowsStepDefinition stepStatic;
+    stepStatic.step = CiWindowsPipelineStep::StaticAnalysis;
+    const std::string staticCli = service.buildCommandLine(stepStatic);
+    CHECK(staticCli.find("clang-tidy -p _build/nested/win-ci apps/vigilio-browser/src/**/*.cpp") !=
+          std::string::npos);
+
+    // Paso con comando personalizado (e.g. con compilador en Program Files o sanitizers)
+    CiWindowsStepDefinition customStep;
+    customStep.step = static_cast<CiWindowsPipelineStep>(99);
+    customStep.command = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\bin\\cl.exe\" "
+                         "/permissive- -fsanitize=address";
+    CHECK(service.buildCommandLine(customStep) ==
+          "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\bin\\cl.exe\" /permissive- "
+          "-fsanitize=address");
+}
+
 } // namespace
 
 int main() {
@@ -606,6 +850,16 @@ int main() {
         std::cout << "  [PASS] test_ci_windows_service_massive_multithreading_concurrency\n";
         test_ci_windows_service_retry_backoff_on_contention();
         std::cout << "  [PASS] test_ci_windows_service_retry_backoff_on_contention\n";
+        test_ci_windows_service_cooperative_cancellation_stress();
+        std::cout << "  [PASS] test_ci_windows_service_cooperative_cancellation_stress\n";
+        test_ci_windows_service_permission_failure_injection();
+        std::cout << "  [PASS] test_ci_windows_service_permission_failure_injection\n";
+        test_ci_windows_service_retry_backoff_transient();
+        std::cout << "  [PASS] test_ci_windows_service_retry_backoff_transient\n";
+        test_ci_windows_service_fail_fast_vs_continue_on_error();
+        std::cout << "  [PASS] test_ci_windows_service_fail_fast_vs_continue_on_error\n";
+        test_ci_windows_service_cli_synthesis_advanced();
+        std::cout << "  [PASS] test_ci_windows_service_cli_synthesis_advanced\n";
 
         std::cout << "Todas las pruebas de CiWindowsJobService pasaron exitosamente.\n";
         return 0;
