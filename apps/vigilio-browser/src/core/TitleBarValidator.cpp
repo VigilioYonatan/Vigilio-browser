@@ -551,7 +551,14 @@ std::string TitleBarValidator::sanitizeTitle(std::string_view rawTitle, bool isI
         title.erase(hashPos);
     }
 
-    // 4. Sanitización de espacios en blanco
+    // 4. Sanitización de saltos de línea, tabulaciones y caracteres de control
+    for (char& ch : title) {
+        if (ch == '\r' || ch == '\n' || ch == '\t') {
+            ch = ' ';
+        }
+    }
+
+    // 5. Sanitización de espacios en blanco y barras sobrantes
     while (!title.empty() && (title.front() == ' ' || title.front() == '/')) {
         title.erase(title.begin());
     }

@@ -294,12 +294,42 @@ int main(int argc, char** argv) {
                  "Senior titleBarWidget height must be 48 px");
         UI_CHECK(window.titleBarMinimizeButton()->minimumHeight() >= 48,
                  "Senior minimize button minimumHeight must be >= 48");
+        UI_CHECK(window.titleBarMinimizeButton()->minimumWidth() >= 48,
+                 "Senior minimize button minimumWidth must be >= 48");
         UI_CHECK(window.titleBarMaximizeButton()->minimumHeight() >= 48,
                  "Senior maximize button minimumHeight must be >= 48");
+        UI_CHECK(window.titleBarMaximizeButton()->minimumWidth() >= 48,
+                 "Senior maximize button minimumWidth must be >= 48");
         UI_CHECK(window.titleBarCloseButton()->minimumHeight() >= 48,
                  "Senior close button minimumHeight must be >= 48");
+        UI_CHECK(window.titleBarCloseButton()->minimumWidth() >= 48,
+                 "Senior close button minimumWidth must be >= 48");
         UI_CHECK(window.titleBarSeniorToggleButton()->minimumHeight() >= 48,
                  "Senior senior toggle button minimumHeight must be >= 48");
+        UI_CHECK(window.titleBarSeniorToggleButton()->minimumWidth() >= 48,
+                 "Senior senior toggle button minimumWidth must be >= 48");
+
+        // Keyboard focus acceptance on interactive title bar buttons
+        UI_CHECK(window.titleBarMinimizeButton()->focusPolicy() != Qt::NoFocus,
+                 "Minimize button must accept keyboard focus");
+        UI_CHECK(window.titleBarMaximizeButton()->focusPolicy() != Qt::NoFocus,
+                 "Maximize button must accept keyboard focus");
+        UI_CHECK(window.titleBarCloseButton()->focusPolicy() != Qt::NoFocus,
+                 "Close button must accept keyboard focus");
+        UI_CHECK(window.titleBarSeniorToggleButton()->focusPolicy() != Qt::NoFocus,
+                 "Senior toggle button must accept keyboard focus");
+
+        // Native window resizeEvent reaction and synchronization with TitleBarService
+        const QSize targetSize(1400, 850);
+        QResizeEvent resizeEv(targetSize, window.size());
+        window.resize(targetSize);
+        QApplication::sendEvent(&window, &resizeEv);
+        UI_CHECK(window.titleBarService()->windowWidth() == 1400,
+                 "titleBarService windowWidth must synchronize on resizeEvent");
+        UI_CHECK(window.titleBarWidget()->height() ==
+                     vigilio::TitleBarConfiguration::kSeniorTitleBarHeight,
+                 "titleBarWidget height must preserve active density on resizeEvent");
+
         window.setSeniorMode(false);
 
         // TASK-013: Maximize/restore state synchronization and public copy audit
