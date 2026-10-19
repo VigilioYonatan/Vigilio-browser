@@ -1,5 +1,9 @@
 #include "ui/BrowserWindow.h"
 #include "core/ResourceInclusionService.h"
+#include "core/TitleBarConfiguration.h"
+#include "core/TitleBarService.h"
+#include "core/TitleBarTypes.h"
+#include "core/TitleBarValidator.h"
 #include "core/UrlInput.h"
 #include <QAction>
 #include <QApplication>
@@ -21,6 +25,8 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMouseEvent>
+#include <QPoint>
 #include <QPointer>
 #include <QPushButton>
 #include <QResizeEvent>
@@ -38,6 +44,7 @@
 #include <QWebEnginePage>
 #include <QWebEngineView>
 #include <QWidget>
+#include <QWindowStateChangeEvent>
 #include <chrono>
 #include <cstdint>
 
@@ -48,6 +55,53 @@ QString profileLocation() {
     return dir;
 }
 constexpr auto startTitle = "Nueva pestaña";
+
+class TitleBarDragArea final : public QWidget {
+  public:
+    explicit TitleBarDragArea(BrowserWindow* window, QWidget* parent = nullptr)
+        : QWidget(parent), window_(window) {
+        setObjectName("vigilio-titlebar-drag-area");
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    }
+
+  protected:
+    void mousePressEvent(QMouseEvent* event) override {
+        if (event->button() == Qt::LeftButton && window_) {
+            dragStartPosition_ = event->globalPosition().toPoint() - window_->frameGeometry().topLeft();
+            event->accept();
+            return;
+        }
+        QWidget::mousePressEvent(event);
+    }
+
+    void mouseMoveEvent(QMouseEvent* event) override {
+        if (window_ && (event->buttons() & Qt::LeftButton) && !window_->isMaximized() &&
+            !window_->isFullScreen()) {
+            window_->move(event->globalPosition().toPoint() - dragStartPosition_);
+            event->accept();
+            return;
+        }
+        QWidget::mouseMoveEvent(event);
+    }
+
+    void mouseDoubleClickEvent(QMouseEvent* event) override {
+        if (event->button() == Qt::LeftButton && window_) {
+            if (window_->isMaximized()) {
+                window_->showNormal();
+            } else {
+                window_->showMaximized();
+            }
+            event->accept();
+            return;
+        }
+        QWidget::mouseDoubleClickEvent(event);
+    }
+
+  private:
+    BrowserWindow* window_{nullptr};
+    QPoint dragStartPosition_{};
+};
+
 } // namespace
 
 BrowserWindow::BrowserWindow(const vigilio::StartupCommandLine& cmdLine,
@@ -81,6 +135,7 @@ BrowserWindow::BrowserWindow(const vigilio::StartupCommandLine& cmdLine,
     lifetimeCoordinator_ = std::make_unique<vigilio::ApplicationLifetimeCoordinator>(lifetimeConfig);
 
     setupLayoutService(report);
+    setupTitleBar(report);
     setupUi();
     setupStartupVisuals(cmdLine, report);
     setupCrashRecovery(cmdLine, report);
@@ -155,6 +210,139 @@ void BrowserWindow::setupLayoutService(const vigilio::StartupDiagnosticReport& r
                const vigilio::MainWindowLayoutReport& /*report*/) { applyLayoutPlan(plan); });
 }
 
+void BrowserWindow::setupTitleBar(const vigilio::StartupDiagnosticReport& report) {
+    QSettings settings;
+    const bool seniorPref = settings.value("accessibility/senior", false).toBool();
+    const auto initialPlan = seniorPref ? vigilio::TitleBarConfiguration::canonicalSeniorTitleBar()
+                                        : vigilio::TitleBarConfiguration::canonicalDefaultTitleBar();
+
+    vigilio::TitleBarServiceOptions titleBarOptions;
+    titleBarOptions.isIncognitoSession = isIncognito_;
+    titleBarOptions.enablePersistence = !isIncognito_;
+    if (!report.storagePath.empty()) {
+        titleBarOptions.stateFilePath =
+            std::filesystem::path(report.storagePath) / "title_bar_state.json";
+    } else {
+        titleBarOptions.stateFilePath =
+            std::filesystem::path(profileLocation().toStdString()) / "title_bar_state.json";
+    }
+
+    titleBarService_ = std::make_unique<vigilio::TitleBarService>(initialPlan, titleBarOptions);
+    titleBarService_->setIncognitoMode(isIncognito_);
+    titleBarService_->setTitleBarChangedCallback(
+        [this](const vigilio::TitleBarLayoutPlan& plan, const vigilio::TitleBarReport& /*report*/) {
+            applyTitleBarPlan(plan);
+        });
+}
+
+void BrowserWindow::applyTitleBarPlan(const vigilio::TitleBarLayoutPlan& plan) {
+    if (!titleBarWidget_) {
+        return;
+    }
+
+    titleBarWidget_->setFixedHeight(plan.height);
+    titleBarWidget_->setVisible(plan.mode != vigilio::TitleBarMode::Suppressed);
+
+    const bool isMax = isMaximized();
+    const int btnH = (plan.density == vigilio::LayoutDensity::Senior)
+                         ? vigilio::TitleBarConfiguration::kSeniorButtonHeight
+                         : vigilio::TitleBarConfiguration::kDefaultButtonHeight;
+    const int btnW = (plan.density == vigilio::LayoutDensity::Senior)
+                         ? vigilio::TitleBarConfiguration::kSeniorButtonWidth
+                         : vigilio::TitleBarConfiguration::kDefaultButtonWidth;
+
+    if (titleBarMinimizeBtn_) {
+        titleBarMinimizeBtn_->setMinimumHeight(btnH);
+        titleBarMinimizeBtn_->setMinimumWidth(btnW);
+        titleBarMinimizeBtn_->setAccessibleName(
+            QString::fromStdString(vigilio::TitleBarValidator::buttonAccessibleLabel(
+                vigilio::TitleBarButtonType::Minimize, isMax)));
+        titleBarMinimizeBtn_->setToolTip(QString::fromStdString(
+            vigilio::TitleBarValidator::buttonTooltip(vigilio::TitleBarButtonType::Minimize, isMax)));
+    }
+
+    const int iconDim = (plan.density == vigilio::LayoutDensity::Senior)
+                            ? vigilio::TitleBarConfiguration::kSeniorIconSize
+                            : vigilio::TitleBarConfiguration::kDefaultIconSize;
+    if (titleBarIcon_) {
+        titleBarIcon_->setFixedSize(iconDim, iconDim);
+        titleBarIcon_->setPixmap(makeResourceIcon("branding/vigilio-logo.svg").pixmap(iconDim, iconDim));
+        titleBarIcon_->setVisible(plan.iconRect.width > 0);
+    }
+
+    if (titleBarMaximizeBtn_) {
+        titleBarMaximizeBtn_->setMinimumHeight(btnH);
+        titleBarMaximizeBtn_->setMinimumWidth(btnW);
+        titleBarMaximizeBtn_->setText(isMax ? "🗗" : "▢");
+        titleBarMaximizeBtn_->setAccessibleName(
+            QString::fromStdString(vigilio::TitleBarValidator::buttonAccessibleLabel(
+                vigilio::TitleBarButtonType::MaximizeRestore, isMax)));
+        titleBarMaximizeBtn_->setToolTip(
+            QString::fromStdString(vigilio::TitleBarValidator::buttonTooltip(
+                vigilio::TitleBarButtonType::MaximizeRestore, isMax)));
+    }
+
+    if (titleBarCloseBtn_) {
+        titleBarCloseBtn_->setMinimumHeight(btnH);
+        titleBarCloseBtn_->setMinimumWidth(btnW);
+        titleBarCloseBtn_->setAccessibleName(
+            QString::fromStdString(vigilio::TitleBarValidator::buttonAccessibleLabel(
+                vigilio::TitleBarButtonType::Close, isMax)));
+        titleBarCloseBtn_->setToolTip(QString::fromStdString(
+            vigilio::TitleBarValidator::buttonTooltip(vigilio::TitleBarButtonType::Close, isMax)));
+    }
+
+    if (titleBarSeniorToggleBtn_) {
+        const bool showSenior = (plan.density == vigilio::LayoutDensity::Senior) ||
+                                (titleBarService_ && titleBarService_->config().showSeniorToggle);
+        titleBarSeniorToggleBtn_->setVisible(showSenior);
+        titleBarSeniorToggleBtn_->setMinimumHeight(btnH);
+        titleBarSeniorToggleBtn_->setMinimumWidth(plan.density == vigilio::LayoutDensity::Senior ? 48
+                                                                                                 : 36);
+        titleBarSeniorToggleBtn_->setIconSize(
+            plan.density == vigilio::LayoutDensity::Senior ? QSize(24, 24) : QSize(16, 16));
+        titleBarSeniorToggleBtn_->setAccessibleName(
+            QString::fromStdString(vigilio::TitleBarValidator::buttonAccessibleLabel(
+                vigilio::TitleBarButtonType::SeniorModeToggle, isMax)));
+        titleBarSeniorToggleBtn_->setToolTip(
+            QString::fromStdString(vigilio::TitleBarValidator::buttonTooltip(
+                vigilio::TitleBarButtonType::SeniorModeToggle, isMax)));
+    }
+}
+
+void BrowserWindow::updateTitleBarWindowState() {
+    if (!titleBarService_) {
+        return;
+    }
+    vigilio::TitleBarState state;
+    state.isMaximized = isMaximized();
+    state.isActive = isActiveWindow();
+    state.isFullscreen = isFullScreen();
+    state.seniorModeActive = senior_;
+    titleBarService_->setWindowState(state);
+
+    if (titleBarMaximizeBtn_) {
+        const bool isMax = state.isMaximized;
+        titleBarMaximizeBtn_->setText(isMax ? "🗗" : "▢");
+        titleBarMaximizeBtn_->setAccessibleName(
+            QString::fromStdString(vigilio::TitleBarValidator::buttonAccessibleLabel(
+                vigilio::TitleBarButtonType::MaximizeRestore, isMax)));
+        titleBarMaximizeBtn_->setToolTip(
+            QString::fromStdString(vigilio::TitleBarValidator::buttonTooltip(
+                vigilio::TitleBarButtonType::MaximizeRestore, isMax)));
+    }
+}
+
+void BrowserWindow::changeEvent(QEvent* event) {
+    QMainWindow::changeEvent(event);
+    if (!event) {
+        return;
+    }
+    if (event->type() == QEvent::WindowStateChange || event->type() == QEvent::ActivationChange) {
+        updateTitleBarWindowState();
+    }
+}
+
 bool BrowserWindow::isSidebarExpanded() const noexcept {
     if (layoutService_) {
         return layoutService_->plan().sidebar.state == vigilio::SidebarState::Expanded;
@@ -216,6 +404,9 @@ void BrowserWindow::resizeEvent(QResizeEvent* event) {
     QMainWindow::resizeEvent(event);
     if (layoutService_) {
         layoutService_->resizeWindow(width(), height());
+    }
+    if (titleBarService_) {
+        titleBarService_->setWindowWidth(width());
     }
 }
 
@@ -353,6 +544,107 @@ void BrowserWindow::setupUi() {
     auto* mainLayout = new QVBoxLayout(mainContainer_);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
+
+    titleBarWidget_ = new QFrame(mainContainer_);
+    titleBarWidget_->setObjectName("vigilio-titlebar");
+    titleBarWidget_->setFixedHeight(senior_ ? vigilio::TitleBarConfiguration::kSeniorTitleBarHeight
+                                            : vigilio::TitleBarConfiguration::kDefaultTitleBarHeight);
+    titleBarWidget_->setAccessibleName("Barra de título");
+    titleBarWidget_->setAccessibleDescription("Barra superior de ventana con controles y título");
+
+    auto* tbLayout = new QHBoxLayout(titleBarWidget_);
+    tbLayout->setContentsMargins(8, 0, 0, 0);
+    tbLayout->setSpacing(8);
+
+    titleBarIcon_ = new QLabel(titleBarWidget_);
+    titleBarIcon_->setObjectName("vigilio-titlebar-icon");
+    const int initialIconSize = senior_ ? vigilio::TitleBarConfiguration::kSeniorIconSize
+                                        : vigilio::TitleBarConfiguration::kDefaultIconSize;
+    titleBarIcon_->setPixmap(
+        makeResourceIcon("branding/vigilio-logo.svg").pixmap(initialIconSize, initialIconSize));
+    titleBarIcon_->setFixedSize(initialIconSize, initialIconSize);
+    titleBarIcon_->setAccessibleName("Isotipo de Vigilio Browser");
+    tbLayout->addWidget(titleBarIcon_);
+
+    titleBarTitle_ = new QLabel(titleBarWidget_);
+    titleBarTitle_->setObjectName("vigilio-titlebar-title");
+    titleBarTitle_->setText(isIncognito_ ? "Vigilio Browser (Navegación privada)" : "Vigilio Browser");
+    titleBarTitle_->setAccessibleName(titleBarTitle_->text());
+    tbLayout->addWidget(titleBarTitle_);
+
+    titleBarDragArea_ = new TitleBarDragArea(this, titleBarWidget_);
+    tbLayout->addWidget(titleBarDragArea_, 1);
+
+    titleBarControlsBox_ = new QWidget(titleBarWidget_);
+    titleBarControlsBox_->setObjectName("vigilio-titlebar-controls");
+    auto* controlsLayout = new QHBoxLayout(titleBarControlsBox_);
+    controlsLayout->setContentsMargins(0, 0, 0, 0);
+    controlsLayout->setSpacing(senior_ ? vigilio::TitleBarConfiguration::kSeniorButtonSpacing
+                                       : vigilio::TitleBarConfiguration::kDefaultButtonSpacing);
+
+    const int initialBtnH = senior_ ? vigilio::TitleBarConfiguration::kSeniorButtonHeight
+                                    : vigilio::TitleBarConfiguration::kDefaultButtonHeight;
+    const int initialBtnW = senior_ ? vigilio::TitleBarConfiguration::kSeniorButtonWidth
+                                    : vigilio::TitleBarConfiguration::kDefaultButtonWidth;
+
+    titleBarSeniorToggleBtn_ = new QPushButton(titleBarControlsBox_);
+    titleBarSeniorToggleBtn_->setObjectName("vigilio-titlebar-senior-toggle");
+    titleBarSeniorToggleBtn_->setIcon(makeResourceIcon("icons/tools/senior.svg"));
+    titleBarSeniorToggleBtn_->setIconSize(senior_ ? QSize(24, 24) : QSize(16, 16));
+    titleBarSeniorToggleBtn_->setMinimumHeight(initialBtnH);
+    titleBarSeniorToggleBtn_->setMinimumWidth(senior_ ? 48 : 36);
+    titleBarSeniorToggleBtn_->setAccessibleName(
+        QString::fromStdString(vigilio::TitleBarValidator::buttonAccessibleLabel(
+            vigilio::TitleBarButtonType::SeniorModeToggle)));
+    titleBarSeniorToggleBtn_->setToolTip(QString::fromStdString(
+        vigilio::TitleBarValidator::buttonTooltip(vigilio::TitleBarButtonType::SeniorModeToggle)));
+    titleBarSeniorToggleBtn_->setVisible(
+        senior_ || (titleBarService_ && titleBarService_->config().showSeniorToggle));
+    connect(titleBarSeniorToggleBtn_, &QPushButton::clicked, this, &BrowserWindow::toggleSeniorMode);
+    controlsLayout->addWidget(titleBarSeniorToggleBtn_);
+
+    titleBarMinimizeBtn_ = new QPushButton("—", titleBarControlsBox_);
+    titleBarMinimizeBtn_->setObjectName("vigilio-titlebar-minimize");
+    titleBarMinimizeBtn_->setMinimumHeight(initialBtnH);
+    titleBarMinimizeBtn_->setMinimumWidth(initialBtnW);
+    titleBarMinimizeBtn_->setAccessibleName(QString::fromStdString(
+        vigilio::TitleBarValidator::buttonAccessibleLabel(vigilio::TitleBarButtonType::Minimize)));
+    titleBarMinimizeBtn_->setToolTip(QString::fromStdString(
+        vigilio::TitleBarValidator::buttonTooltip(vigilio::TitleBarButtonType::Minimize)));
+    connect(titleBarMinimizeBtn_, &QPushButton::clicked, this, &BrowserWindow::showMinimized);
+    controlsLayout->addWidget(titleBarMinimizeBtn_);
+
+    titleBarMaximizeBtn_ = new QPushButton(isMaximized() ? "🗗" : "▢", titleBarControlsBox_);
+    titleBarMaximizeBtn_->setObjectName("vigilio-titlebar-maximize");
+    titleBarMaximizeBtn_->setMinimumHeight(initialBtnH);
+    titleBarMaximizeBtn_->setMinimumWidth(initialBtnW);
+    titleBarMaximizeBtn_->setAccessibleName(
+        QString::fromStdString(vigilio::TitleBarValidator::buttonAccessibleLabel(
+            vigilio::TitleBarButtonType::MaximizeRestore, isMaximized())));
+    titleBarMaximizeBtn_->setToolTip(QString::fromStdString(vigilio::TitleBarValidator::buttonTooltip(
+        vigilio::TitleBarButtonType::MaximizeRestore, isMaximized())));
+    connect(titleBarMaximizeBtn_, &QPushButton::clicked, this, [this]() {
+        if (isMaximized()) {
+            showNormal();
+        } else {
+            showMaximized();
+        }
+    });
+    controlsLayout->addWidget(titleBarMaximizeBtn_);
+
+    titleBarCloseBtn_ = new QPushButton("✕", titleBarControlsBox_);
+    titleBarCloseBtn_->setObjectName("vigilio-titlebar-close");
+    titleBarCloseBtn_->setMinimumHeight(initialBtnH);
+    titleBarCloseBtn_->setMinimumWidth(initialBtnW);
+    titleBarCloseBtn_->setAccessibleName(QString::fromStdString(
+        vigilio::TitleBarValidator::buttonAccessibleLabel(vigilio::TitleBarButtonType::Close)));
+    titleBarCloseBtn_->setToolTip(QString::fromStdString(
+        vigilio::TitleBarValidator::buttonTooltip(vigilio::TitleBarButtonType::Close)));
+    connect(titleBarCloseBtn_, &QPushButton::clicked, this, &BrowserWindow::close);
+    controlsLayout->addWidget(titleBarCloseBtn_);
+
+    tbLayout->addWidget(titleBarControlsBox_);
+    mainLayout->addWidget(titleBarWidget_);
 
     tabs_ = new QTabWidget(mainContainer_);
     tabs_->setObjectName("vigilio-tabs");
@@ -590,11 +882,13 @@ void BrowserWindow::setupSafeModeBanner() {
     safeModeBanner_ = banner;
     if (mainContainer_ && mainContainer_->layout()) {
         if (auto* lay = qobject_cast<QVBoxLayout*>(mainContainer_->layout())) {
-            lay->insertWidget(0, safeModeBanner_);
+            const int insertIndex = titleBarWidget_ ? 1 : 0;
+            lay->insertWidget(insertIndex, safeModeBanner_);
         }
     } else if (auto* central = centralWidget()) {
         if (auto* lay = qobject_cast<QVBoxLayout*>(central->layout())) {
-            lay->insertWidget(0, safeModeBanner_);
+            const int insertIndex = titleBarWidget_ ? 1 : 0;
+            lay->insertWidget(insertIndex, safeModeBanner_);
         }
     }
 }
@@ -741,12 +1035,18 @@ void BrowserWindow::setupCrashRecoveryBanner(const vigilio::CrashRecoveryReport&
     crashRecoveryBanner_ = banner;
     if (mainContainer_ && mainContainer_->layout()) {
         if (auto* lay = qobject_cast<QVBoxLayout*>(mainContainer_->layout())) {
-            const int insertIndex = safeModeBanner_ ? 1 : 0;
+            int insertIndex = titleBarWidget_ ? 1 : 0;
+            if (safeModeBanner_) {
+                insertIndex++;
+            }
             lay->insertWidget(insertIndex, crashRecoveryBanner_);
         }
     } else if (auto* central = centralWidget()) {
         if (auto* lay = qobject_cast<QVBoxLayout*>(central->layout())) {
-            const int insertIndex = safeModeBanner_ ? 1 : 0;
+            int insertIndex = titleBarWidget_ ? 1 : 0;
+            if (safeModeBanner_) {
+                insertIndex++;
+            }
             lay->insertWidget(insertIndex, crashRecoveryBanner_);
         }
     }
@@ -1233,6 +1533,40 @@ void BrowserWindow::setSeniorMode(bool enabled) {
         layoutService_->setDensity(enabled ? vigilio::LayoutDensity::Senior
                                            : vigilio::LayoutDensity::Default);
     }
+    if (titleBarService_) {
+        titleBarService_->setDensity(enabled ? vigilio::LayoutDensity::Senior
+                                             : vigilio::LayoutDensity::Default);
+    }
+    if (titleBarWidget_) {
+        titleBarWidget_->setFixedHeight(enabled
+                                            ? vigilio::TitleBarConfiguration::kSeniorTitleBarHeight
+                                            : vigilio::TitleBarConfiguration::kDefaultTitleBarHeight);
+    }
+    if (titleBarMinimizeBtn_) {
+        titleBarMinimizeBtn_->setMinimumHeight(enabled ? 48 : 32);
+        titleBarMinimizeBtn_->setMinimumWidth(enabled ? 48 : 46);
+    }
+    if (titleBarMaximizeBtn_) {
+        titleBarMaximizeBtn_->setMinimumHeight(enabled ? 48 : 32);
+        titleBarMaximizeBtn_->setMinimumWidth(enabled ? 48 : 46);
+    }
+    if (titleBarCloseBtn_) {
+        titleBarCloseBtn_->setMinimumHeight(enabled ? 48 : 32);
+        titleBarCloseBtn_->setMinimumWidth(enabled ? 48 : 46);
+    }
+    if (titleBarSeniorToggleBtn_) {
+        titleBarSeniorToggleBtn_->setMinimumHeight(enabled ? 48 : 32);
+        titleBarSeniorToggleBtn_->setMinimumWidth(enabled ? 48 : 36);
+        titleBarSeniorToggleBtn_->setVisible(
+            enabled || (titleBarService_ && titleBarService_->config().showSeniorToggle));
+        titleBarSeniorToggleBtn_->setIconSize(enabled ? QSize(24, 24) : QSize(16, 16));
+    }
+    if (titleBarIcon_) {
+        const int iconDim = enabled ? vigilio::TitleBarConfiguration::kSeniorIconSize
+                                    : vigilio::TitleBarConfiguration::kDefaultIconSize;
+        titleBarIcon_->setFixedSize(iconDim, iconDim);
+        titleBarIcon_->setPixmap(makeResourceIcon("branding/vigilio-logo.svg").pixmap(iconDim, iconDim));
+    }
     if (enabled) {
         setMinimumSize(vigilio::MainWindowLayoutConfiguration::kMinWindowWidthSenior,
                        vigilio::MainWindowLayoutConfiguration::kMinWindowHeightSenior);
@@ -1392,6 +1726,29 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QPushButton[class~=\"vigilio-sidebar-btn\"]:hover{background:#1E293B;color:#E9EDF5;}"
               "QPushButton[class~=\"vigilio-sidebar-btn\"]:focus{border:2px solid #3B82F6;outline:none;}"
               "QPushButton[class~=\"vigilio-sidebar-btn\"]:pressed{background:#2563EB;color:#FFFFFF;}"
+              "QFrame#vigilio-titlebar{background:#141D2B;border-bottom:1px solid #1E293B;}"
+              "QLabel#vigilio-titlebar-title{color:#E9EDF5;font-size:12px;font-weight:600;}"
+              "QWidget#vigilio-titlebar-drag-area{background:transparent;}"
+              "QWidget#vigilio-titlebar-controls{background:transparent;}"
+              "QPushButton#vigilio-titlebar-minimize,"
+              "QPushButton#vigilio-titlebar-maximize,"
+              "QPushButton#vigilio-titlebar-senior-toggle{background:transparent;color:#E9EDF5;border:"
+              "none;"
+              "border-radius:4px;font-size:14px;}"
+              "QPushButton#vigilio-titlebar-minimize:hover,"
+              "QPushButton#vigilio-titlebar-maximize:hover,"
+              "QPushButton#vigilio-titlebar-senior-toggle:hover{background:rgba(255,255,255,0.08);}"
+              "QPushButton#vigilio-titlebar-minimize:pressed,"
+              "QPushButton#vigilio-titlebar-maximize:pressed,"
+              "QPushButton#vigilio-titlebar-senior-toggle:pressed{background:rgba(255,255,255,0.14);}"
+              "QPushButton#vigilio-titlebar-minimize:focus,"
+              "QPushButton#vigilio-titlebar-maximize:focus,"
+              "QPushButton#vigilio-titlebar-senior-toggle:focus{border:2px solid #2563EB;outline:none;}"
+              "QPushButton#vigilio-titlebar-close{background:transparent;color:#E9EDF5;border:none;"
+              "border-radius:4px;font-size:14px;}"
+              "QPushButton#vigilio-titlebar-close:hover{background:#DC2626;color:#FFFFFF;}"
+              "QPushButton#vigilio-titlebar-close:pressed{background:#B91C1C;color:#FFFFFF;}"
+              "QPushButton#vigilio-titlebar-close:focus{border:2px solid #2563EB;outline:none;}"
               "QWidget#vigilio-main-container{background:#141D2B;}"
             : "QMainWindow,QWidget{background:#F7F9FC;color:#192538;}"
               "QLineEdit,QTabWidget::pane{background:#FFFFFF;color:#192538;border:"
@@ -1460,6 +1817,29 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QPushButton[class~=\"vigilio-sidebar-btn\"]:hover{background:#E9EEF6;color:#192538;}"
               "QPushButton[class~=\"vigilio-sidebar-btn\"]:focus{border:2px solid #2563EB;outline:none;}"
               "QPushButton[class~=\"vigilio-sidebar-btn\"]:pressed{background:#2563EB;color:#FFFFFF;}"
+              "QFrame#vigilio-titlebar{background:#F7F9FC;border-bottom:1px solid #D9E0EA;}"
+              "QLabel#vigilio-titlebar-title{color:#192538;font-size:12px;font-weight:600;}"
+              "QWidget#vigilio-titlebar-drag-area{background:transparent;}"
+              "QWidget#vigilio-titlebar-controls{background:transparent;}"
+              "QPushButton#vigilio-titlebar-minimize,"
+              "QPushButton#vigilio-titlebar-maximize,"
+              "QPushButton#vigilio-titlebar-senior-toggle{background:transparent;color:#192538;border:"
+              "none;"
+              "border-radius:4px;font-size:14px;}"
+              "QPushButton#vigilio-titlebar-minimize:hover,"
+              "QPushButton#vigilio-titlebar-maximize:hover,"
+              "QPushButton#vigilio-titlebar-senior-toggle:hover{background:rgba(0,0,0,0.06);}"
+              "QPushButton#vigilio-titlebar-minimize:pressed,"
+              "QPushButton#vigilio-titlebar-maximize:pressed,"
+              "QPushButton#vigilio-titlebar-senior-toggle:pressed{background:rgba(0,0,0,0.12);}"
+              "QPushButton#vigilio-titlebar-minimize:focus,"
+              "QPushButton#vigilio-titlebar-maximize:focus,"
+              "QPushButton#vigilio-titlebar-senior-toggle:focus{border:2px solid #2563EB;outline:none;}"
+              "QPushButton#vigilio-titlebar-close{background:transparent;color:#192538;border:none;"
+              "border-radius:4px;font-size:14px;}"
+              "QPushButton#vigilio-titlebar-close:hover{background:#DC2626;color:#FFFFFF;}"
+              "QPushButton#vigilio-titlebar-close:pressed{background:#B91C1C;color:#FFFFFF;}"
+              "QPushButton#vigilio-titlebar-close:focus{border:2px solid #2563EB;outline:none;}"
               "QWidget#vigilio-main-container{background:#F7F9FC;}");
 }
 void BrowserWindow::saveSession() {

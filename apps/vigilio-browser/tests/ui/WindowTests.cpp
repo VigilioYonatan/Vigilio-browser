@@ -27,6 +27,10 @@
 #include "core/TestFixtureFoundation.h"
 #include "core/TestFixtureService.h"
 #include "core/TestFixtureValidator.h"
+#include "core/TitleBarConfiguration.h"
+#include "core/TitleBarService.h"
+#include "core/TitleBarTypes.h"
+#include "core/TitleBarValidator.h"
 #include "ui/BrowserWindow.h"
 #include <QAction>
 #include <QApplication>
@@ -41,6 +45,7 @@
 #include <QSize>
 #include <QToolBar>
 #include <QUrl>
+#include <QWindowStateChangeEvent>
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
@@ -258,6 +263,82 @@ int main(int argc, char** argv) {
         UI_CHECK(window.sidebarToggleButton()->minimumHeight() >= 48,
                  "Sidebar toggle button minimumHeight >= 48 in accessible mode");
         window.setSeniorMode(false);
+    }
+
+    // Title bar integration tests (TASK-011, TASK-012, TASK-013)
+    {
+        // TASK-011: Presence and non-null initialization of title bar components
+        UI_CHECK(window.titleBarService() != nullptr, "window.titleBarService() must not be null");
+        UI_CHECK(window.titleBarWidget() != nullptr, "window.titleBarWidget() must not be null");
+        UI_CHECK(window.titleBarMinimizeButton() != nullptr,
+                 "window.titleBarMinimizeButton() must not be null");
+        UI_CHECK(window.titleBarMaximizeButton() != nullptr,
+                 "window.titleBarMaximizeButton() must not be null");
+        UI_CHECK(window.titleBarCloseButton() != nullptr,
+                 "window.titleBarCloseButton() must not be null");
+        UI_CHECK(window.titleBarSeniorToggleButton() != nullptr,
+                 "window.titleBarSeniorToggleButton() must not be null");
+        UI_CHECK(window.findChild<QWidget*>("vigilio-titlebar") != nullptr,
+                 "Window must contain vigilio-titlebar");
+
+        // TASK-012: Canonical dimensions and adaptation to «Interfaz más fácil de usar»
+        UI_CHECK(window.titleBarWidget()->height() ==
+                     vigilio::TitleBarConfiguration::kDefaultTitleBarHeight,
+                 "Standard titleBarWidget height must be 32 px");
+        UI_CHECK(window.titleBarMinimizeButton()->minimumHeight() >= 32,
+                 "Default minimize button minimumHeight must be >= 32");
+
+        window.setSeniorMode(true);
+        UI_CHECK(window.titleBarWidget()->height() ==
+                     vigilio::TitleBarConfiguration::kSeniorTitleBarHeight,
+                 "Senior titleBarWidget height must be 48 px");
+        UI_CHECK(window.titleBarMinimizeButton()->minimumHeight() >= 48,
+                 "Senior minimize button minimumHeight must be >= 48");
+        UI_CHECK(window.titleBarMaximizeButton()->minimumHeight() >= 48,
+                 "Senior maximize button minimumHeight must be >= 48");
+        UI_CHECK(window.titleBarCloseButton()->minimumHeight() >= 48,
+                 "Senior close button minimumHeight must be >= 48");
+        UI_CHECK(window.titleBarSeniorToggleButton()->minimumHeight() >= 48,
+                 "Senior senior toggle button minimumHeight must be >= 48");
+        window.setSeniorMode(false);
+
+        // TASK-013: Maximize/restore state synchronization and public copy audit
+        const QString normalAccName = window.titleBarMaximizeButton()->accessibleName();
+        UI_CHECK(normalAccName.contains("Maximizar"),
+                 "Maximize button in normal state must contain 'Maximizar'");
+
+        window.setWindowState(Qt::WindowMaximized);
+        QWindowStateChangeEvent stateEv(Qt::WindowNoState);
+        QApplication::sendEvent(&window, &stateEv);
+
+        const QString maxAccName = window.titleBarMaximizeButton()->accessibleName();
+        UI_CHECK(maxAccName.contains("Restaurar"),
+                 "Maximize button in maximized state must contain 'Restaurar'");
+
+        // Audit absence of forbidden internal engineering terms on title bar widgets and buttons
+        UI_CHECK(window.titleBarMaximizeButton()->accessibleName().toStdString().find("Senior Mode") ==
+                     std::string::npos,
+                 "titleBarMaximizeButton accessibleName must not contain Senior Mode");
+        UI_CHECK(window.titleBarMaximizeButton()->accessibleName().toStdString().find("Modo Senior") ==
+                     std::string::npos,
+                 "titleBarMaximizeButton accessibleName must not contain Modo Senior");
+        UI_CHECK(window.titleBarMaximizeButton()->toolTip().toStdString().find("Senior Mode") ==
+                     std::string::npos,
+                 "titleBarMaximizeButton toolTip must not contain Senior Mode");
+        UI_CHECK(window.titleBarMaximizeButton()->toolTip().toStdString().find("Modo Senior") ==
+                     std::string::npos,
+                 "titleBarMaximizeButton toolTip must not contain Modo Senior");
+
+        auto* tbWidget = window.findChild<QWidget*>("vigilio-titlebar");
+        UI_CHECK(tbWidget != nullptr, "vigilio-titlebar frame must exist");
+        UI_CHECK(tbWidget->accessibleName().toStdString().find("Senior Mode") == std::string::npos,
+                 "vigilio-titlebar accessibleName must not contain Senior Mode");
+        UI_CHECK(tbWidget->accessibleName().toStdString().find("Modo Senior") == std::string::npos,
+                 "vigilio-titlebar accessibleName must not contain Modo Senior");
+
+        window.setWindowState(Qt::WindowNoState);
+        QWindowStateChangeEvent restoreEv(Qt::WindowMaximized);
+        QApplication::sendEvent(&window, &restoreEv);
     }
 
     // testStartupSafeModeBanner
@@ -1717,6 +1798,82 @@ int main(int argc, char** argv) {
                      "Public layout zone string must not contain 'DAG'");
             UI_CHECK(zoneStr.find("Linter") == std::string::npos,
                      "Public layout zone string must not contain 'Linter'");
+        }
+
+        // 14. TitleBar quality governance and public copy audit
+        const std::vector<vigilio::TitleBarError> sampleTitleBarErrors = {
+            vigilio::TitleBarError::None,
+            vigilio::TitleBarError::DimensionsBelowMinimum,
+            vigilio::TitleBarError::ControlsOverflowWidth,
+            vigilio::TitleBarError::DraggableAreaInsufficient,
+            vigilio::TitleBarError::ConflictingControlPlacement,
+            vigilio::TitleBarError::SeniorModeMinimumHeightViolation,
+            vigilio::TitleBarError::UnsupportedWindowChromeMode};
+        for (const auto& err : sampleTitleBarErrors) {
+            const auto errStr = vigilio::TitleBarValidator::titleBarErrorToString(err);
+            UI_CHECK(errStr.find("Senior Mode") == std::string::npos,
+                     "Public title bar error string must not contain forbidden senior mode term");
+            UI_CHECK(errStr.find("Modo Senior") == std::string::npos,
+                     "Public title bar error string must not contain forbidden modo senior term");
+            UI_CHECK(errStr.find("Prompt Builder") == std::string::npos,
+                     "Public title bar error string must not contain forbidden prompt builder term");
+            UI_CHECK(errStr.find("OpenSpec") == std::string::npos,
+                     "Public title bar error string must not contain forbidden openspec term");
+            UI_CHECK(errStr.find("DAG") == std::string::npos,
+                     "Public title bar error string must not contain 'DAG'");
+            UI_CHECK(errStr.find("Linter") == std::string::npos,
+                     "Public title bar error string must not contain 'Linter'");
+
+            const auto hintStr = vigilio::TitleBarValidator::generateRemediationHint(err);
+            UI_CHECK(hintStr.find("Senior Mode") == std::string::npos,
+                     "Public title bar remediation hint must not contain forbidden senior mode term");
+            UI_CHECK(hintStr.find("Modo Senior") == std::string::npos,
+                     "Public title bar remediation hint must not contain forbidden modo senior term");
+            UI_CHECK(hintStr.find("Prompt Builder") == std::string::npos,
+                     "Public title bar remediation hint must not contain forbidden prompt builder term");
+            UI_CHECK(hintStr.find("OpenSpec") == std::string::npos,
+                     "Public title bar remediation hint must not contain forbidden openspec term");
+            UI_CHECK(hintStr.find("DAG") == std::string::npos,
+                     "Public title bar remediation hint must not contain 'DAG'");
+            UI_CHECK(hintStr.find("Linter") == std::string::npos,
+                     "Public title bar remediation hint must not contain 'Linter'");
+        }
+
+        const std::vector<vigilio::TitleBarButtonType> sampleButtonTypes = {
+            vigilio::TitleBarButtonType::Minimize, vigilio::TitleBarButtonType::MaximizeRestore,
+            vigilio::TitleBarButtonType::Close, vigilio::TitleBarButtonType::SeniorModeToggle};
+        for (const auto& btnType : sampleButtonTypes) {
+            for (bool maxState : {false, true}) {
+                const auto labelStr =
+                    vigilio::TitleBarValidator::buttonAccessibleLabel(btnType, maxState);
+                UI_CHECK(labelStr.find("Senior Mode") == std::string::npos,
+                         "Public button accessible label must not contain forbidden senior mode term");
+                UI_CHECK(labelStr.find("Modo Senior") == std::string::npos,
+                         "Public button accessible label must not contain forbidden modo senior term");
+                UI_CHECK(
+                    labelStr.find("Prompt Builder") == std::string::npos,
+                    "Public button accessible label must not contain forbidden prompt builder term");
+                UI_CHECK(labelStr.find("OpenSpec") == std::string::npos,
+                         "Public button accessible label must not contain forbidden openspec term");
+                UI_CHECK(labelStr.find("DAG") == std::string::npos,
+                         "Public button accessible label must not contain 'DAG'");
+                UI_CHECK(labelStr.find("Linter") == std::string::npos,
+                         "Public button accessible label must not contain 'Linter'");
+
+                const auto tipStr = vigilio::TitleBarValidator::buttonTooltip(btnType, maxState);
+                UI_CHECK(tipStr.find("Senior Mode") == std::string::npos,
+                         "Public button tooltip must not contain forbidden senior mode term");
+                UI_CHECK(tipStr.find("Modo Senior") == std::string::npos,
+                         "Public button tooltip must not contain forbidden modo senior term");
+                UI_CHECK(tipStr.find("Prompt Builder") == std::string::npos,
+                         "Public button tooltip must not contain forbidden prompt builder term");
+                UI_CHECK(tipStr.find("OpenSpec") == std::string::npos,
+                         "Public button tooltip must not contain forbidden openspec term");
+                UI_CHECK(tipStr.find("DAG") == std::string::npos,
+                         "Public button tooltip must not contain 'DAG'");
+                UI_CHECK(tipStr.find("Linter") == std::string::npos,
+                         "Public button tooltip must not contain 'Linter'");
+            }
         }
     }
 

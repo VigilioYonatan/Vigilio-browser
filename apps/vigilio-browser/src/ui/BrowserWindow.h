@@ -5,6 +5,9 @@
 #include "core/MainWindowLayoutService.h"
 #include "core/MainWindowLayoutTypes.h"
 #include "core/StartupTypes.h"
+#include "core/TitleBarConfiguration.h"
+#include "core/TitleBarService.h"
+#include "core/TitleBarTypes.h"
 #include "storage/LocalRepository.h"
 #include <QIcon>
 #include <QMainWindow>
@@ -13,6 +16,7 @@
 #include <string>
 #include <string_view>
 
+class QEvent;
 class QLabel;
 class QLineEdit;
 class QTabWidget;
@@ -72,16 +76,39 @@ class BrowserWindow final : public QMainWindow {
         return crashRecoveryService_.get();
     }
 
+    [[nodiscard]] vigilio::TitleBarService* titleBarService() const noexcept {
+        return titleBarService_.get();
+    }
+    [[nodiscard]] QFrame* titleBarWidget() const noexcept {
+        return titleBarWidget_;
+    }
+    [[nodiscard]] QPushButton* titleBarMinimizeButton() const noexcept {
+        return titleBarMinimizeBtn_;
+    }
+    [[nodiscard]] QPushButton* titleBarMaximizeButton() const noexcept {
+        return titleBarMaximizeBtn_;
+    }
+    [[nodiscard]] QPushButton* titleBarCloseButton() const noexcept {
+        return titleBarCloseBtn_;
+    }
+    [[nodiscard]] QPushButton* titleBarSeniorToggleButton() const noexcept {
+        return titleBarSeniorToggleBtn_;
+    }
+
   protected:
     void closeEvent(QCloseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void changeEvent(QEvent* event) override;
 
   private:
     friend int main(int argc, char** argv);
     void setupUi();
     void setupLayoutService(const vigilio::StartupDiagnosticReport& report);
+    void setupTitleBar(const vigilio::StartupDiagnosticReport& report);
     void setupSidebar();
     void applyLayoutPlan(const vigilio::MainWindowLayoutPlan& plan);
+    void applyTitleBarPlan(const vigilio::TitleBarLayoutPlan& plan);
+    void updateTitleBarWindowState();
     void setupStartupVisuals(const vigilio::StartupCommandLine& cmdLine,
                              const vigilio::StartupDiagnosticReport& report);
     void setupSafeModeBanner();
@@ -113,6 +140,16 @@ class BrowserWindow final : public QMainWindow {
     std::unique_ptr<vigilio::ApplicationLifetimeCoordinator> lifetimeCoordinator_;
     std::unique_ptr<vigilio::CrashRecoveryService> crashRecoveryService_;
     std::unique_ptr<vigilio::MainWindowLayoutService> layoutService_;
+    std::unique_ptr<vigilio::TitleBarService> titleBarService_;
+    QFrame* titleBarWidget_{nullptr};
+    QLabel* titleBarIcon_{nullptr};
+    QLabel* titleBarTitle_{nullptr};
+    QWidget* titleBarDragArea_{nullptr};
+    QWidget* titleBarControlsBox_{nullptr};
+    QPushButton* titleBarMinimizeBtn_{nullptr};
+    QPushButton* titleBarMaximizeBtn_{nullptr};
+    QPushButton* titleBarCloseBtn_{nullptr};
+    QPushButton* titleBarSeniorToggleBtn_{nullptr};
     QFrame* sidebar_{nullptr};
     QPushButton* sidebarToggleBtn_{nullptr};
     QWidget* mainContainer_{nullptr};
