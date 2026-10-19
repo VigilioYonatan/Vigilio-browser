@@ -3,12 +3,15 @@
 #include "core/MainWindowLayoutTypes.h"
 #include "core/MainWindowLayoutValidator.h"
 
+#include <atomic>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <thread>
+#include <vector>
 
 using namespace vigilio;
 
@@ -378,6 +381,386 @@ void test_service_move_semantics() {
     CHECK(service3.plan().density == LayoutDensity::Compact);
 }
 
+// TEST-SRV-015: testMultiThreadedHighStressConcurrency16Threads
+void testMultiThreadedHighStressConcurrency16Threads() {
+    MainWindowLayoutService service;
+    std::atomic<bool> startFlag{false};
+    std::atomic<bool> stopFlag{false};
+    std::vector<std::thread> workers;
+    workers.reserve(16);
+
+    // 4 threads resizing window
+    for (int t = 0; t < 4; ++t) {
+        workers.emplace_back([&service, &startFlag, &stopFlag, t]() {
+            while (!startFlag.load(std::memory_order_relaxed)) {
+                std::this_thread::yield();
+            }
+            int step = 0;
+            while (!stopFlag.load(std::memory_order_relaxed) && step < 100) {
+                int w = 1000 + ((step + t) % 10) * 80;
+                int h = 700 + ((step + t) % 8) * 50;
+                (void)service.resizeWindow(w, h);
+                ++step;
+            }
+        });
+    }
+
+    // 4 threads toggling and switching densities
+    for (int t = 0; t < 4; ++t) {
+        workers.emplace_back([&service, &startFlag, &stopFlag]() {
+            while (!startFlag.load(std::memory_order_relaxed)) {
+                std::this_thread::yield();
+            }
+            int step = 0;
+            while (!stopFlag.load(std::memory_order_relaxed) && step < 100) {
+                const auto d = (step % 3 == 0)   ? LayoutDensity::Default
+                               : (step % 3 == 1) ? LayoutDensity::Senior
+                                                 : LayoutDensity::Compact;
+                (void)service.setDensity(d);
+                ++step;
+            }
+        });
+    }
+
+    // 4 threads mutating sidebar
+    for (int t = 0; t < 4; ++t) {
+        workers.emplace_back([&service, &startFlag, &stopFlag, t]() {
+            while (!startFlag.load(std::memory_order_relaxed)) {
+                std::this_thread::yield();
+            }
+            int step = 0;
+            while (!stopFlag.load(std::memory_order_relaxed) && step < 100) {
+                if (step % 3 == 0) {
+                    (void)service.toggleSidebar();
+                } else if (step % 3 == 1) {
+                    (void)service.setSidebarWidth(200 + ((step + t) % 160));
+                } else {
+                    (void)service.setSidebarDockPosition((step % 2 == 0) ? SidebarDockPosition::Left
+                                                                         : SidebarDockPosition::Right);
+                }
+                ++step;
+            }
+        });
+    }
+
+    // 4 threads reading plan and reports
+    for (int t = 0; t < 4; ++t) {
+        workers.emplace_back([&service, &startFlag, &stopFlag]() {
+            while (!startFlag.load(std::memory_order_relaxed)) {
+                std::this_thread::yield();
+            }
+            int step = 0;
+            while (!stopFlag.load(std::memory_order_relaxed) && step < 100) {
+                const auto plan = service.plan();
+                CHECK(plan.window.width > 0);
+                const auto report = service.computeLayout();
+                CHECK(!report.message.empty());
+                ++step;
+            }
+        });
+    }
+
+    // Fire threads simultaneously
+    startFlag.store(true, std::memory_order_release);
+
+    for (auto& th : workers) {
+        if (th.joinable()) {
+            th.join();
+        }
+    }
+
+    // Final integrity verification
+    const auto finalPlan = service.plan();
+    CHECK(MainWindowLayoutConfiguration::verifyInvariants(finalPlan));
+    CHECK(MainWindowLayoutValidator::validatePlan(finalPlan) == MainWindowLayoutError::None);
+    const auto finalReport = service.computeLayout();
+    CHECK(finalReport.valid);
+    CHECK(finalReport.error == MainWindowLayoutError::None);
+    CHECK(finalReport.contentArea.width >= 400);
+    CHECK(finalReport.contentArea.height >= 250);
+}
+
+// TEST-SRV-016: testCooperativeCancellationStress
+void testCooperativeCancellationStress() {
+    MainWindowLayoutService service;
+    const auto tempPath = createTempFilePath("vigilio_cancel_stress");
+
+    for (int iter = 0; iter < 10; ++iter) {
+        CancellationToken cancel;
+        std::atomic<bool> workerStarted{false};
+
+        std::thread t([&service, &tempPath, &cancel, &workerStarted]() {
+            workerStarted.store(true, std::memory_order_release);
+            for (int i = 0; i < 50; ++i) {
+                (void)service.computeLayout(&cancel);
+                (void)service.saveLayoutStateToFile(tempPath, &cancel);
+                (void)service.loadLayoutStateFromFile(tempPath, &cancel);
+            }
+        });
+
+        while (!workerStarted.load(std::memory_order_acquire)) {
+            std::this_thread::yield();
+        }
+        cancel.requestCancellation();
+
+        if (t.joinable()) {
+            t.join();
+        }
+        CHECK(cancel.isCancelled());
+    }
+
+    // Plan must remain valid and consistent
+    const auto plan = service.plan();
+    CHECK(MainWindowLayoutValidator::validatePlan(plan) == MainWindowLayoutError::None);
+
+    std::error_code ec;
+    std::filesystem::remove(tempPath, ec);
+}
+
+// TEST-SRV-017 & TEST-SRV-018: testCorruptedLayoutPersistenceRecovery
+void testCorruptedLayoutPersistenceRecovery() {
+    const auto tempPath = createTempFilePath("vigilio_corrupt_recovery");
+    MainWindowLayoutService service;
+    const auto canonicalDefault = MainWindowLayoutConfiguration::canonicalDefaultLayout();
+    CHECK(service.resizeWindow(1400, 900).valid); // non-default state
+
+    bool callbackInvoked = false;
+    service.setLayoutChangedCallback(
+        [&](const MainWindowLayoutPlan& plan, const MainWindowLayoutReport& report) {
+            if (report.error == MainWindowLayoutError::LayoutPersistenceCorrupted) {
+                callbackInvoked = true;
+                CHECK(!report.valid);
+                CHECK(plan.density == LayoutDensity::Default);
+            }
+        });
+
+    // 1. Truncated JSON
+    {
+        std::ofstream out(tempPath, std::ios::binary | std::ios::trunc);
+        out << "{\n  \"version\": 1,\n  \"windowWidth\": 1200,\n  \"density\": \"Inva";
+    }
+    CHECK(!service.loadLayoutStateFromFile(tempPath));
+    CHECK(callbackInvoked);
+    CHECK(service.plan().density == canonicalDefault.density);
+    CHECK(service.plan().window.width == canonicalDefault.window.width);
+
+    // 2. Empty JSON file
+    callbackInvoked = false;
+    {
+        std::ofstream out(tempPath, std::ios::binary | std::ios::trunc);
+    }
+    CHECK(!service.loadLayoutStateFromFile(tempPath));
+    CHECK(callbackInvoked);
+    CHECK(service.plan().window.width == canonicalDefault.window.width);
+
+    // 3. Valid JSON syntax but violating geometric constraints (sub-minimum window dimensions)
+    callbackInvoked = false;
+    {
+        std::ofstream out(tempPath, std::ios::binary | std::ios::trunc);
+        out << "{\n"
+            << "  \"version\": 1,\n"
+            << "  \"windowWidth\": 200,\n"
+            << "  \"windowHeight\": 150,\n"
+            << "  \"windowMinWidth\": 640,\n"
+            << "  \"windowMinHeight\": 480,\n"
+            << "  \"density\": \"Default\",\n"
+            << "  \"chromeMode\": \"Standard\",\n"
+            << "  \"sidebarState\": \"Collapsed\",\n"
+            << "  \"sidebarDockPosition\": \"Left\",\n"
+            << "  \"sidebarWidth\": 48,\n"
+            << "  \"sidebarCollapsedWidth\": 48,\n"
+            << "  \"sidebarDefaultExpandedWidth\": 240,\n"
+            << "  \"sidebarMinExpandedWidth\": 200,\n"
+            << "  \"sidebarMaxExpandedWidth\": 360,\n"
+            << "  \"showTitleBar\": true,\n"
+            << "  \"showTabStrip\": true,\n"
+            << "  \"showToolBar\": true,\n"
+            << "  \"showBanner\": false,\n"
+            << "  \"showSidebar\": true,\n"
+            << "  \"showStatusBar\": true\n"
+            << "}\n";
+    }
+    CHECK(!service.loadLayoutStateFromFile(tempPath));
+    CHECK(callbackInvoked);
+    CHECK(service.plan().window.width == canonicalDefault.window.width);
+    CHECK(service.plan().window.height == canonicalDefault.window.height);
+
+    // 4. Valid JSON syntax but invalid sidebar width in expanded state
+    callbackInvoked = false;
+    {
+        std::ofstream out(tempPath, std::ios::binary | std::ios::trunc);
+        out << "{\n"
+            << "  \"version\": 1,\n"
+            << "  \"windowWidth\": 1200,\n"
+            << "  \"windowHeight\": 780,\n"
+            << "  \"windowMinWidth\": 640,\n"
+            << "  \"windowMinHeight\": 480,\n"
+            << "  \"density\": \"Default\",\n"
+            << "  \"chromeMode\": \"Standard\",\n"
+            << "  \"sidebarState\": \"Expanded\",\n"
+            << "  \"sidebarDockPosition\": \"Left\",\n"
+            << "  \"sidebarWidth\": 100,\n"
+            << "  \"sidebarCollapsedWidth\": 48,\n"
+            << "  \"sidebarDefaultExpandedWidth\": 240,\n"
+            << "  \"sidebarMinExpandedWidth\": 200,\n"
+            << "  \"sidebarMaxExpandedWidth\": 360,\n"
+            << "  \"showTitleBar\": true,\n"
+            << "  \"showTabStrip\": true,\n"
+            << "  \"showToolBar\": true,\n"
+            << "  \"showBanner\": false,\n"
+            << "  \"showSidebar\": true,\n"
+            << "  \"showStatusBar\": true\n"
+            << "}\n";
+    }
+    CHECK(!service.loadLayoutStateFromFile(tempPath));
+    CHECK(callbackInvoked);
+    CHECK(service.plan().sidebar.state == canonicalDefault.sidebar.state);
+
+    std::error_code ec;
+    std::filesystem::remove(tempPath, ec);
+}
+
+// TEST-SRV-019: testDiskFailureHandling
+void testDiskFailureHandling() {
+    MainWindowLayoutService service;
+
+    // 1. Empty path handling
+    CHECK(!service.saveLayoutStateToFile(""));
+
+    // 2. Directory with read-only permissions
+    const auto tempDir = std::filesystem::temp_directory_path() / "vigilio_ro_test_dir";
+    std::error_code ec;
+    std::filesystem::create_directories(tempDir, ec);
+
+    std::filesystem::permissions(tempDir,
+                                 std::filesystem::perms::owner_read |
+                                     std::filesystem::perms::group_read |
+                                     std::filesystem::perms::others_read,
+                                 std::filesystem::perm_options::replace, ec);
+
+    const auto roFile = tempDir / "read_only_test.json";
+    const bool saveResult = service.saveLayoutStateToFile(roFile);
+    (void)saveResult;
+
+    // Restore full permissions so tempDir can be removed cleanly
+    std::filesystem::permissions(tempDir, std::filesystem::perms::all,
+                                 std::filesystem::perm_options::replace, ec);
+    std::filesystem::remove_all(tempDir, ec);
+
+    // 3. Invalid non-creatable file path like a file path pointing through a regular file
+    const auto dummyFile = std::filesystem::temp_directory_path() / "vigilio_dummy_file.tmp";
+    {
+        std::ofstream out(dummyFile);
+        out << "content";
+    }
+    const auto impossiblePath = dummyFile / "subfile.json";
+    CHECK(!service.saveLayoutStateToFile(impossiblePath));
+    std::filesystem::remove(dummyFile, ec);
+}
+
+// TEST-SRV-020: testIncognitoModeStrictIsolation
+void testIncognitoModeStrictIsolation() {
+    const auto tempPath = createTempFilePath("vigilio_incognito_strict");
+
+    MainWindowLayoutService service;
+    service.setIncognitoMode(true);
+    CHECK(service.isIncognitoMode());
+
+    MainWindowLayoutServiceOptions opts = service.options();
+    opts.stateFilePath = tempPath;
+    service.setOptions(opts);
+
+    // In incognito mode, saving to file is rejected immediately without touching disk
+    CHECK(!service.saveLayoutStateToFile(tempPath));
+    CHECK(!service.saveCurrentState());
+    CHECK(!std::filesystem::exists(tempPath));
+
+    // Create a dummy layout file on disk
+    {
+        std::ofstream dummy(tempPath);
+        dummy << "{\n  \"version\": 1,\n  \"windowWidth\": 1920\n}\n";
+    }
+    CHECK(std::filesystem::exists(tempPath));
+
+    // In incognito mode, loading from file is rejected immediately without touching disk or altering
+    // plan
+    const int currentWidth = service.plan().window.width;
+    CHECK(!service.loadLayoutStateFromFile(tempPath));
+    CHECK(service.plan().window.width == currentWidth);
+
+    std::error_code ec;
+    std::filesystem::remove(tempPath, ec);
+}
+
+// TEST-SRV-021: testSidebarDockPositionAndVisibilityTransitions
+void testSidebarDockPositionAndVisibilityTransitions() {
+    MainWindowLayoutService service;
+    CHECK(service.plan().sidebar.position == SidebarDockPosition::Left);
+
+    // Transition dock position to Right
+    const auto rRight = service.setSidebarDockPosition(SidebarDockPosition::Right);
+    CHECK(rRight.valid);
+    CHECK(service.plan().sidebar.position == SidebarDockPosition::Right);
+
+    // Verify geometric areas reflect right dock position
+    const auto repRight = service.computeLayout();
+    CHECK(repRight.valid);
+    for (const auto& zg : repRight.allocatedZones) {
+        if (zg.zone == LayoutZone::Sidebar && zg.visible) {
+            CHECK(zg.rect.x == service.plan().window.width - service.plan().sidebar.width);
+        }
+        if (zg.zone == LayoutZone::Content && zg.visible) {
+            CHECK(zg.rect.x == 0);
+            CHECK(zg.rect.width == service.plan().window.width - service.plan().sidebar.width);
+        }
+    }
+
+    // Transition dock position back to Left
+    const auto rLeft = service.setSidebarDockPosition(SidebarDockPosition::Left);
+    CHECK(rLeft.valid);
+    CHECK(service.plan().sidebar.position == SidebarDockPosition::Left);
+
+    const auto repLeft = service.computeLayout();
+    CHECK(repLeft.valid);
+    for (const auto& zg : repLeft.allocatedZones) {
+        if (zg.zone == LayoutZone::Sidebar && zg.visible) {
+            CHECK(zg.rect.x == 0);
+        }
+        if (zg.zone == LayoutZone::Content && zg.visible) {
+            CHECK(zg.rect.x == service.plan().sidebar.width);
+        }
+    }
+
+    // Toggle optional notification banner
+    const int heightBeforeBanner = service.computeLayout().contentArea.height;
+    CHECK(service.showNotificationBanner(true).valid);
+    CHECK(service.plan().showBanner);
+    const int heightWithBanner = service.computeLayout().contentArea.height;
+    CHECK(heightBeforeBanner - heightWithBanner ==
+          MainWindowLayoutConfiguration::kCanonicalBannerHeightDefault);
+
+    CHECK(service.showNotificationBanner(false).valid);
+    CHECK(!service.plan().showBanner);
+    CHECK(service.computeLayout().contentArea.height == heightBeforeBanner);
+
+    // Toggle optional status bar
+    const int heightWithStatus = service.computeLayout().contentArea.height;
+    CHECK(service.showStatusBar(false).valid);
+    CHECK(!service.plan().showStatusBar);
+    const int heightWithoutStatus = service.computeLayout().contentArea.height;
+    CHECK(heightWithoutStatus > heightWithStatus);
+
+    CHECK(service.showStatusBar(true).valid);
+    CHECK(service.plan().showStatusBar);
+    CHECK(service.computeLayout().contentArea.height == heightWithStatus);
+
+    // Toggle tool bar and tab strip
+    CHECK(service.setZoneVisible(LayoutZone::ToolBar, false).valid);
+    CHECK(!service.plan().showToolBar);
+    CHECK(service.setZoneVisible(LayoutZone::ToolBar, true).valid);
+    CHECK(service.plan().showToolBar);
+}
+
 } // namespace
 
 int main() {
@@ -422,6 +805,24 @@ int main() {
 
         test_service_move_semantics();
         std::cout << "  ✓ Move semantics: test_service_move_semantics passed.\n";
+
+        testMultiThreadedHighStressConcurrency16Threads();
+        std::cout << "  ✓ TEST-SRV-015: testMultiThreadedHighStressConcurrency16Threads passed.\n";
+
+        testCooperativeCancellationStress();
+        std::cout << "  ✓ TEST-SRV-016: testCooperativeCancellationStress passed.\n";
+
+        testCorruptedLayoutPersistenceRecovery();
+        std::cout << "  ✓ TEST-SRV-017/018: testCorruptedLayoutPersistenceRecovery passed.\n";
+
+        testDiskFailureHandling();
+        std::cout << "  ✓ TEST-SRV-019: testDiskFailureHandling passed.\n";
+
+        testIncognitoModeStrictIsolation();
+        std::cout << "  ✓ TEST-SRV-020: testIncognitoModeStrictIsolation passed.\n";
+
+        testSidebarDockPositionAndVisibilityTransitions();
+        std::cout << "  ✓ TEST-SRV-021: testSidebarDockPositionAndVisibilityTransitions passed.\n";
 
         std::cout << "[SUCCESS] All Main Window Layout Service Unit Tests passed cleanly.\n";
         return 0;

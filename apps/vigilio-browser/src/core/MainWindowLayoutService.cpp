@@ -814,6 +814,9 @@ bool MainWindowLayoutService::loadLayoutStateFromFile(const std::filesystem::pat
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
+    if (options_.isIncognitoSession) {
+        return false;
+    }
 
     if (cancel != nullptr && cancel->isCancelled()) {
         return false;

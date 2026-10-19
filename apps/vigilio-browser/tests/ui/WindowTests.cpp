@@ -36,6 +36,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QSettings>
 #include <QSize>
 #include <QToolBar>
@@ -238,6 +239,26 @@ int main(int argc, char** argv) {
     UI_CHECK(!window.isSidebarExpanded(), "Sidebar must be collapsed after second toggle");
     UI_CHECK(window.sidebar()->width() == 48, "Sidebar width must revert to 48 px when collapsed");
     window.setSeniorMode(false);
+
+    // TASK-013: BrowserWindow layout integration, resizeEvent handling, and accessible tap targets
+    {
+        window.resize(1280, 800);
+        QResizeEvent resizeEv(QSize(1280, 800), window.size());
+        QApplication::sendEvent(&window, &resizeEv);
+        UI_CHECK(window.layoutService()->plan().window.width == 1280,
+                 "resizeEvent must update layoutService window width");
+        UI_CHECK(window.layoutService()->plan().window.height == 800,
+                 "resizeEvent must update layoutService window height");
+
+        window.setSeniorMode(true);
+        UI_CHECK(window.minimumWidth() >= 720,
+                 "Window minimumWidth >= 720 in accessible interface mode");
+        UI_CHECK(window.minimumHeight() >= 520,
+                 "Window minimumHeight >= 520 in accessible interface mode");
+        UI_CHECK(window.sidebarToggleButton()->minimumHeight() >= 48,
+                 "Sidebar toggle button minimumHeight >= 48 in accessible mode");
+        window.setSeniorMode(false);
+    }
 
     // testStartupSafeModeBanner
     {

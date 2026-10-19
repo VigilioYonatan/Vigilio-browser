@@ -224,10 +224,12 @@ void testLayoutCalculationDockLeftVsRight() {
     LayoutRect leftSidebarRect{};
     LayoutRect leftContentRect{};
     for (const auto& zg : reportLeft.allocatedZones) {
-        if (zg.zone == LayoutZone::Sidebar)
+        if (zg.zone == LayoutZone::Sidebar) {
             leftSidebarRect = zg.rect;
-        if (zg.zone == LayoutZone::Content)
+        }
+        if (zg.zone == LayoutZone::Content) {
             leftContentRect = zg.rect;
+        }
     }
     CHECK(leftSidebarRect.x == 0);
     CHECK(leftSidebarRect.width == 48);
@@ -237,10 +239,12 @@ void testLayoutCalculationDockLeftVsRight() {
     LayoutRect rightSidebarRect{};
     LayoutRect rightContentRect{};
     for (const auto& zg : reportRight.allocatedZones) {
-        if (zg.zone == LayoutZone::Sidebar)
+        if (zg.zone == LayoutZone::Sidebar) {
             rightSidebarRect = zg.rect;
-        if (zg.zone == LayoutZone::Content)
+        }
+        if (zg.zone == LayoutZone::Content) {
             rightContentRect = zg.rect;
+        }
     }
     CHECK(rightContentRect.x == 0);
     CHECK(rightContentRect.width == 1200 - 48);
@@ -346,6 +350,299 @@ void testDynamicDensityTransition() {
     CHECK(reportCompact.contentArea.height > reportDefault.contentArea.height);
 }
 
+// TEST-013: testSubMinimumDimensionsExhaustive
+void testSubMinimumDimensionsExhaustive() {
+    // Default density boundary checks (min: 640x480)
+    WindowDimensions subWidthDef{.width = 639, .height = 480, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(subWidthDef, LayoutDensity::Default) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    WindowDimensions subHeightDef{.width = 640, .height = 479, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(subHeightDef, LayoutDensity::Default) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    const auto planDef = MainWindowLayoutConfiguration::canonicalDefaultLayout();
+    const auto repSubWDef = MainWindowLayoutValidator::calculateLayoutAreas(639, 480, planDef);
+    CHECK(!repSubWDef.valid);
+    CHECK(repSubWDef.error == MainWindowLayoutError::DimensionsBelowMinimum);
+
+    const auto repSubHDef = MainWindowLayoutValidator::calculateLayoutAreas(640, 479, planDef);
+    CHECK(!repSubHDef.valid);
+    CHECK(repSubHDef.error == MainWindowLayoutError::DimensionsBelowMinimum);
+
+    // Senior density boundary checks (min: 720x520)
+    WindowDimensions subWidthSen{.width = 719, .height = 520, .minWidth = 720, .minHeight = 520};
+    CHECK(MainWindowLayoutValidator::validateDimensions(subWidthSen, LayoutDensity::Senior) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    WindowDimensions subHeightSen{.width = 720, .height = 519, .minWidth = 720, .minHeight = 520};
+    CHECK(MainWindowLayoutValidator::validateDimensions(subHeightSen, LayoutDensity::Senior) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    const auto planSen = MainWindowLayoutConfiguration::canonicalSeniorLayout();
+    const auto repSubWSen = MainWindowLayoutValidator::calculateLayoutAreas(719, 520, planSen);
+    CHECK(!repSubWSen.valid);
+    CHECK(repSubWSen.error == MainWindowLayoutError::DimensionsBelowMinimum);
+
+    const auto repSubHSen = MainWindowLayoutValidator::calculateLayoutAreas(720, 519, planSen);
+    CHECK(!repSubHSen.valid);
+    CHECK(repSubHSen.error == MainWindowLayoutError::DimensionsBelowMinimum);
+
+    // Compact density boundary checks (min: 500x380)
+    WindowDimensions subWidthCmp{.width = 499, .height = 380, .minWidth = 500, .minHeight = 380};
+    CHECK(MainWindowLayoutValidator::validateDimensions(subWidthCmp, LayoutDensity::Compact) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    WindowDimensions subHeightCmp{.width = 500, .height = 379, .minWidth = 500, .minHeight = 380};
+    CHECK(MainWindowLayoutValidator::validateDimensions(subHeightCmp, LayoutDensity::Compact) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    const auto planCmp = MainWindowLayoutConfiguration::canonicalCompactLayout();
+    const auto repSubWCmp = MainWindowLayoutValidator::calculateLayoutAreas(499, 380, planCmp);
+    CHECK(!repSubWCmp.valid);
+    CHECK(repSubWCmp.error == MainWindowLayoutError::DimensionsBelowMinimum);
+
+    const auto repSubHCmp = MainWindowLayoutValidator::calculateLayoutAreas(500, 379, planCmp);
+    CHECK(!repSubHCmp.valid);
+    CHECK(repSubHCmp.error == MainWindowLayoutError::DimensionsBelowMinimum);
+}
+
+// TEST-014: testZeroAndNegativeDimensions
+void testZeroAndNegativeDimensions() {
+    // Zero dimensions return DimensionsBelowMinimum
+    WindowDimensions zeroDims{.width = 0, .height = 0, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(zeroDims, LayoutDensity::Default) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    WindowDimensions zeroWidth{.width = 0, .height = 480, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(zeroWidth, LayoutDensity::Default) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    WindowDimensions zeroHeight{.width = 640, .height = 0, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(zeroHeight, LayoutDensity::Default) ==
+          MainWindowLayoutError::DimensionsBelowMinimum);
+
+    const auto planDef = MainWindowLayoutConfiguration::canonicalDefaultLayout();
+    const auto repZero = MainWindowLayoutValidator::calculateLayoutAreas(0, 0, planDef);
+    CHECK(!repZero.valid);
+    CHECK(repZero.error == MainWindowLayoutError::DimensionsBelowMinimum);
+
+    // Negative dimensions return NegativeMarginOrPadding
+    WindowDimensions negWidth{.width = -10, .height = 500, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(negWidth, LayoutDensity::Default) ==
+          MainWindowLayoutError::NegativeMarginOrPadding);
+
+    WindowDimensions negHeight{.width = 800, .height = -5, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(negHeight, LayoutDensity::Default) ==
+          MainWindowLayoutError::NegativeMarginOrPadding);
+
+    WindowDimensions negBoth{.width = -1, .height = -1, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(negBoth, LayoutDensity::Default) ==
+          MainWindowLayoutError::NegativeMarginOrPadding);
+
+    const auto repNeg = MainWindowLayoutValidator::calculateLayoutAreas(-10, 500, planDef);
+    CHECK(!repNeg.valid);
+    CHECK(repNeg.error == MainWindowLayoutError::NegativeMarginOrPadding);
+}
+
+// TEST-015: testInvalidSidebarWidthBoundaries
+void testInvalidSidebarWidthBoundaries() {
+    // Range 0..47 px for collapsed sidebar
+    const int prohibitedBelowCollapsed[] = {0, 1, 10, 24, 47};
+    for (int w : prohibitedBelowCollapsed) {
+        SidebarConfig sb{.state = SidebarState::Collapsed, .width = w};
+        CHECK(MainWindowLayoutValidator::validateSidebar(sb) ==
+              MainWindowLayoutError::InvalidSidebarWidth);
+    }
+
+    // Range 49..199 px (forbidden gap between collapsed and min expanded)
+    const int prohibitedGap[] = {49, 50, 75, 100, 120, 150, 180, 199};
+    for (int w : prohibitedGap) {
+        SidebarConfig sbCol{.state = SidebarState::Collapsed, .width = w};
+        CHECK(MainWindowLayoutValidator::validateSidebar(sbCol) ==
+              MainWindowLayoutError::InvalidSidebarWidth);
+
+        SidebarConfig sbExp{.state = SidebarState::Expanded, .width = w};
+        CHECK(MainWindowLayoutValidator::validateSidebar(sbExp) ==
+              MainWindowLayoutError::InvalidSidebarWidth);
+    }
+
+    // Range > 360 px (above max expanded)
+    const int prohibitedAboveMax[] = {361, 380, 400, 500, 1000};
+    for (int w : prohibitedAboveMax) {
+        SidebarConfig sbExp{.state = SidebarState::Expanded, .width = w};
+        CHECK(MainWindowLayoutValidator::validateSidebar(sbExp) ==
+              MainWindowLayoutError::InvalidSidebarWidth);
+    }
+
+    // Remediation hint validation
+    const auto hint =
+        MainWindowLayoutValidator::generateRemediationHint(MainWindowLayoutError::InvalidSidebarWidth);
+    CHECK(!hint.empty());
+    CHECK(hint.find("200 y 360") != std::string::npos);
+    CHECK(hint.find("48") != std::string::npos);
+}
+
+// TEST-016: testZoneBudgetValidationFailures
+void testZoneBudgetValidationFailures() {
+    // Negative dimensions in WindowDimensions
+    WindowDimensions negDims{.width = 1000, .height = -10, .minWidth = 640, .minHeight = 480};
+    CHECK(MainWindowLayoutValidator::validateDimensions(negDims, LayoutDensity::Default) ==
+          MainWindowLayoutError::NegativeMarginOrPadding);
+
+    // Negative widths in SidebarConfig
+    SidebarConfig negSidebar{.width = -20};
+    CHECK(MainWindowLayoutValidator::validateSidebar(negSidebar) ==
+          MainWindowLayoutError::NegativeMarginOrPadding);
+
+    // Total fixed zone heights exceeding window height -> ZeroContentAreaBudget
+    auto plan = MainWindowLayoutConfiguration::canonicalDefaultLayout();
+    plan.window.height = 480;
+    plan.zones = {
+        ZoneBudget{LayoutZone::TitleBar, true, 40, 40, 40, 0, 0, 0},
+        ZoneBudget{LayoutZone::TabStrip, true, 48, 48, 48, 0, 0, 0},
+        ZoneBudget{LayoutZone::ToolBar, true, 300, 300, 300, 0, 0, 0},
+        ZoneBudget{LayoutZone::NotificationBanner, true, 50, 50, 50, 0, 0, 0},
+    };
+    const auto report = MainWindowLayoutValidator::calculateLayoutAreas(640, 480, plan);
+    CHECK(!report.valid);
+    CHECK(report.error == MainWindowLayoutError::ZeroContentAreaBudget);
+    CHECK(!report.message.empty());
+    CHECK(!report.remediationHint.empty());
+
+    // In validatePlan, if fixed zones exceed available window dimensions
+    auto fullPlan = MainWindowLayoutConfiguration::canonicalDefaultLayout();
+    fullPlan.window.width = 640;
+    fullPlan.window.height = 480;
+    fullPlan.density = LayoutDensity::Default;
+    fullPlan.sidebar.state = SidebarState::Expanded;
+    fullPlan.sidebar.width = 300; // 640 - 300 = 340 < 400 (kMinContentWidth)
+    CHECK(MainWindowLayoutValidator::validatePlan(fullPlan) ==
+          MainWindowLayoutError::ZeroContentAreaBudget);
+}
+
+// TEST-017: testExtremeWindowGeometries
+void testExtremeWindowGeometries() {
+    const struct ExtremeResolution {
+        int width;
+        int height;
+        const char* label;
+    } resolutions[] = {
+        {3840, 1080, "Ultrawide 32:9/21:9"},
+        {1080, 1920, "Vertical 9:16"},
+        {2560, 1440, "QHD 16:9"},
+        {3840, 2160, "4K UHD"},
+        {5120, 1440, "Super Ultrawide"},
+    };
+
+    const auto densities = {LayoutDensity::Default, LayoutDensity::Senior, LayoutDensity::Compact};
+
+    for (const auto& res : resolutions) {
+        for (auto dens : densities) {
+            MainWindowLayoutPlan plan = (dens == LayoutDensity::Senior)
+                                            ? MainWindowLayoutConfiguration::canonicalSeniorLayout()
+                                        : (dens == LayoutDensity::Compact)
+                                            ? MainWindowLayoutConfiguration::canonicalCompactLayout()
+                                            : MainWindowLayoutConfiguration::canonicalDefaultLayout();
+
+            const auto report =
+                MainWindowLayoutValidator::calculateLayoutAreas(res.width, res.height, plan);
+            CHECK(report.valid);
+            CHECK(report.error == MainWindowLayoutError::None);
+            CHECK(report.contentArea.width >= 400);
+            CHECK(report.contentArea.height >= 250);
+            CHECK(report.contentArea.area() > 0);
+
+            // Disjointness check
+            for (size_t i = 0; i < report.allocatedZones.size(); ++i) {
+                const auto& zi = report.allocatedZones[i];
+                CHECK(zi.rect.x >= 0);
+                CHECK(zi.rect.y >= 0);
+                CHECK(zi.rect.x + zi.rect.width <= res.width);
+                CHECK(zi.rect.y + zi.rect.height <= res.height);
+
+                for (size_t j = i + 1; j < report.allocatedZones.size(); ++j) {
+                    const auto& zj = report.allocatedZones[j];
+                    CHECK(!zi.rect.intersects(zj.rect));
+                }
+            }
+        }
+    }
+}
+
+// TEST-018: testPublicCopyAndRemediationTextAudit
+void testPublicCopyAndRemediationTextAudit() {
+    const auto auditString = [](std::string_view s) {
+        CHECK(!s.empty());
+        std::string lower;
+        lower.reserve(s.size());
+        for (char c : s) {
+            lower += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        }
+        CHECK(lower.find("senior mode") == std::string::npos);
+        CHECK(lower.find("modo senior") == std::string::npos);
+        CHECK(lower.find("prompt builder") == std::string::npos);
+        CHECK(lower.find("openspec") == std::string::npos);
+        CHECK(lower.find("dag") == std::string::npos);
+        CHECK(lower.find("linter") == std::string::npos);
+        CHECK(lower.find("toolchain") == std::string::npos);
+        CHECK(lower.find("runner") == std::string::npos);
+        CHECK(lower.find("micro-prompt") == std::string::npos);
+    };
+
+    // Audit layoutZoneToString
+    const LayoutZone zones[] = {
+        LayoutZone::TitleBar, LayoutZone::TabStrip, LayoutZone::ToolBar,  LayoutZone::NotificationBanner,
+        LayoutZone::Sidebar,  LayoutZone::Content,  LayoutZone::StatusBar};
+    for (auto z : zones) {
+        auditString(MainWindowLayoutValidator::layoutZoneToString(z));
+    }
+
+    // Audit layoutDensityToString
+    const LayoutDensity densities[] = {LayoutDensity::Default, LayoutDensity::Senior,
+                                       LayoutDensity::Compact};
+    for (auto d : densities) {
+        auditString(MainWindowLayoutValidator::layoutDensityToString(d));
+    }
+    CHECK(MainWindowLayoutValidator::layoutDensityToString(LayoutDensity::Senior) ==
+          "Interfaz más fácil de usar");
+
+    // Audit sidebarStateToString
+    const SidebarState states[] = {SidebarState::Hidden, SidebarState::Collapsed,
+                                   SidebarState::Expanded};
+    for (auto st : states) {
+        auditString(MainWindowLayoutValidator::sidebarStateToString(st));
+    }
+
+    // Audit sidebarDockPositionToString
+    const SidebarDockPosition docks[] = {SidebarDockPosition::Left, SidebarDockPosition::Right};
+    for (auto dk : docks) {
+        auditString(MainWindowLayoutValidator::sidebarDockPositionToString(dk));
+    }
+
+    // Audit chromeModeToString
+    const WindowChromeMode chromes[] = {WindowChromeMode::Standard, WindowChromeMode::Integrated,
+                                        WindowChromeMode::Fullscreen};
+    for (auto cm : chromes) {
+        auditString(MainWindowLayoutValidator::chromeModeToString(cm));
+    }
+
+    // Audit layoutErrorToString & generateRemediationHint
+    const MainWindowLayoutError errors[] = {MainWindowLayoutError::None,
+                                            MainWindowLayoutError::DimensionsBelowMinimum,
+                                            MainWindowLayoutError::InvalidSidebarWidth,
+                                            MainWindowLayoutError::ConflictingZoneAnchors,
+                                            MainWindowLayoutError::ZeroContentAreaBudget,
+                                            MainWindowLayoutError::NegativeMarginOrPadding,
+                                            MainWindowLayoutError::InvalidDensityConfiguration,
+                                            MainWindowLayoutError::LayoutPersistenceCorrupted};
+    for (auto err : errors) {
+        auditString(MainWindowLayoutValidator::layoutErrorToString(err));
+        auditString(MainWindowLayoutValidator::generateRemediationHint(err));
+        auditString(MainWindowLayoutValidator::generateRemediationHint(err, "Detalle adicional"));
+    }
+}
+
 } // namespace
 
 int main() {
@@ -388,7 +685,25 @@ int main() {
         testDynamicDensityTransition();
         std::cout << "  ✓ TEST-012: testDynamicDensityTransition passed.\n";
 
-        std::cout << "[SUCCESS] All 12 Main Window Layout Unit Tests passed cleanly.\n";
+        testSubMinimumDimensionsExhaustive();
+        std::cout << "  ✓ TEST-013: testSubMinimumDimensionsExhaustive passed.\n";
+
+        testZeroAndNegativeDimensions();
+        std::cout << "  ✓ TEST-014: testZeroAndNegativeDimensions passed.\n";
+
+        testInvalidSidebarWidthBoundaries();
+        std::cout << "  ✓ TEST-015: testInvalidSidebarWidthBoundaries passed.\n";
+
+        testZoneBudgetValidationFailures();
+        std::cout << "  ✓ TEST-016: testZoneBudgetValidationFailures passed.\n";
+
+        testExtremeWindowGeometries();
+        std::cout << "  ✓ TEST-017: testExtremeWindowGeometries passed.\n";
+
+        testPublicCopyAndRemediationTextAudit();
+        std::cout << "  ✓ TEST-018: testPublicCopyAndRemediationTextAudit passed.\n";
+
+        std::cout << "[SUCCESS] All 18 Main Window Layout Unit Tests passed cleanly.\n";
         return 0;
     } catch (const std::exception& ex) {
         std::cerr << "[FAILURE] Exception during tests: " << ex.what() << '\n';
