@@ -321,8 +321,8 @@ bool TabStripDensityConfiguration::verifyInvariants(const TabStripDensityPlan& p
         }
     }
 
-    // 6. Disyunción de botón de nueva pestaña con las pestañas
-    if (plan.newTabButtonRect.width > 0 && plan.newTabButtonRect.height > 0) {
+    // 6. Disyunción de botón de nueva pestaña con las pestañas (en modo no desbordado)
+    if (!plan.isOverflowing && plan.newTabButtonRect.width > 0 && plan.newTabButtonRect.height > 0) {
         for (const auto& tab : plan.tabs) {
             if (plan.newTabButtonRect.intersects(tab.rect)) {
                 return false;

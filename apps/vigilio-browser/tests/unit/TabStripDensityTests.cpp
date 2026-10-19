@@ -368,6 +368,286 @@ void testUxCopySpanishCompliance() {
     assertNoProscribed(TabStripDensityValidator::audioButtonAccessibleLabel(false));
 }
 
+// TEST-017: Fronteras dimensionales exactas y entradas negativas (TASK-001)
+void testSubMinimumDimensionsExhaustive() {
+    // 1. Anchura disponible sub-mínima en Default (mínimo canónico 400 px)
+    CHECK(TabStripDensityValidator::validateDimensions(399, LayoutDensity::Default) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(200, LayoutDensity::Default) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(0, LayoutDensity::Default) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(-1, LayoutDensity::Default) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(-500, LayoutDensity::Default) ==
+          TabStripDensityError::WidthBelowMinimum);
+
+    // 2. Anchura disponible sub-mínima en Senior (mínimo canónico 500 px)
+    CHECK(TabStripDensityValidator::validateDimensions(499, LayoutDensity::Senior) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(400, LayoutDensity::Senior) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(0, LayoutDensity::Senior) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(-10, LayoutDensity::Senior) ==
+          TabStripDensityError::WidthBelowMinimum);
+
+    // 3. Anchura disponible sub-mínima en Compact (mínimo canónico 360 px)
+    CHECK(TabStripDensityValidator::validateDimensions(359, LayoutDensity::Compact) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(100, LayoutDensity::Compact) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(0, LayoutDensity::Compact) ==
+          TabStripDensityError::WidthBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(-1, LayoutDensity::Compact) ==
+          TabStripDensityError::WidthBelowMinimum);
+
+    // 4. Altura sub-mínima en Default y Compact (con anchura válida)
+    CHECK(TabStripDensityValidator::validateDimensions(1000, 0, LayoutDensity::Default) ==
+          TabStripDensityError::HeightBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(1000, 35, LayoutDensity::Default) ==
+          TabStripDensityError::HeightBelowMinimum);
+    CHECK(TabStripDensityValidator::validateDimensions(800, 27, LayoutDensity::Compact) ==
+          TabStripDensityError::HeightBelowMinimum);
+
+    // 5. Verificación a través de calculateTabStripLayout
+    const auto report = TabStripDensityValidator::calculateTabStripLayout(
+        399, TabStripDensityConfig{.density = LayoutDensity::Default}, {});
+    CHECK(!report.valid);
+    CHECK(report.error == TabStripDensityError::WidthBelowMinimum);
+    CHECK(!report.message.empty());
+}
+
+// TEST-018: Violaciones de altura mínima en Modo Senior y tap targets accesibles (TASK-002)
+void testSeniorModeHeightViolations() {
+    // 1. Alturas inferiores a 48 px en Senior
+    const int invalidHeights[] = {47, 40, 36, 28, 10, 0};
+    for (int h : invalidHeights) {
+        const auto err = TabStripDensityValidator::validateDimensions(1000, h, LayoutDensity::Senior);
+        CHECK(err == TabStripDensityError::SeniorModeMinimumHeightViolation);
+        const auto hint = TabStripDensityValidator::generateRemediationHint(err);
+        CHECK(!hint.empty());
+        CHECK(hint.find("48") != std::string::npos);
+    }
+
+    // 2. Tap target del botón de nueva pestaña < 48x48 en Senior
+    auto planWithSmallNewTab = TabStripDensityConfiguration::canonicalSeniorDensity(1000);
+    planWithSmallNewTab.newTabButtonRect.width = 40;
+    planWithSmallNewTab.newTabButtonRect.height = 40;
+    CHECK(TabStripDensityValidator::validatePlan(planWithSmallNewTab) ==
+          TabStripDensityError::SeniorModeTapTargetViolation);
+
+    // 3. Pestaña fijada con tap target < 48x48 en Senior
+    auto planWithSmallPinnedTab = TabStripDensityConfiguration::canonicalSeniorDensity(1000);
+    TabItemLayout smallPinned{};
+    smallPinned.id = 99;
+    smallPinned.isPinned = true;
+    smallPinned.rect = LayoutRect{0, 0, 36, 48};
+    planWithSmallPinnedTab.tabs.push_back(smallPinned);
+    CHECK(TabStripDensityValidator::validatePlan(planWithSmallPinnedTab) ==
+          TabStripDensityError::SeniorModeTapTargetViolation);
+
+    // 4. Botón de cierre < 24x24 en Senior
+    auto planWithSmallClose = TabStripDensityConfiguration::canonicalSeniorDensity(1000);
+    if (!planWithSmallClose.tabs.empty()) {
+        planWithSmallClose.tabs[0].closeButtonRect = LayoutRect{0, 0, 20, 20};
+        CHECK(TabStripDensityValidator::validatePlan(planWithSmallClose) ==
+              TabStripDensityError::SeniorModeTapTargetViolation);
+    }
+}
+
+// TEST-019: Compresión elástica extrema (100 pestañas en 400 px) y desbordamiento (TASK-003)
+void testExtremeOverflowAndElasticCompression() {
+    TabStripDensityConfig cfg{.density = LayoutDensity::Default,
+                              .showNewTabButton = true,
+                              .overflowMode = TabStripOverflowMode::Scrollable};
+    std::vector<TabSpec> tabs;
+    tabs.reserve(100);
+    for (int i = 1; i <= 100; ++i) {
+        tabs.push_back(TabSpec{.id = static_cast<uint64_t>(i),
+                               .title = "Tab " + std::to_string(i),
+                               .pinState = TabPinState::Unpinned,
+                               .isSelected = (i == 1)});
+    }
+
+    const auto report = TabStripDensityValidator::calculateTabStripLayout(400, cfg, tabs);
+    CHECK(report.valid);
+    CHECK(report.plan.isOverflowing);
+    CHECK(report.plan.overflowMode == TabStripOverflowMode::Scrollable);
+    CHECK(report.plan.effectiveTabWidth == TabStripDensityConfiguration::kDefaultMinTabWidth);
+    CHECK(report.plan.scrollLeftButtonRect.width > 0);
+    CHECK(report.plan.scrollRightButtonRect.width > 0);
+    CHECK(report.plan.tabs.size() == 100);
+
+    for (std::size_t i = 0; i < report.plan.tabs.size(); ++i) {
+        const auto& tab = report.plan.tabs[i];
+        CHECK(tab.rect.width == TabStripDensityConfiguration::kDefaultMinTabWidth);
+        CHECK(tab.rect.height == TabStripDensityConfiguration::kDefaultStripHeight);
+        if (i + 1 < report.plan.tabs.size()) {
+            CHECK(tab.rect.x + tab.rect.width <= report.plan.tabs[i + 1].rect.x);
+        }
+    }
+}
+
+// TEST-020: Saturación por pestañas fijadas y agotamiento de ancho disponible (TASK-004)
+void testPinnedTabsSaturationAndSpaceExhaustion() {
+    TabStripDensityConfig cfg{.density = LayoutDensity::Default, .showNewTabButton = true};
+    std::vector<TabSpec> saturatedTabs;
+    for (int i = 1; i <= 12; ++i) {
+        saturatedTabs.push_back(TabSpec{.id = static_cast<uint64_t>(i),
+                                        .title = "P" + std::to_string(i),
+                                        .pinState = TabPinState::Pinned});
+    }
+
+    const auto report = TabStripDensityValidator::calculateTabStripLayout(400, cfg, saturatedTabs);
+    CHECK(!report.valid);
+    CHECK(report.error == TabStripDensityError::AvailableWidthExhausted);
+    CHECK(!report.message.empty());
+    CHECK(!report.remediationHint.empty());
+
+    const auto okReport = TabStripDensityValidator::calculateTabStripLayout(1000, cfg, saturatedTabs);
+    CHECK(okReport.valid);
+    CHECK(okReport.plan.pinnedTabsCount == 12);
+    CHECK(okReport.plan.newTabButtonRect.width > 0);
+}
+
+// TEST-021: Hit-testing exhaustivo de esquinas, bordes y puntos exteriores (TASK-005)
+void testExhaustiveHitTestingBoundaries() {
+    TabSpec t1{.id = 1,
+               .title = "Hit Test Tab",
+               .pinState = TabPinState::Unpinned,
+               .isSelected = true,
+               .mediaState = TabMediaState::AudioPlaying};
+
+    const auto report = TabStripDensityValidator::calculateTabStripLayout(
+        1000, TabStripDensityConfig{.density = LayoutDensity::Default, .showNewTabButton = true}, {t1});
+    CHECK(report.valid);
+    const auto& plan = report.plan;
+    const auto& tab = plan.tabs[0];
+
+    CHECK(TabStripDensityValidator::hitTest(tab.rect.x, tab.rect.y, plan) !=
+          TabStripHitTestZone::Nowhere);
+    CHECK(TabStripDensityValidator::hitTest(tab.rect.x + tab.rect.width - 1, tab.rect.y, plan) !=
+          TabStripHitTestZone::Nowhere);
+    CHECK(TabStripDensityValidator::hitTest(tab.rect.x, tab.rect.y + tab.rect.height - 1, plan) !=
+          TabStripHitTestZone::Nowhere);
+    CHECK(TabStripDensityValidator::hitTest(tab.rect.x + tab.rect.width - 1,
+                                            tab.rect.y + tab.rect.height - 1,
+                                            plan) != TabStripHitTestZone::Nowhere);
+
+    CHECK(TabStripDensityValidator::hitTest(tab.closeButtonRect.x, tab.closeButtonRect.y, plan) ==
+          TabStripHitTestZone::TabCloseButton);
+    CHECK(TabStripDensityValidator::hitTest(tab.closeButtonRect.x + tab.closeButtonRect.width - 1,
+                                            tab.closeButtonRect.y + tab.closeButtonRect.height - 1,
+                                            plan) == TabStripHitTestZone::TabCloseButton);
+
+    CHECK(TabStripDensityValidator::hitTest(tab.audioIndicatorRect.x, tab.audioIndicatorRect.y, plan) ==
+          TabStripHitTestZone::TabAudioIndicator);
+    CHECK(TabStripDensityValidator::hitTest(tab.audioIndicatorRect.x + tab.audioIndicatorRect.width - 1,
+                                            tab.audioIndicatorRect.y + tab.audioIndicatorRect.height - 1,
+                                            plan) == TabStripHitTestZone::TabAudioIndicator);
+
+    CHECK(TabStripDensityValidator::hitTest(tab.faviconRect.x, tab.faviconRect.y, plan) ==
+          TabStripHitTestZone::TabFavicon);
+    CHECK(TabStripDensityValidator::hitTest(tab.faviconRect.x + tab.faviconRect.width - 1,
+                                            tab.faviconRect.y + tab.faviconRect.height - 1,
+                                            plan) == TabStripHitTestZone::TabFavicon);
+
+    CHECK(TabStripDensityValidator::hitTest(-1, 10, plan) == TabStripHitTestZone::Nowhere);
+    CHECK(TabStripDensityValidator::hitTest(1000, 10, plan) == TabStripHitTestZone::Nowhere);
+    CHECK(TabStripDensityValidator::hitTest(500, -1, plan) == TabStripHitTestZone::Nowhere);
+    CHECK(TabStripDensityValidator::hitTest(500, 36, plan) == TabStripHitTestZone::Nowhere);
+}
+
+// TEST-022: Sanitización hostil de títulos y protección de privacidad (TASK-006)
+void testHostileTitleSanitizationAndPrivacy() {
+    const std::string hostile = "https://admin:SuperSecretToken123!@intranet.corp.internal/"
+                                "dashboard?auth_token=eyJhbGciOiJIUzI1NiI&key=abc999#session";
+    const auto sanitized = TabStripDensityValidator::sanitizeTitle(hostile, false);
+    CHECK(sanitized.find("SuperSecretToken123!") == std::string::npos);
+    CHECK(sanitized.find("admin:") == std::string::npos);
+    CHECK(sanitized.find("auth_token=") == std::string::npos);
+    CHECK(sanitized.find("key=") == std::string::npos);
+    CHECK(sanitized.find("#session") == std::string::npos);
+    CHECK(sanitized == "intranet.corp.internal/dashboard");
+
+    const std::string withControls = "Título\r\nCon\tSaltos\nDe\rLínea";
+    const auto cleaned = TabStripDensityValidator::sanitizeTitle(withControls, false);
+    CHECK(cleaned.find('\r') == std::string::npos);
+    CHECK(cleaned.find('\n') == std::string::npos);
+    CHECK(cleaned.find('\t') == std::string::npos);
+
+    const std::string hugeTitle(10000, 'X');
+    const auto safeHuge = TabStripDensityValidator::sanitizeTitle(hugeTitle, false);
+    CHECK(!safeHuge.empty());
+    CHECK(safeHuge.size() <= 10000);
+
+    CHECK(TabStripDensityValidator::sanitizeTitle("", false) == "Nueva pestaña");
+    CHECK(TabStripDensityValidator::sanitizeTitle("   ", false) == "Nueva pestaña");
+    CHECK(TabStripDensityValidator::sanitizeTitle("///", false) == "Nueva pestaña");
+
+    const auto incognito = TabStripDensityValidator::sanitizeTitle("Documento", true);
+    CHECK(incognito.find("(Navegación privada)") != std::string::npos);
+}
+
+// TEST-023: Auditoría exhaustiva de textos públicos frente a docs/UX-COPY-PUBLICO.md (TASK-007)
+void testPublicCopyExhaustiveAudit() {
+    const std::vector<std::string> proscribedTerms = {"Senior Mode", "Modo Senior", "Prompt Builder",
+                                                      "DAG",         "OpenSpec",    "toolchain",
+                                                      "runner",      "Linter"};
+
+    auto assertClean = [&](const std::string& text) {
+        for (const auto& term : proscribedTerms) {
+            if (text.find(term) != std::string::npos) {
+                throw std::runtime_error("Violación UX-COPY-PUBLICO: '" + term + "' en: " + text);
+            }
+        }
+    };
+
+    const TabStripDensityError allErrors[] = {TabStripDensityError::None,
+                                              TabStripDensityError::WidthBelowMinimum,
+                                              TabStripDensityError::HeightBelowMinimum,
+                                              TabStripDensityError::SeniorModeMinimumHeightViolation,
+                                              TabStripDensityError::SeniorModeTapTargetViolation,
+                                              TabStripDensityError::InvalidTabDimensions,
+                                              TabStripDensityError::InvalidTabCount,
+                                              TabStripDensityError::NegativeMarginOrSpacing,
+                                              TabStripDensityError::AvailableWidthExhausted};
+
+    for (auto err : allErrors) {
+        assertClean(TabStripDensityValidator::tabStripErrorToString(err));
+        assertClean(TabStripDensityValidator::generateRemediationHint(err));
+    }
+
+    assertClean(TabStripDensityValidator::densityToString(LayoutDensity::Senior));
+    assertClean(TabStripDensityValidator::densityToString(LayoutDensity::Default));
+    assertClean(TabStripDensityValidator::densityToString(LayoutDensity::Compact));
+
+    CHECK(TabStripDensityValidator::densityToString(LayoutDensity::Senior) ==
+          "Interfaz más fácil de usar");
+
+    const TabStripHitTestZone allZones[] = {
+        TabStripHitTestZone::Nowhere,           TabStripHitTestZone::EmptySpace,
+        TabStripHitTestZone::TabBody,           TabStripHitTestZone::TabFavicon,
+        TabStripHitTestZone::TabTitle,          TabStripHitTestZone::TabCloseButton,
+        TabStripHitTestZone::TabAudioIndicator, TabStripHitTestZone::NewTabButton,
+        TabStripHitTestZone::ScrollLeftButton,  TabStripHitTestZone::ScrollRightButton,
+        TabStripHitTestZone::OverflowMenuButton};
+
+    for (auto zone : allZones) {
+        assertClean(TabStripDensityValidator::hitTestZoneToString(zone));
+    }
+
+    assertClean(TabStripDensityValidator::newTabButtonAccessibleLabel());
+    assertClean(TabStripDensityValidator::audioButtonAccessibleLabel(true));
+    assertClean(TabStripDensityValidator::audioButtonAccessibleLabel(false));
+
+    TabSpec sampleTab{.id = 1, .title = "Prueba", .mediaState = TabMediaState::AudioMuted};
+    assertClean(TabStripDensityValidator::closeButtonAccessibleLabel(sampleTab));
+    assertClean(TabStripDensityValidator::tabAccessibleLabel(sampleTab, false, LayoutDensity::Senior));
+    assertClean(TabStripDensityValidator::tabTooltip(sampleTab, false));
+}
+
 } // namespace
 
 int main() {
@@ -422,8 +702,29 @@ int main() {
         testUxCopySpanishCompliance();
         std::cout << "  - TEST-016 (UX Copy Spanish Compliance): PASSED\n";
 
+        testSubMinimumDimensionsExhaustive();
+        std::cout << "  - TEST-017 (Sub-Minimum Dimensions Exhaustive): PASSED\n";
+
+        testSeniorModeHeightViolations();
+        std::cout << "  - TEST-018 (Senior Mode Height Violations): PASSED\n";
+
+        testExtremeOverflowAndElasticCompression();
+        std::cout << "  - TEST-019 (Extreme Overflow & Elastic Compression): PASSED\n";
+
+        testPinnedTabsSaturationAndSpaceExhaustion();
+        std::cout << "  - TEST-020 (Pinned Tabs Saturation & Space Exhaustion): PASSED\n";
+
+        testExhaustiveHitTestingBoundaries();
+        std::cout << "  - TEST-021 (Exhaustive Hit-Testing Boundaries): PASSED\n";
+
+        testHostileTitleSanitizationAndPrivacy();
+        std::cout << "  - TEST-022 (Hostile Title Sanitization & Privacy): PASSED\n";
+
+        testPublicCopyExhaustiveAudit();
+        std::cout << "  - TEST-023 (Public Copy Exhaustive Audit): PASSED\n";
+
         std::cout
-            << "[vigilio_tab_strip_density_tests] Todas las 16 pruebas pasaron exitosamente (100%).\n";
+            << "[vigilio_tab_strip_density_tests] Todas las 23 pruebas pasaron exitosamente (100%).\n";
         return 0;
     } catch (const std::exception& ex) {
         std::cerr << "[vigilio_tab_strip_density_tests] Error fatal en prueba: " << ex.what() << '\n';

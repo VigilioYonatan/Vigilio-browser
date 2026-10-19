@@ -4,7 +4,7 @@
 - **Módulo propietario:** `ux-shell`
 - **Capacidad concreta:** tab strip density
 - **Etapa:** tests
-- **Estado:** TARGET; NOT_EXECUTED.
+- **Estado:** CURRENT; COMPLETED (module.ux-shell.task0071).
 - **Dependencias:** `module.ux-shell.task0070`.
 
 ## Resultado verificable

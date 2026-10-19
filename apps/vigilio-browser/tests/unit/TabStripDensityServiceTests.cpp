@@ -4,12 +4,14 @@
 #include "core/TabStripDensityTypes.h"
 #include "core/TabStripDensityValidator.h"
 
+#include <atomic>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 
 using namespace vigilio;
@@ -373,6 +375,235 @@ void test_service_public_copy_audit() {
     CHECK(summary.find("DAG") == std::string::npos);
 }
 
+// TEST-TSS-019: Concurrencia masiva con 16 hilos compitiendo (>= 200 iteraciones por hilo) (TASK-008)
+void testMultiThreadedHighStressConcurrency16Threads() {
+    TabStripDensityService service;
+    std::atomic<bool> startFlag{false};
+    std::vector<std::thread> threads;
+    threads.reserve(16);
+
+    // 4 hilos mutando pestañas
+    for (int t = 0; t < 4; ++t) {
+        threads.emplace_back([&service, &startFlag, t]() {
+            while (!startFlag.load(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
+            for (int i = 0; i < 200; ++i) {
+                const uint64_t tabId = static_cast<uint64_t>(1000 + t * 500 + i);
+                (void)service.addTab(
+                    TabSpec{.id = tabId, .title = "ThreadTab " + std::to_string(tabId)});
+                if (i % 2 == 1) {
+                    (void)service.removeTab(tabId);
+                }
+            }
+        });
+    }
+
+    // 4 hilos redimensionando ventana
+    for (int t = 0; t < 4; ++t) {
+        threads.emplace_back([&service, &startFlag, t]() {
+            while (!startFlag.load(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
+            const int widths[] = {500, 800, 1024, 1280, 1600, 1920};
+            for (int i = 0; i < 200; ++i) {
+                (void)service.setAvailableWidth(widths[(t + i) % 6]);
+            }
+        });
+    }
+
+    // 4 hilos conmutando densidades
+    for (int t = 0; t < 4; ++t) {
+        threads.emplace_back([&service, &startFlag, t]() {
+            while (!startFlag.load(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
+            const LayoutDensity densities[] = {LayoutDensity::Default, LayoutDensity::Senior,
+                                               LayoutDensity::Compact};
+            for (int i = 0; i < 200; ++i) {
+                (void)service.setDensity(densities[(t + i) % 3]);
+            }
+        });
+    }
+
+    // 4 hilos ejecutando consultas analíticas de plan y hit-test
+    for (int t = 0; t < 4; ++t) {
+        threads.emplace_back([&service, &startFlag]() {
+            while (!startFlag.load(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
+            for (int i = 0; i < 200; ++i) {
+                const auto p = service.plan();
+                (void)p;
+                (void)service.hitTest(100, 18);
+                (void)service.tabCount();
+                (void)service.isOverflowing();
+            }
+        });
+    }
+
+    startFlag.store(true, std::memory_order_release);
+    for (auto& th : threads) {
+        th.join();
+    }
+
+    const auto finalPlan = service.plan();
+    CHECK(finalPlan.availableWidth >= TabStripDensityConfiguration::kCompactMinStripWidth);
+    CHECK(service.tabCount() > 0);
+    CHECK(finalPlan.tabs.size() == service.tabCount());
+    CHECK(finalPlan.height >= 28);
+    CHECK(service.computeLayout().valid);
+
+    CHECK(service.restoreDefault());
+    CHECK(TabStripDensityConfiguration::verifyInvariants(service.plan()));
+}
+
+// TEST-TSS-020: Cancelación cooperativa asíncrona mediante CancellationToken (TASK-009)
+void testCooperativeCancellationStress() {
+    TabStripDensityService service;
+    for (uint64_t i = 1; i <= 20; ++i) {
+        CHECK(service.addTab(TabSpec{.id = i, .title = "Tab " + std::to_string(i)}).valid);
+    }
+
+    // 1. Cancelación pre-activada
+    CancellationToken preCancelled;
+    preCancelled.requestCancellation();
+    const auto report = service.computeLayout(&preCancelled);
+    CHECK(!report.valid);
+    CHECK(report.message.find("cancelado") != std::string::npos);
+
+    // 2. Cancelación en persistencia
+    const auto tempPath = createTempFilePath("cancel_test");
+    CHECK(!service.saveStateToFile(tempPath, &preCancelled));
+    CHECK(!std::filesystem::exists(tempPath));
+
+    // 3. Cancelación asíncrona concurrente desde otro hilo
+    CancellationToken asyncCancel;
+    std::thread cancelThread([&asyncCancel]() {
+        std::this_thread::sleep_for(std::chrono::microseconds(50));
+        asyncCancel.requestCancellation();
+    });
+
+    for (int i = 0; i < 50; ++i) {
+        (void)service.computeLayout(&asyncCancel);
+    }
+    cancelThread.join();
+
+    CHECK(service.tabCount() == 20);
+    CHECK(service.plan().tabs.size() == 20);
+}
+
+// TEST-TSS-021: Fuzzing de archivos de persistencia corruptos y recuperación (TASK-010)
+void testCorruptedPersistenceFuzzingAndRecovery() {
+    const std::vector<std::string> corruptedContents = {
+        "",
+        "{ \"density\": \"senior\", \"available_wid",
+        "{ invalid json syntax: 123 }",
+        "\"a string instead of object\"",
+        "{ \"density\": 9999, \"tabs\": false }",
+        "{ \"available_width\": -500, \"tabs\": [] }",
+        "{ \"tabs\": [ { \"id\": \"not_a_number\" } ] }"};
+
+    for (std::size_t idx = 0; idx < corruptedContents.size(); ++idx) {
+        const auto tempPath = createTempFilePath("fuzz_" + std::to_string(idx));
+        {
+            std::ofstream out(tempPath);
+            out << corruptedContents[idx];
+        }
+
+        TabStripDensityService service;
+        CHECK(service.addTab(TabSpec{.id = 1, .title = "Pre-load tab"}).valid);
+        CHECK(!service.loadStateFromFile(tempPath));
+        CHECK(service.config().density == LayoutDensity::Default);
+        CHECK(service.tabCount() == 0);
+        CHECK(service.availableWidth() == 1000);
+
+        std::error_code ec;
+        std::filesystem::remove(tempPath, ec);
+    }
+
+    TabStripDensityService missingService;
+    CHECK(!missingService.loadStateFromFile("/path/does/not/exist_12345.json"));
+    CHECK(missingService.config().density == LayoutDensity::Default);
+}
+
+// TEST-TSS-022: Manejo de fallos de E/S de disco y permisos denegados (TASK-011)
+void testDiskIoFailureHandling() {
+    const auto tempDir = std::filesystem::temp_directory_path() /
+                         ("vigilio_ro_dir_" +
+                          std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    std::error_code ec;
+    std::filesystem::create_directories(tempDir, ec);
+
+    std::filesystem::permissions(tempDir,
+                                 std::filesystem::perms::owner_read | std::filesystem::perms::owner_exec,
+                                 std::filesystem::perm_options::replace, ec);
+
+    TabStripDensityService service;
+    CHECK(service.addTab(TabSpec{.id = 1, .title = "Tab IO Fail"}).valid);
+
+    const auto targetFile = tempDir / "state.json";
+    const bool saved = service.saveStateToFile(targetFile);
+    CHECK(!saved);
+
+    std::filesystem::permissions(tempDir, std::filesystem::perms::all,
+                                 std::filesystem::perm_options::replace, ec);
+    std::filesystem::remove_all(tempDir, ec);
+
+    CHECK(!service.saveStateToFile(""));
+}
+
+// TEST-TSS-023: Aislamiento estricto de privacidad en modo incógnito (TASK-012)
+void testIncognitoStrictPrivacyIsolation() {
+    TabStripDensityService service;
+    service.setIncognitoMode(true);
+    CHECK(service.isIncognitoMode());
+
+    CHECK(service.addTab(TabSpec{.id = 1, .title = "Pestaña Secreta"}).valid);
+    const auto secretPath = createTempFilePath("incognito_leak_test");
+
+    CHECK(!service.saveStateToFile(secretPath));
+    CHECK(!std::filesystem::exists(secretPath));
+    CHECK(!service.loadStateFromFile(secretPath));
+
+    {
+        std::ofstream out(secretPath);
+        out << "{\"available_width\": 1000}";
+    }
+    CHECK(!service.loadStateFromFile(secretPath));
+    std::error_code ec;
+    std::filesystem::remove(secretPath, ec);
+}
+
+// TEST-TSS-024: Mutaciones masivas de pestañas en ráfaga (50 adiciones y eliminaciones) (TASK-013)
+void testContinuousTabMutationsBurst() {
+    TabStripDensityService service;
+
+    for (uint64_t i = 1; i <= 50; ++i) {
+        CHECK(service
+                  .addTab(TabSpec{
+                      .id = i, .title = "Burst Tab " + std::to_string(i), .isSelected = (i == 1)})
+                  .valid);
+        CHECK(service.tabCount() == i);
+    }
+
+    CHECK(service.selectedTabId() == 1);
+
+    for (uint64_t i = 1; i <= 25; ++i) {
+        CHECK(service.removeTab(i).valid);
+        CHECK(service.tabCount() == 50 - i);
+    }
+
+    CHECK(service.selectedTabId().has_value());
+    CHECK(service.tabCount() == 25);
+
+    for (uint64_t i = 26; i <= 50; ++i) {
+        CHECK(service.removeTab(i).valid);
+    }
+    CHECK(service.tabCount() == 0);
+    CHECK(!service.selectedTabId().has_value());
+}
+
 } // namespace
 
 int main() {
@@ -396,7 +627,14 @@ int main() {
         test_service_incognito_isolation();
         test_service_public_copy_audit();
 
-        std::cout << "All 18 TabStripDensityService tests passed successfully!\n";
+        testMultiThreadedHighStressConcurrency16Threads();
+        testCooperativeCancellationStress();
+        testCorruptedPersistenceFuzzingAndRecovery();
+        testDiskIoFailureHandling();
+        testIncognitoStrictPrivacyIsolation();
+        testContinuousTabMutationsBurst();
+
+        std::cout << "All 24 TabStripDensityService tests passed successfully!\n";
         return 0;
     } catch (const std::exception& e) {
         std::cerr << "TabStripDensityServiceTests FAILED: " << e.what() << "\n";
