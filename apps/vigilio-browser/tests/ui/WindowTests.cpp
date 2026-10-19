@@ -24,6 +24,10 @@
 #include "core/MainWindowLayoutTypes.h"
 #include "core/MainWindowLayoutValidator.h"
 #include "core/SessionFile.h"
+#include "core/TabStripDensityConfiguration.h"
+#include "core/TabStripDensityService.h"
+#include "core/TabStripDensityTypes.h"
+#include "core/TabStripDensityValidator.h"
 #include "core/TestFixtureFoundation.h"
 #include "core/TestFixtureService.h"
 #include "core/TestFixtureValidator.h"
@@ -369,6 +373,98 @@ int main(int argc, char** argv) {
         window.setWindowState(Qt::WindowNoState);
         QWindowStateChangeEvent restoreEv(Qt::WindowMaximized);
         QApplication::sendEvent(&window, &restoreEv);
+    }
+
+    // Tab strip density integration tests (TASK-008, TASK-009, TASK-010, TASK-011)
+    {
+        // TASK-008: Presence and non-null initialization of tab strip components
+        UI_CHECK(window.tabStripDensityService() != nullptr,
+                 "window.tabStripDensityService() must not be null");
+        UI_CHECK(window.tabWidget() != nullptr, "window.tabWidget() must not be null");
+        UI_CHECK(window.tabBar() != nullptr, "window.tabBar() must not be null");
+        UI_CHECK(window.tabNewButton() != nullptr, "window.tabNewButton() must not be null");
+        UI_CHECK(window.findChild<QWidget*>("vigilio-tabs") != nullptr,
+                 "Window must contain vigilio-tabs");
+        UI_CHECK(window.findChild<QPushButton*>("vigilio-tab-new-button") != nullptr,
+                 "Window must contain vigilio-tab-new-button");
+
+        // TASK-009: Canonical dimensions and adaptation to «Interfaz más fácil de usar»
+        UI_CHECK(window.tabStripDensityService()->plan().height == 36,
+                 "Standard tab strip height must be 36 px");
+        UI_CHECK(window.tabBar()->height() >= 36 || window.tabBar()->minimumHeight() >= 36,
+                 "Standard tabBar height must be at least 36 px");
+
+        window.setSeniorMode(true);
+        UI_CHECK(window.tabStripDensityService()->plan().height == 48,
+                 "Senior tab strip height must be 48 px");
+        UI_CHECK(window.tabBar()->height() >= 48 || window.tabBar()->minimumHeight() >= 48,
+                 "Senior tabBar height must be at least 48 px");
+
+        // TASK-010: Accessible tap target dimensions >= 48x48 px for new tab button
+        UI_CHECK(window.tabNewButton()->minimumHeight() >= 48,
+                 "Senior tabNewButton minimum height must be >= 48");
+        UI_CHECK(window.tabNewButton()->minimumWidth() >= 48,
+                 "Senior tabNewButton minimum width must be >= 48");
+        UI_CHECK(window.tabNewButton()->focusPolicy() != Qt::NoFocus,
+                 "tabNewButton must accept keyboard focus");
+
+        // TASK-011: Window resize synchronization and public copy audit
+        const QSize targetSize(1400, 850);
+        QResizeEvent resizeEv(targetSize, window.size());
+        window.resize(targetSize);
+        QApplication::sendEvent(&window, &resizeEv);
+        UI_CHECK(window.tabStripDensityService()->availableWidth() == 1400,
+                 "tabStripDensityService availableWidth must synchronize on resizeEvent");
+
+        // Audit absence of forbidden internal engineering terms on tab strip widgets and buttons
+        UI_CHECK(window.tabNewButton()->accessibleName().toStdString().find("Senior Mode") ==
+                     std::string::npos,
+                 "tabNewButton accessibleName must not contain Senior Mode");
+        UI_CHECK(window.tabNewButton()->accessibleName().toStdString().find("Modo Senior") ==
+                     std::string::npos,
+                 "tabNewButton accessibleName must not contain Modo Senior");
+        UI_CHECK(window.tabNewButton()->accessibleName().toStdString().find("Prompt Builder") ==
+                     std::string::npos,
+                 "tabNewButton accessibleName must not contain Prompt Builder");
+        UI_CHECK(window.tabNewButton()->accessibleName().toStdString().find("OpenSpec") ==
+                     std::string::npos,
+                 "tabNewButton accessibleName must not contain OpenSpec");
+        UI_CHECK(window.tabNewButton()->accessibleName().toStdString().find("DAG") == std::string::npos,
+                 "tabNewButton accessibleName must not contain DAG");
+        UI_CHECK(window.tabNewButton()->accessibleName().toStdString().find("Linter") ==
+                     std::string::npos,
+                 "tabNewButton accessibleName must not contain Linter");
+
+        UI_CHECK(window.tabNewButton()->toolTip().toStdString().find("Senior Mode") == std::string::npos,
+                 "tabNewButton toolTip must not contain Senior Mode");
+        UI_CHECK(window.tabNewButton()->toolTip().toStdString().find("Modo Senior") == std::string::npos,
+                 "tabNewButton toolTip must not contain Modo Senior");
+        UI_CHECK(window.tabNewButton()->toolTip().toStdString().find("Prompt Builder") ==
+                     std::string::npos,
+                 "tabNewButton toolTip must not contain Prompt Builder");
+        UI_CHECK(window.tabNewButton()->toolTip().toStdString().find("OpenSpec") == std::string::npos,
+                 "tabNewButton toolTip must not contain OpenSpec");
+        UI_CHECK(window.tabNewButton()->toolTip().toStdString().find("DAG") == std::string::npos,
+                 "tabNewButton toolTip must not contain DAG");
+        UI_CHECK(window.tabNewButton()->toolTip().toStdString().find("Linter") == std::string::npos,
+                 "tabNewButton toolTip must not contain Linter");
+
+        const auto summaryStr = vigilio::TabStripDensityService::formatTabStripSummary(
+            window.tabStripDensityService()->plan(), {});
+        UI_CHECK(summaryStr.find("Senior Mode") == std::string::npos,
+                 "tabStripDensityService summary must not contain Senior Mode");
+        UI_CHECK(summaryStr.find("Modo Senior") == std::string::npos,
+                 "tabStripDensityService summary must not contain Modo Senior");
+        UI_CHECK(summaryStr.find("Prompt Builder") == std::string::npos,
+                 "tabStripDensityService summary must not contain Prompt Builder");
+        UI_CHECK(summaryStr.find("OpenSpec") == std::string::npos,
+                 "tabStripDensityService summary must not contain OpenSpec");
+        UI_CHECK(summaryStr.find("DAG") == std::string::npos,
+                 "tabStripDensityService summary must not contain 'DAG'");
+        UI_CHECK(summaryStr.find("Linter") == std::string::npos,
+                 "tabStripDensityService summary must not contain 'Linter'");
+
+        window.setSeniorMode(false);
     }
 
     // testStartupSafeModeBanner
@@ -1905,6 +2001,61 @@ int main(int argc, char** argv) {
                          "Public button tooltip must not contain 'Linter'");
             }
         }
+
+        // 15. TabStripDensity quality governance and public copy audit
+        const std::vector<vigilio::TabStripDensityError> sampleTabErrors = {
+            vigilio::TabStripDensityError::None,
+            vigilio::TabStripDensityError::DimensionsBelowMinimum,
+            vigilio::TabStripDensityError::TabsOverflowAvailableWidth,
+            vigilio::TabStripDensityError::ZeroAvailableWidth,
+            vigilio::TabStripDensityError::TabNotFound,
+            vigilio::TabStripDensityError::InvalidIndex,
+            vigilio::TabStripDensityError::InvalidDensityConfiguration,
+            vigilio::TabStripDensityError::OperationCancelled,
+            vigilio::TabStripDensityError::StatePersistenceFailed};
+        for (const auto& err : sampleTabErrors) {
+            const auto errStr = vigilio::TabStripDensityValidator::tabStripErrorToString(err);
+            UI_CHECK(errStr.find("Senior Mode") == std::string::npos,
+                     "Public tab strip error string must not contain forbidden senior mode term");
+            UI_CHECK(errStr.find("Modo Senior") == std::string::npos,
+                     "Public tab strip error string must not contain forbidden modo senior term");
+            UI_CHECK(errStr.find("Prompt Builder") == std::string::npos,
+                     "Public tab strip error string must not contain forbidden prompt builder term");
+            UI_CHECK(errStr.find("OpenSpec") == std::string::npos,
+                     "Public tab strip error string must not contain forbidden openspec term");
+            UI_CHECK(errStr.find("DAG") == std::string::npos,
+                     "Public tab strip error string must not contain 'DAG'");
+            UI_CHECK(errStr.find("Linter") == std::string::npos,
+                     "Public tab strip error string must not contain 'Linter'");
+
+            const auto hintStr = vigilio::TabStripDensityValidator::generateRemediationHint(err);
+            UI_CHECK(hintStr.find("Senior Mode") == std::string::npos,
+                     "Public tab strip remediation hint must not contain forbidden senior mode term");
+            UI_CHECK(hintStr.find("Modo Senior") == std::string::npos,
+                     "Public tab strip remediation hint must not contain forbidden modo senior term");
+            UI_CHECK(hintStr.find("Prompt Builder") == std::string::npos,
+                     "Public tab strip remediation hint must not contain forbidden prompt builder term");
+            UI_CHECK(hintStr.find("OpenSpec") == std::string::npos,
+                     "Public tab strip remediation hint must not contain forbidden openspec term");
+            UI_CHECK(hintStr.find("DAG") == std::string::npos,
+                     "Public tab strip remediation hint must not contain 'DAG'");
+            UI_CHECK(hintStr.find("Linter") == std::string::npos,
+                     "Public tab strip remediation hint must not contain 'Linter'");
+        }
+
+        const auto newTabLabel = vigilio::TabStripDensityValidator::newTabButtonAccessibleLabel();
+        UI_CHECK(newTabLabel.find("Senior Mode") == std::string::npos,
+                 "Public new tab label must not contain forbidden senior mode term");
+        UI_CHECK(newTabLabel.find("Modo Senior") == std::string::npos,
+                 "Public new tab label must not contain forbidden modo senior term");
+        UI_CHECK(newTabLabel.find("Prompt Builder") == std::string::npos,
+                 "Public new tab label must not contain forbidden prompt builder term");
+        UI_CHECK(newTabLabel.find("OpenSpec") == std::string::npos,
+                 "Public new tab label must not contain forbidden openspec term");
+        UI_CHECK(newTabLabel.find("DAG") == std::string::npos,
+                 "Public new tab label must not contain 'DAG'");
+        UI_CHECK(newTabLabel.find("Linter") == std::string::npos,
+                 "Public new tab label must not contain 'Linter'");
     }
 
     std::cout << "UI interaction tests: PASS\n";

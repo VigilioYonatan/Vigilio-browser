@@ -1,5 +1,9 @@
 #include "ui/BrowserWindow.h"
 #include "core/ResourceInclusionService.h"
+#include "core/TabStripDensityConfiguration.h"
+#include "core/TabStripDensityService.h"
+#include "core/TabStripDensityTypes.h"
+#include "core/TabStripDensityValidator.h"
 #include "core/TitleBarConfiguration.h"
 #include "core/TitleBarService.h"
 #include "core/TitleBarTypes.h"
@@ -136,6 +140,7 @@ BrowserWindow::BrowserWindow(const vigilio::StartupCommandLine& cmdLine,
 
     setupLayoutService(report);
     setupTitleBar(report);
+    setupTabStrip(report);
     setupUi();
     setupStartupVisuals(cmdLine, report);
     setupCrashRecovery(cmdLine, report);
@@ -333,6 +338,107 @@ void BrowserWindow::updateTitleBarWindowState() {
     }
 }
 
+void BrowserWindow::setupTabStrip(const vigilio::StartupDiagnosticReport& report) {
+    QSettings settings;
+    const bool seniorPref = settings.value("accessibility/senior", false).toBool();
+    const auto initialPlan = seniorPref
+                                 ? vigilio::TabStripDensityConfiguration::canonicalSeniorDensity()
+                                 : vigilio::TabStripDensityConfiguration::canonicalDefaultDensity();
+
+    vigilio::TabStripDensityServiceOptions tabStripOptions;
+    tabStripOptions.isIncognitoSession = isIncognito_;
+    tabStripOptions.enablePersistence = !isIncognito_;
+    if (!report.storagePath.empty()) {
+        tabStripOptions.stateFilePath =
+            std::filesystem::path(report.storagePath) / "tab_strip_state.json";
+    } else {
+        tabStripOptions.stateFilePath =
+            std::filesystem::path(profileLocation().toStdString()) / "tab_strip_state.json";
+    }
+
+    tabStripDensityService_ =
+        std::make_unique<vigilio::TabStripDensityService>(initialPlan, tabStripOptions);
+    tabStripDensityService_->setIncognitoMode(isIncognito_);
+    tabStripDensityService_->setTabStripChangedCallback(
+        [this](const vigilio::TabStripDensityPlan& plan,
+               const vigilio::TabStripDensityReport& /*report*/) { applyTabStripDensityPlan(plan); });
+}
+
+QTabBar* BrowserWindow::tabBar() const noexcept {
+    return tabs_ ? tabs_->tabBar() : nullptr;
+}
+
+void BrowserWindow::applyTabStripDensityPlan(const vigilio::TabStripDensityPlan& plan) {
+    if (!tabs_) {
+        return;
+    }
+
+    if (auto* bar = tabs_->tabBar()) {
+        bar->setFixedHeight(plan.height);
+    }
+
+    if (tabNewButton_) {
+        const int btnDim = (plan.density == vigilio::LayoutDensity::Senior)
+                               ? 48
+                               : (plan.density == vigilio::LayoutDensity::Compact ? 24 : 28);
+        tabNewButton_->setMinimumSize(btnDim, btnDim);
+        if (plan.density == vigilio::LayoutDensity::Senior) {
+            tabNewButton_->resize(btnDim, btnDim);
+        }
+        const QString newTabAccessible =
+            QString::fromStdString(vigilio::TabStripDensityValidator::newTabButtonAccessibleLabel());
+        tabNewButton_->setAccessibleName(newTabAccessible);
+        tabNewButton_->setToolTip(newTabAccessible);
+    }
+
+    if (auto* bar = tabs_->tabBar()) {
+        const int count = tabs_->count();
+        const int currentIdx = tabs_->currentIndex();
+        for (int i = 0; i < count; ++i) {
+            vigilio::TabSpec spec;
+            spec.id = static_cast<uint64_t>(i + 1);
+            spec.title = tabs_->tabText(i).toStdString();
+            spec.isSelected = (i == currentIdx);
+            const QString tip = QString::fromStdString(
+                vigilio::TabStripDensityValidator::tabTooltip(spec, spec.isSelected));
+            bar->setTabToolTip(i, tip);
+        }
+    }
+}
+
+void BrowserWindow::syncTabsToService() {
+    if (!tabStripDensityService_ || !tabs_) {
+        return;
+    }
+    const int count = tabs_->count();
+    const int currentIdx = tabs_->currentIndex();
+
+    while (tabStripDensityService_->tabCount() > static_cast<size_t>(count)) {
+        auto t = tabStripDensityService_->tabs().back();
+        tabStripDensityService_->removeTab(t.id);
+    }
+    for (int i = 0; i < count; ++i) {
+        const uint64_t tabId = static_cast<uint64_t>(i + 1);
+        const std::string title = tabs_->tabText(i).toStdString();
+        auto existing = tabStripDensityService_->tab(tabId);
+        if (!existing.has_value()) {
+            vigilio::TabSpec spec;
+            spec.id = tabId;
+            spec.title = title;
+            spec.isSelected = (i == currentIdx);
+            tabStripDensityService_->addTab(spec);
+        } else {
+            tabStripDensityService_->updateTabTitle(tabId, title);
+            if (i == currentIdx) {
+                tabStripDensityService_->selectTab(tabId);
+            }
+        }
+    }
+    if (currentIdx >= 0) {
+        tabStripDensityService_->selectTab(static_cast<uint64_t>(currentIdx + 1));
+    }
+}
+
 void BrowserWindow::changeEvent(QEvent* event) {
     QMainWindow::changeEvent(event);
     if (!event) {
@@ -407,6 +513,9 @@ void BrowserWindow::resizeEvent(QResizeEvent* event) {
     }
     if (titleBarService_) {
         titleBarService_->setWindowWidth(width());
+    }
+    if (tabStripDensityService_) {
+        tabStripDensityService_->setAvailableWidth(width());
     }
 }
 
@@ -651,12 +760,28 @@ void BrowserWindow::setupUi() {
     tabs_->setTabsClosable(true);
     tabs_->setMovable(true);
     tabs_->setDocumentMode(true);
+
+    tabNewButton_ = new QPushButton(tabs_);
+    tabNewButton_->setObjectName("vigilio-tab-new-button");
+    tabNewButton_->setIcon(makeResourceIcon("icons/navigation/add.svg"));
+    if (tabNewButton_->icon().isNull()) {
+        tabNewButton_->setText("+");
+    }
+    const QString newTabAccessible =
+        QString::fromStdString(vigilio::TabStripDensityValidator::newTabButtonAccessibleLabel());
+    tabNewButton_->setAccessibleName(newTabAccessible);
+    tabNewButton_->setToolTip(newTabAccessible);
+    tabNewButton_->setFocusPolicy(Qt::StrongFocus);
+    connect(tabNewButton_, &QPushButton::clicked, this, [this]() { openTab(); });
+    tabs_->setCornerWidget(tabNewButton_, Qt::TopRightCorner);
+
     mainLayout->addWidget(tabs_);
 
     rootLayout->addWidget(mainContainer_, 1);
     setCentralWidget(central);
     connect(tabs_, &QTabWidget::currentChanged, this, [this](int index) {
         refreshAddressBar();
+        syncTabsToService();
         QTimer::singleShot(0, this, [this, index]() { activateDeferredTab(index); });
     });
     connect(tabs_, &QTabWidget::tabCloseRequested, this, [this](int index) { closeTab(index); });
@@ -664,6 +789,10 @@ void BrowserWindow::setupUi() {
     bar->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(bar, &QWidget::customContextMenuRequested, this,
             [this](const QPoint& p) { makeTabMenu(p); });
+
+    if (tabStripDensityService_) {
+        applyTabStripDensityPlan(tabStripDensityService_->plan());
+    }
 
     toolbar_ = addToolBar("Navegación");
     toolbar_->setMovable(false);
@@ -1286,11 +1415,13 @@ void BrowserWindow::openTab(const QUrl& url) {
     if (url.isEmpty()) {
         const auto index = tabs_->addTab(newHomePage(), startTitle);
         tabs_->setCurrentIndex(index);
+        syncTabsToService();
         return;
     }
     auto* view = new QWebEngineView(tabs_);
     const int index = tabs_->addTab(view, "Cargando…");
     tabs_->setCurrentIndex(index);
+    syncTabsToService();
     connect(view, &QWebEngineView::titleChanged, this, [this, view](const QString& title) {
         int i = tabs_->indexOf(view);
         if (i >= 0) {
@@ -1415,6 +1546,7 @@ void BrowserWindow::closeTab(int index) {
     }
     tabs_->removeTab(index);
     widget->deleteLater();
+    syncTabsToService();
     if (tabs_->count() == 0) {
         openTab();
     }
@@ -1536,6 +1668,22 @@ void BrowserWindow::setSeniorMode(bool enabled) {
     if (titleBarService_) {
         titleBarService_->setDensity(enabled ? vigilio::LayoutDensity::Senior
                                              : vigilio::LayoutDensity::Default);
+    }
+    if (tabStripDensityService_) {
+        tabStripDensityService_->setDensity(enabled ? vigilio::LayoutDensity::Senior
+                                                    : vigilio::LayoutDensity::Default);
+    }
+    if (tabs_ && tabs_->tabBar()) {
+        tabs_->tabBar()->setFixedHeight(
+            enabled ? vigilio::TabStripDensityConfiguration::kSeniorTabStripHeight
+                    : vigilio::TabStripDensityConfiguration::kDefaultTabStripHeight);
+    }
+    if (tabNewButton_) {
+        tabNewButton_->setMinimumHeight(enabled ? 48 : 28);
+        tabNewButton_->setMinimumWidth(enabled ? 48 : 28);
+        if (enabled) {
+            tabNewButton_->resize(48, 48);
+        }
     }
     if (titleBarWidget_) {
         titleBarWidget_->setFixedHeight(enabled
@@ -1663,9 +1811,19 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QLineEdit,QTabWidget::pane{background:#222D3E;color:#FFFFFF;border:"
               "1px solid #394557;border-radius:7px;}"
               "QLineEdit:focus{border:2px solid #3B82F6;}"
-              "QTabBar::tab{background:#1C2839;color:#E8ECF3;padding:8px 12px;}"
-              "QTabBar::tab:selected{background:#33435A;}"
-              "QTabBar::tab:focus{border:2px solid #3B82F6;}"
+              "QTabWidget#vigilio-tabs{background:#141D2B;border:none;}"
+              "QTabWidget#vigilio-tabs "
+              "QTabBar::tab,QTabBar::tab{background:#1C2839;color:#E8ECF3;padding:8px 12px;}"
+              "QTabWidget#vigilio-tabs "
+              "QTabBar::tab:selected,QTabBar::tab:selected{background:#33435A;color:#FFFFFF;}"
+              "QTabWidget#vigilio-tabs QTabBar::tab:hover,QTabBar::tab:hover{background:#25344C;}"
+              "QTabWidget#vigilio-tabs QTabBar::tab:focus,QTabBar::tab:focus{border:2px solid "
+              "#3B82F6;outline:none;}"
+              "QPushButton#vigilio-tab-new-button{background:transparent;color:#E9EDF5;border:none;"
+              "border-radius:4px;font-size:16px;}"
+              "QPushButton#vigilio-tab-new-button:hover{background:#25344C;}"
+              "QPushButton#vigilio-tab-new-button:focus{border:2px solid #3B82F6;outline:none;}"
+              "QPushButton#vigilio-tab-new-button:pressed{background:#33435A;}"
               "QToolBar{background:#182334;spacing:8px;border:0;}"
               "QMenu{background:#1A2637;color:#FFFFFF;border:1px solid #40516A;}"
               "QMenu::item:selected{background:#294F89;}"
@@ -1754,9 +1912,19 @@ void BrowserWindow::setDarkTheme(bool enabled) {
               "QLineEdit,QTabWidget::pane{background:#FFFFFF;color:#192538;border:"
               "1px solid #D9E0EA;border-radius:7px;}"
               "QLineEdit:focus{border:2px solid #2563EB;}"
-              "QTabBar::tab{background:#E9EEF6;color:#192538;padding:8px 12px;}"
-              "QTabBar::tab:selected{background:#FFFFFF;}"
-              "QTabBar::tab:focus{border:2px solid #2563EB;}"
+              "QTabWidget#vigilio-tabs{background:#F7F9FC;border:none;}"
+              "QTabWidget#vigilio-tabs "
+              "QTabBar::tab,QTabBar::tab{background:#E9EEF6;color:#192538;padding:8px 12px;}"
+              "QTabWidget#vigilio-tabs "
+              "QTabBar::tab:selected,QTabBar::tab:selected{background:#FFFFFF;color:#192538;}"
+              "QTabWidget#vigilio-tabs QTabBar::tab:hover,QTabBar::tab:hover{background:#DCE9FA;}"
+              "QTabWidget#vigilio-tabs QTabBar::tab:focus,QTabBar::tab:focus{border:2px solid "
+              "#2563EB;outline:none;}"
+              "QPushButton#vigilio-tab-new-button{background:transparent;color:#192538;border:none;"
+              "border-radius:4px;font-size:16px;}"
+              "QPushButton#vigilio-tab-new-button:hover{background:#E9EEF6;}"
+              "QPushButton#vigilio-tab-new-button:focus{border:2px solid #2563EB;outline:none;}"
+              "QPushButton#vigilio-tab-new-button:pressed{background:#DCE9FA;}"
               "QToolBar{background:#F3F6FB;spacing:8px;border:0;}"
               "QMenu{background:#FFFFFF;color:#192538;border:1px solid #D9E0EA;}"
               "QMenu::item:selected{background:#DCE9FA;}"

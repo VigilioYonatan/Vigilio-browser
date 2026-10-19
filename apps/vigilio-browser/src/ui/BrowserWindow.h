@@ -5,6 +5,9 @@
 #include "core/MainWindowLayoutService.h"
 #include "core/MainWindowLayoutTypes.h"
 #include "core/StartupTypes.h"
+#include "core/TabStripDensityConfiguration.h"
+#include "core/TabStripDensityService.h"
+#include "core/TabStripDensityTypes.h"
 #include "core/TitleBarConfiguration.h"
 #include "core/TitleBarService.h"
 #include "core/TitleBarTypes.h"
@@ -19,6 +22,7 @@
 class QEvent;
 class QLabel;
 class QLineEdit;
+class QTabBar;
 class QTabWidget;
 class QTimer;
 class QToolBar;
@@ -95,6 +99,17 @@ class BrowserWindow final : public QMainWindow {
         return titleBarSeniorToggleBtn_;
     }
 
+    [[nodiscard]] vigilio::TabStripDensityService* tabStripDensityService() const noexcept {
+        return tabStripDensityService_.get();
+    }
+    [[nodiscard]] QTabWidget* tabWidget() const noexcept {
+        return tabs_;
+    }
+    [[nodiscard]] QTabBar* tabBar() const noexcept;
+    [[nodiscard]] QPushButton* tabNewButton() const noexcept {
+        return tabNewButton_;
+    }
+
   protected:
     void closeEvent(QCloseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
@@ -105,9 +120,12 @@ class BrowserWindow final : public QMainWindow {
     void setupUi();
     void setupLayoutService(const vigilio::StartupDiagnosticReport& report);
     void setupTitleBar(const vigilio::StartupDiagnosticReport& report);
+    void setupTabStrip(const vigilio::StartupDiagnosticReport& report);
     void setupSidebar();
     void applyLayoutPlan(const vigilio::MainWindowLayoutPlan& plan);
     void applyTitleBarPlan(const vigilio::TitleBarLayoutPlan& plan);
+    void applyTabStripDensityPlan(const vigilio::TabStripDensityPlan& plan);
+    void syncTabsToService();
     void updateTitleBarWindowState();
     void setupStartupVisuals(const vigilio::StartupCommandLine& cmdLine,
                              const vigilio::StartupDiagnosticReport& report);
@@ -141,6 +159,7 @@ class BrowserWindow final : public QMainWindow {
     std::unique_ptr<vigilio::CrashRecoveryService> crashRecoveryService_;
     std::unique_ptr<vigilio::MainWindowLayoutService> layoutService_;
     std::unique_ptr<vigilio::TitleBarService> titleBarService_;
+    std::unique_ptr<vigilio::TabStripDensityService> tabStripDensityService_;
     QFrame* titleBarWidget_{nullptr};
     QLabel* titleBarIcon_{nullptr};
     QLabel* titleBarTitle_{nullptr};
@@ -165,6 +184,7 @@ class BrowserWindow final : public QMainWindow {
 
     std::unique_ptr<vigilio::LocalRepository> db_;
     QTabWidget* tabs_{nullptr};
+    QPushButton* tabNewButton_{nullptr};
     QLineEdit* address_{nullptr};
     QToolBar* toolbar_{nullptr};
     QAction* backAction_{nullptr};
