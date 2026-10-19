@@ -416,6 +416,361 @@ void test_ci_linux_service_ux_copy_public_compliance() {
     checkNoProhibitedTerms(CiLinuxJobService::formatStepSummary(sampleResult));
 }
 
+// TEST-CI-LINUX-SRV-013: test_ci_linux_service_massive_multithreading_concurrency (TASK-005)
+void test_ci_linux_service_massive_multithreading_concurrency() {
+    CiLinuxJobService service;
+    std::atomic<bool> startFlag{false};
+    std::atomic<int> completedWorkers{0};
+    constexpr int totalThreads = 16;
+    std::vector<std::thread> workers;
+    workers.reserve(totalThreads);
+
+    // 8 hilos ejecutando executePlan en modo DryRun
+    for (int i = 0; i < 8; ++i) {
+        workers.emplace_back([&]() {
+            while (!startFlag.load(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
+            for (int it = 0; it < 5; ++it) {
+                auto rep = service.executePlan();
+                CHECK(rep.isPassed() || rep.status == CiLinuxJobStatus::Passed);
+            }
+            completedWorkers.fetch_add(1, std::memory_order_release);
+        });
+    }
+
+    // 4 hilos ejecutando executeStep de etapas heterogéneas
+    const std::vector<CiLinuxPipelineStep> testSteps = {
+        CiLinuxPipelineStep::EnvironmentCheck, CiLinuxPipelineStep::ConfigurePreset,
+        CiLinuxPipelineStep::BuildCompilation, CiLinuxPipelineStep::TestSuiteExecution};
+    for (int i = 0; i < 4; ++i) {
+        const auto step = testSteps[static_cast<std::size_t>(i)];
+        workers.emplace_back([&, step]() {
+            while (!startFlag.load(std::memory_order_acquire)) {
+                std::this_thread::yield();
+            }
+            for (int it = 0; it < 5; ++it) {
+                auto res = service.executeStep(step);
+                CHECK(res.step == step);
+                CHECK(res.status == CiLinuxStepStatus::Success);
+            }
+            completedWorkers.fetch_add(1, std::memory_order_release);
+        });
+    }
+
+    // 4 hilos realizando lecturas y actualizaciones protegidas por mutex
+    workers.emplace_back([&]() {
+        while (!startFlag.load(std::memory_order_acquire)) {
+            std::this_thread::yield();
+        }
+        for (int it = 0; it < 10; ++it) {
+            auto p = service.plan();
+            CHECK(!p.presetName.empty());
+        }
+        completedWorkers.fetch_add(1, std::memory_order_release);
+    });
+
+    workers.emplace_back([&]() {
+        while (!startFlag.load(std::memory_order_acquire)) {
+            std::this_thread::yield();
+        }
+        for (int it = 0; it < 10; ++it) {
+            auto opts = service.options();
+            CHECK(opts.maxRetries > 0);
+        }
+        completedWorkers.fetch_add(1, std::memory_order_release);
+    });
+
+    workers.emplace_back([&]() {
+        while (!startFlag.load(std::memory_order_acquire)) {
+            std::this_thread::yield();
+        }
+        const auto debugPlan = CiLinuxJobConfiguration::canonicalDebugPlan();
+        const auto releasePlan = CiLinuxJobConfiguration::canonicalReleasePlan();
+        for (int it = 0; it < 5; ++it) {
+            service.setPlan(releasePlan);
+            service.setPlan(debugPlan);
+        }
+        completedWorkers.fetch_add(1, std::memory_order_release);
+    });
+
+    workers.emplace_back([&]() {
+        while (!startFlag.load(std::memory_order_acquire)) {
+            std::this_thread::yield();
+        }
+        CiLinuxServiceOptions opts1;
+        opts1.mode = CiLinuxExecutionMode::DryRun;
+        opts1.maxRetries = 3;
+        CiLinuxServiceOptions opts2;
+        opts2.mode = CiLinuxExecutionMode::DryRun;
+        opts2.maxRetries = 2;
+        for (int it = 0; it < 5; ++it) {
+            service.setOptions(opts1);
+            service.setOptions(opts2);
+        }
+        completedWorkers.fetch_add(1, std::memory_order_release);
+    });
+
+    // Iniciar simultáneamente los 16 hilos
+    startFlag.store(true, std::memory_order_release);
+
+    for (auto& w : workers) {
+        w.join();
+    }
+
+    CHECK(completedWorkers.load(std::memory_order_acquire) == totalThreads);
+}
+
+// TEST-CI-LINUX-SRV-014: test_ci_linux_service_cooperative_cancellation_stress (TASK-006)
+void test_ci_linux_service_cooperative_cancellation_stress() {
+    CiLinuxJobService service;
+    auto plan = CiLinuxJobConfiguration::canonicalReleasePlan();
+    service.setPlan(plan);
+
+    CiLinuxServiceOptions opts;
+    opts.mode = CiLinuxExecutionMode::Simulated;
+    service.setOptions(opts);
+
+    for (int iter = 0; iter < 4; ++iter) {
+        CancellationToken cancelToken;
+        std::atomic<bool> threadStarted{false};
+        CiLinuxJobReport report;
+
+        std::thread worker([&]() {
+            threadStarted.store(true, std::memory_order_release);
+            report = service.executePlan(&cancelToken);
+        });
+
+        while (!threadStarted.load(std::memory_order_acquire)) {
+            std::this_thread::yield();
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(iter * 3 + 2));
+        cancelToken.requestCancellation();
+
+        worker.join();
+
+        CHECK(report.status == CiLinuxJobStatus::Cancelled);
+        CHECK(!report.isPassed());
+        CHECK(cancelToken.isCancelled());
+
+        bool hasOmitted = false;
+        for (const auto& stepRes : report.stepResults) {
+            if (stepRes.status == CiLinuxStepStatus::Omitted) {
+                hasOmitted = true;
+                break;
+            }
+        }
+        CHECK(hasOmitted);
+    }
+
+    // Cancelación granular de executeStep
+    {
+        CancellationToken token;
+        token.requestCancellation();
+        auto stepRes = service.executeStep(CiLinuxPipelineStep::BuildCompilation, &token);
+        CHECK(stepRes.status == CiLinuxStepStatus::Omitted);
+        CHECK(!stepRes.isSuccess());
+    }
+}
+
+// TEST-CI-LINUX-SRV-015: test_ci_linux_service_permission_failure_injection (TASK-007)
+void test_ci_linux_service_permission_failure_injection() {
+    const std::filesystem::path permDir = "build-test-perm-dir";
+    std::error_code ec;
+    std::filesystem::remove_all(permDir, ec);
+
+    const auto subDir = permDir / "nested";
+    writeFile(subDir / "protected.bin", "permiso restringido");
+    CHECK(std::filesystem::exists(subDir / "protected.bin"));
+
+    std::filesystem::permissions(subDir, std::filesystem::perms::owner_read, ec);
+
+    auto plan = CiLinuxJobConfiguration::canonicalDebugPlan();
+    plan.buildDir = permDir;
+
+    CiLinuxJobService service(plan);
+    CiLinuxServiceOptions opts;
+    opts.maxRetries = 1;
+    opts.retryBackoffMs = 5;
+    service.setOptions(opts);
+
+    std::string errorMsg;
+    bool cleaned = service.cleanBuildDirectory(&errorMsg);
+
+    std::filesystem::permissions(subDir, std::filesystem::perms::all, ec);
+    std::filesystem::remove_all(permDir, ec);
+
+    if (!cleaned) {
+        CHECK(!errorMsg.empty());
+        CHECK(errorMsg.find("No fue posible limpiar") != std::string::npos);
+    }
+
+    plan.buildDir = "../traversal_injection";
+    service.setPlan(plan);
+    errorMsg.clear();
+    CHECK(!service.cleanBuildDirectory(&errorMsg));
+    CHECK(!errorMsg.empty());
+    CHECK(errorMsg.find("no segura") != std::string::npos);
+}
+
+// TEST-CI-LINUX-SRV-016: test_ci_linux_service_retry_backoff_transient (TASK-008)
+void test_ci_linux_service_retry_backoff_transient() {
+    const std::filesystem::path retryDir = "build-test-backoff-transient";
+    std::error_code ec;
+    std::filesystem::remove_all(retryDir, ec);
+
+    const auto subDir = retryDir / "sub";
+    writeFile(subDir / "transient.txt", "contención transitoria");
+    CHECK(std::filesystem::exists(subDir / "transient.txt"));
+
+    std::filesystem::permissions(subDir, std::filesystem::perms::none, ec);
+
+    auto plan = CiLinuxJobConfiguration::canonicalDebugPlan();
+    plan.buildDir = retryDir;
+
+    CiLinuxJobService service(plan);
+    CiLinuxServiceOptions opts;
+    opts.maxRetries = 4;
+    opts.retryBackoffMs = 15;
+    service.setOptions(opts);
+
+    CHECK(service.options().maxRetries == 4);
+    CHECK(service.options().retryBackoffMs == 15);
+
+    std::thread unblocker([&]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::error_code uec;
+        std::filesystem::permissions(subDir, std::filesystem::perms::all, uec);
+    });
+
+    std::string errorMsg;
+    bool cleaned = service.cleanBuildDirectory(&errorMsg);
+    unblocker.join();
+
+    std::filesystem::permissions(subDir, std::filesystem::perms::all, ec);
+    std::filesystem::remove_all(retryDir, ec);
+
+    CHECK(cleaned);
+    CHECK(!std::filesystem::exists(retryDir));
+}
+
+// TEST-CI-LINUX-SRV-017: test_ci_linux_service_fail_fast_vs_continue_on_error (TASK-009)
+void test_ci_linux_service_fail_fast_vs_continue_on_error() {
+    // Escenario 1: failFast == true, continueOnError == false
+    {
+        auto plan = CiLinuxJobConfiguration::canonicalDebugPlan();
+        plan.steps[1].command = "false";
+        plan.steps[1].name = "Formato con fallo";
+        plan.steps[1].options.continueOnError = false;
+        plan.failFast = true;
+
+        CiLinuxJobService service(plan);
+        CiLinuxServiceOptions opts;
+        opts.failFast = true;
+        service.setOptions(opts);
+
+        auto report = service.executePlan();
+        CHECK(report.status == CiLinuxJobStatus::Failed);
+        CHECK(!report.isPassed());
+        CHECK(report.stepResults.size() == 6);
+        CHECK(report.stepResults[0].status == CiLinuxStepStatus::Success);
+        CHECK(report.stepResults[1].status == CiLinuxStepStatus::Failure);
+        CHECK(report.successfulStepsCount() == 1);
+        CHECK(report.failedStepsCount() == 1);
+
+        for (std::size_t i = 2; i < 6; ++i) {
+            CHECK(report.stepResults[i].status == CiLinuxStepStatus::Omitted);
+        }
+    }
+
+    // Escenario 2: failFast == false, continueOnError == true en etapa no obligatoria
+    {
+        auto plan = CiLinuxJobConfiguration::canonicalDebugPlan();
+        plan.steps[1].command = "false";
+        plan.steps[1].name = "Formato no obligatorio con fallo";
+        plan.steps[1].isMandatory = false;
+        plan.steps[1].options.continueOnError = true;
+        plan.failFast = false;
+
+        CiLinuxJobService service(plan);
+        CiLinuxServiceOptions opts;
+        opts.failFast = false;
+        service.setOptions(opts);
+
+        auto report = service.executePlan();
+        CHECK(report.stepResults.size() == 6);
+        CHECK(report.stepResults[0].status == CiLinuxStepStatus::Success);
+        CHECK(report.stepResults[1].status == CiLinuxStepStatus::Failure);
+        CHECK(report.stepResults[2].status == CiLinuxStepStatus::Success);
+        CHECK(report.stepResults[3].status == CiLinuxStepStatus::Success);
+        CHECK(report.stepResults[4].status == CiLinuxStepStatus::Success);
+        CHECK(report.stepResults[5].status == CiLinuxStepStatus::Success);
+
+        CHECK(report.successfulStepsCount() == 5);
+        CHECK(report.failedStepsCount() == 1);
+        CHECK(report.isPassed());
+        CHECK(report.status == CiLinuxJobStatus::Passed);
+    }
+}
+
+// TEST-CI-LINUX-SRV-018: test_ci_linux_service_cli_synthesis_advanced (TASK-010)
+void test_ci_linux_service_cli_synthesis_advanced() {
+    CiLinuxJobPlan customPlan;
+    customPlan.presetName = "ci-linux-release-optimized";
+    customPlan.buildDir = "_build/nested/linux-ci";
+    customPlan.totalTimeoutSeconds = 1200;
+    customPlan.maxMemoryBytes = 4294967296ULL;
+    customPlan.failFast = true;
+
+    CiLinuxJobService service(customPlan);
+
+    // ConfigurePreset
+    CiLinuxStepDefinition stepConfig;
+    stepConfig.step = CiLinuxPipelineStep::ConfigurePreset;
+    const std::string configCli = service.buildCommandLine(stepConfig);
+    CHECK(configCli.find("cmake --preset ci-linux-release-optimized") != std::string::npos);
+    CHECK(configCli.find("-B _build/nested/linux-ci") != std::string::npos);
+
+    // BuildCompilation
+    CiLinuxStepDefinition stepBuild;
+    stepBuild.step = CiLinuxPipelineStep::BuildCompilation;
+    const std::string buildCli = service.buildCommandLine(stepBuild);
+    CHECK(buildCli.find("cmake --build _build/nested/linux-ci --parallel") != std::string::npos);
+
+    // TestSuiteExecution
+    CiLinuxStepDefinition stepTest;
+    stepTest.step = CiLinuxPipelineStep::TestSuiteExecution;
+    const std::string testCli = service.buildCommandLine(stepTest);
+    CHECK(testCli.find("ctest --test-dir _build/nested/linux-ci --output-on-failure -L fast") !=
+          std::string::npos);
+
+    // SanitizerVerification
+    CiLinuxStepDefinition stepSanitizer;
+    stepSanitizer.step = CiLinuxPipelineStep::SanitizerVerification;
+    const std::string sanitizerCli = service.buildCommandLine(stepSanitizer);
+    CHECK(
+        sanitizerCli.find("ctest --test-dir _build/nested/linux-ci --output-on-failure -L sanitizer") !=
+        std::string::npos);
+
+    // ArtifactPackaging
+    CiLinuxStepDefinition stepPack;
+    stepPack.step = CiLinuxPipelineStep::ArtifactPackaging;
+    const std::string packCli = service.buildCommandLine(stepPack);
+    CHECK(packCli.find("cpack --config _build/nested/linux-ci/CPackConfig.cmake") != std::string::npos);
+
+    // StaticAnalysis
+    CiLinuxStepDefinition stepStatic;
+    stepStatic.step = CiLinuxPipelineStep::StaticAnalysis;
+    const std::string staticCli = service.buildCommandLine(stepStatic);
+    CHECK(staticCli.find("clang-tidy -p _build/nested/linux-ci src/**/*.cpp") != std::string::npos);
+
+    // Paso con comando personalizado fuera de las etapas estándar
+    CiLinuxStepDefinition customStep;
+    customStep.step = static_cast<CiLinuxPipelineStep>(99);
+    customStep.command = "ninja -C _build/nested/linux-ci custom_target";
+    CHECK(service.buildCommandLine(customStep) == "ninja -C _build/nested/linux-ci custom_target");
+}
+
 } // namespace
 
 int main() {
@@ -445,6 +800,18 @@ int main() {
         std::cout << "  [PASS] test_ci_linux_service_retry_backoff_on_contention\n";
         test_ci_linux_service_ux_copy_public_compliance();
         std::cout << "  [PASS] test_ci_linux_service_ux_copy_public_compliance\n";
+        test_ci_linux_service_massive_multithreading_concurrency();
+        std::cout << "  [PASS] test_ci_linux_service_massive_multithreading_concurrency\n";
+        test_ci_linux_service_cooperative_cancellation_stress();
+        std::cout << "  [PASS] test_ci_linux_service_cooperative_cancellation_stress\n";
+        test_ci_linux_service_permission_failure_injection();
+        std::cout << "  [PASS] test_ci_linux_service_permission_failure_injection\n";
+        test_ci_linux_service_retry_backoff_transient();
+        std::cout << "  [PASS] test_ci_linux_service_retry_backoff_transient\n";
+        test_ci_linux_service_fail_fast_vs_continue_on_error();
+        std::cout << "  [PASS] test_ci_linux_service_fail_fast_vs_continue_on_error\n";
+        test_ci_linux_service_cli_synthesis_advanced();
+        std::cout << "  [PASS] test_ci_linux_service_cli_synthesis_advanced\n";
 
         std::cout << "Todas las pruebas de CiLinuxJobService pasaron exitosamente.\n";
         return 0;

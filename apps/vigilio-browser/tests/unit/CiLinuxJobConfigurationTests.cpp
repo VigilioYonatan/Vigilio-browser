@@ -425,6 +425,308 @@ void test_ci_linux_remediation_hints() {
     }
 }
 
+// TEST-012: test_ci_linux_plan_validation_boundaries (TASK-001)
+void test_ci_linux_plan_validation_boundaries() {
+    auto plan = CiLinuxJobConfiguration::canonicalDebugPlan();
+
+    // Límites de tiempo total (totalTimeoutSeconds)
+    plan.totalTimeoutSeconds = 0;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::InvalidWorkflowSchema);
+
+    plan.totalTimeoutSeconds = 3601;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::InvalidWorkflowSchema);
+
+    plan.totalTimeoutSeconds = 7200;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::InvalidWorkflowSchema);
+
+    // Límite superior válido: 3600 segundos
+    plan.totalTimeoutSeconds = 3600;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::None);
+
+    // Límite inferior válido: 1 segundo
+    plan.totalTimeoutSeconds = 1;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::None);
+
+    plan.totalTimeoutSeconds = 600;
+
+    // Límites de cuota de memoria RAM (maxMemoryBytes)
+    plan.maxMemoryBytes = 0;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::MemoryLimitExceeded);
+
+    plan.maxMemoryBytes = 8589934593ULL;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::MemoryLimitExceeded);
+
+    plan.maxMemoryBytes = 16ULL * 1024 * 1024 * 1024;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::MemoryLimitExceeded);
+
+    plan.maxMemoryBytes = 64ULL * 1024 * 1024 * 1024;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::MemoryLimitExceeded);
+
+    // Límite superior permitido: exactamente 8 GB
+    plan.maxMemoryBytes = 8589934592ULL;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::None);
+
+    plan.maxMemoryBytes = 4294967296ULL;
+
+    // Preset name vacío
+    plan.presetName = "";
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::InvalidWorkflowSchema);
+    plan.presetName = "ci-linux-debug";
+
+    // Pasos con nombres vacíos o comandos vacíos
+    auto stepCopy = plan.steps;
+    plan.steps[0].name = "";
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::InvalidWorkflowSchema);
+    plan.steps = stepCopy;
+
+    plan.steps[1].command = "";
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::InvalidWorkflowSchema);
+    plan.steps = stepCopy;
+
+    // Paso con timeoutMs == 0
+    plan.steps[2].options.timeoutMs = 0;
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::InvalidWorkflowSchema);
+    plan.steps = stepCopy;
+
+    // Ruta de compilación insegura
+    plan.buildDir = "../escape";
+    CHECK(CiLinuxJobValidator::validatePlan(plan) == CiLinuxJobError::UnsafePipelinePath);
+}
+
+// TEST-013: test_ci_linux_step_sequence_topological_violations (TASK-002)
+void test_ci_linux_step_sequence_topological_violations() {
+    // Secuencia vacía -> InvalidWorkflowSchema
+    CHECK(CiLinuxJobValidator::validateStepSequence({}) == CiLinuxJobError::InvalidWorkflowSchema);
+
+    // TestSuiteExecution antes de BuildCompilation
+    std::vector<CiLinuxPipelineStep> testBeforeBuild = {CiLinuxPipelineStep::ConfigurePreset,
+                                                        CiLinuxPipelineStep::TestSuiteExecution,
+                                                        CiLinuxPipelineStep::BuildCompilation};
+    CHECK(CiLinuxJobValidator::validateStepSequence(testBeforeBuild) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    // ArtifactPackaging antes de TestSuiteExecution (cuando hay tests)
+    std::vector<CiLinuxPipelineStep> packageBeforeTest = {
+        CiLinuxPipelineStep::ConfigurePreset, CiLinuxPipelineStep::BuildCompilation,
+        CiLinuxPipelineStep::ArtifactPackaging, CiLinuxPipelineStep::TestSuiteExecution};
+    CHECK(CiLinuxJobValidator::validateStepSequence(packageBeforeTest) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    // ArtifactPackaging sin BuildCompilation
+    std::vector<CiLinuxPipelineStep> packageNoBuild = {CiLinuxPipelineStep::ConfigurePreset,
+                                                       CiLinuxPipelineStep::ArtifactPackaging};
+    CHECK(CiLinuxJobValidator::validateStepSequence(packageNoBuild) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    // SanitizerVerification antes de BuildCompilation
+    std::vector<CiLinuxPipelineStep> sanitizerBeforeBuild = {CiLinuxPipelineStep::SanitizerVerification,
+                                                             CiLinuxPipelineStep::ConfigurePreset,
+                                                             CiLinuxPipelineStep::BuildCompilation};
+    CHECK(CiLinuxJobValidator::validateStepSequence(sanitizerBeforeBuild) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    // BuildCompilation sin ConfigurePreset
+    std::vector<CiLinuxPipelineStep> buildNoConfig = {CiLinuxPipelineStep::BuildCompilation,
+                                                      CiLinuxPipelineStep::TestSuiteExecution};
+    CHECK(CiLinuxJobValidator::validateStepSequence(buildNoConfig) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    // EnvironmentCheck después de BuildCompilation
+    std::vector<CiLinuxPipelineStep> envAfterBuild = {CiLinuxPipelineStep::ConfigurePreset,
+                                                      CiLinuxPipelineStep::BuildCompilation,
+                                                      CiLinuxPipelineStep::EnvironmentCheck};
+    CHECK(CiLinuxJobValidator::validateStepSequence(envAfterBuild) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    // FormatVerification después de BuildCompilation
+    std::vector<CiLinuxPipelineStep> formatAfterBuild = {CiLinuxPipelineStep::ConfigurePreset,
+                                                         CiLinuxPipelineStep::BuildCompilation,
+                                                         CiLinuxPipelineStep::FormatVerification};
+    CHECK(CiLinuxJobValidator::validateStepSequence(formatAfterBuild) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    // StaticAnalysis después de BuildCompilation
+    std::vector<CiLinuxPipelineStep> staticAfterBuild = {CiLinuxPipelineStep::ConfigurePreset,
+                                                         CiLinuxPipelineStep::BuildCompilation,
+                                                         CiLinuxPipelineStep::StaticAnalysis};
+    CHECK(CiLinuxJobValidator::validateStepSequence(staticAfterBuild) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    // Etapas duplicadas
+    std::vector<CiLinuxPipelineStep> dupEnv = {
+        CiLinuxPipelineStep::EnvironmentCheck, CiLinuxPipelineStep::EnvironmentCheck,
+        CiLinuxPipelineStep::ConfigurePreset, CiLinuxPipelineStep::BuildCompilation};
+    CHECK(CiLinuxJobValidator::validateStepSequence(dupEnv) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    std::vector<CiLinuxPipelineStep> dupBuild = {CiLinuxPipelineStep::ConfigurePreset,
+                                                 CiLinuxPipelineStep::BuildCompilation,
+                                                 CiLinuxPipelineStep::BuildCompilation};
+    CHECK(CiLinuxJobValidator::validateStepSequence(dupBuild) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    std::vector<CiLinuxPipelineStep> dupTest = {
+        CiLinuxPipelineStep::ConfigurePreset, CiLinuxPipelineStep::BuildCompilation,
+        CiLinuxPipelineStep::TestSuiteExecution, CiLinuxPipelineStep::TestSuiteExecution};
+    CHECK(CiLinuxJobValidator::validateStepSequence(dupTest) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+
+    std::vector<CiLinuxPipelineStep> dupPackage = {
+        CiLinuxPipelineStep::ConfigurePreset, CiLinuxPipelineStep::BuildCompilation,
+        CiLinuxPipelineStep::TestSuiteExecution, CiLinuxPipelineStep::ArtifactPackaging,
+        CiLinuxPipelineStep::ArtifactPackaging};
+    CHECK(CiLinuxJobValidator::validateStepSequence(dupPackage) ==
+          CiLinuxJobError::DependencyOrderingViolation);
+}
+
+// TEST-014: test_ci_linux_advanced_path_traversal (TASK-003)
+void test_ci_linux_advanced_path_traversal() {
+    const std::vector<std::string> maliciousVectors = {"./../..",
+                                                       "build/../../etc",
+                                                       "..\\windows\\path",
+                                                       "build/..\\escape",
+                                                       "..",
+                                                       "../",
+                                                       "../../",
+                                                       "/etc/shadow",
+                                                       "/var/run",
+                                                       "/proc/sys",
+                                                       "/",
+                                                       "/tmp",
+                                                       "/var/tmp",
+                                                       "",
+                                                       "C:/build",
+                                                       "D:\\build",
+                                                       "\\\\server\\share",
+                                                       "${sourceDir}/../escape",
+                                                       "build-ci-debug/../../root",
+                                                       "build-ci-debug/subdir/../../../escape",
+                                                       "etc/passwd",
+                                                       "var/log",
+                                                       "usr/local",
+                                                       "home/user/build",
+                                                       "src/build",
+                                                       "custom/build"};
+
+    for (const auto& vec : maliciousVectors) {
+        CHECK(!CiLinuxJobValidator::isSafeBuildPath(vec));
+    }
+
+    // Ruta con carácter nulo embebido
+    const std::string nullVector("build-ci-debug\0malicious", 23);
+    CHECK(!CiLinuxJobValidator::isSafeBuildPath(nullVector));
+
+    // Rutas legítimas que deben ser aceptadas
+    const std::vector<std::string> legitimatePaths = {"build-ci-debug",
+                                                      "build-ci-release",
+                                                      "_build",
+                                                      "_build/tests",
+                                                      "_build/sub/deep",
+                                                      "build-test",
+                                                      "build-custom-preset",
+                                                      "${sourceDir}/build-ci-debug",
+                                                      "${sourceDir}/_build",
+                                                      "${sourceDir}/build-test/artifacts"};
+
+    for (const auto& path : legitimatePaths) {
+        CHECK(CiLinuxJobValidator::isSafeBuildPath(path));
+    }
+}
+
+// TEST-015: test_ci_linux_environment_boundaries (TASK-004)
+void test_ci_linux_environment_boundaries() {
+    CiLinuxEnvironment env;
+    env.compiler = CiLinuxCompiler::GCC;
+    env.compilerMajorVersion = 14;
+    env.compilerMinorVersion = 0;
+    env.cmakeMajorVersion = 3;
+    env.cmakeMinorVersion = 28;
+    env.architecture = CiLinuxArchitecture::X86_64;
+    env.totalMemoryBytes = 4294967296ULL; // 4 GB
+    env.availableCores = 4;
+
+    // Entorno nominal válido
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    // Límites de GCC: 14 es el mínimo permitido para C++20
+    env.compiler = CiLinuxCompiler::GCC;
+    env.compilerMajorVersion = 14;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.compilerMajorVersion = 15;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.compilerMajorVersion = 13;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    env.compilerMajorVersion = 11;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    // Límites de Clang: 18 es el mínimo permitido para C++20
+    env.compiler = CiLinuxCompiler::Clang;
+    env.compilerMajorVersion = 18;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.compilerMajorVersion = 19;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.compilerMajorVersion = 17;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    env.compilerMajorVersion = 16;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    // Restaurar compilador válido
+    env.compiler = CiLinuxCompiler::GCC;
+    env.compilerMajorVersion = 14;
+
+    // Límites de CMake: 3.24 es el mínimo
+    env.cmakeMajorVersion = 3;
+    env.cmakeMinorVersion = 24;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.cmakeMinorVersion = 23;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    env.cmakeMajorVersion = 2;
+    env.cmakeMinorVersion = 8;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    env.cmakeMajorVersion = 3;
+    env.cmakeMinorVersion = 28;
+
+    // Límites de memoria RAM: mínimo 2 GB (2147483648ULL)
+    env.totalMemoryBytes = 2147483648ULL;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.totalMemoryBytes = 2147483647ULL; // 2 GB - 1 byte
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    env.totalMemoryBytes = 1073741824ULL; // 1 GB
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    env.totalMemoryBytes = 4294967296ULL;
+
+    // Límites de núcleos: mínimo 1 núcleo
+    env.availableCores = 1;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.availableCores = 0;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+
+    env.availableCores = 4;
+
+    // Arquitecturas soportadas (x86_64, aarch64) y no reconocidas
+    env.architecture = CiLinuxArchitecture::X86_64;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.architecture = CiLinuxArchitecture::AArch64;
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::None);
+
+    env.architecture = static_cast<CiLinuxArchitecture>(99);
+    CHECK(CiLinuxJobValidator::validateEnvironment(env) == CiLinuxJobError::ToolchainMissing);
+}
+
 } // namespace
 
 int main() {
@@ -452,6 +754,14 @@ int main() {
         std::cout << "  [PASS] test_ci_linux_ux_copy_public_compliance\n";
         test_ci_linux_remediation_hints();
         std::cout << "  [PASS] test_ci_linux_remediation_hints\n";
+        test_ci_linux_plan_validation_boundaries();
+        std::cout << "  [PASS] test_ci_linux_plan_validation_boundaries\n";
+        test_ci_linux_step_sequence_topological_violations();
+        std::cout << "  [PASS] test_ci_linux_step_sequence_topological_violations\n";
+        test_ci_linux_advanced_path_traversal();
+        std::cout << "  [PASS] test_ci_linux_advanced_path_traversal\n";
+        test_ci_linux_environment_boundaries();
+        std::cout << "  [PASS] test_ci_linux_environment_boundaries\n";
 
         std::cout << "Todas las pruebas de dominio de CI Linux job pasaron exitosamente.\n";
         return 0;
