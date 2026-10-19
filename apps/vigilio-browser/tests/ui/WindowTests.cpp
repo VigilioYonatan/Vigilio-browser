@@ -2,6 +2,10 @@
 #include "core/CiLinuxJobService.h"
 #include "core/CiLinuxJobTypes.h"
 #include "core/CiLinuxJobValidator.h"
+#include "core/CiWindowsJobConfiguration.h"
+#include "core/CiWindowsJobService.h"
+#include "core/CiWindowsJobTypes.h"
+#include "core/CiWindowsJobValidator.h"
 #include "core/ClangFormatConfiguration.h"
 #include "core/ClangFormatService.h"
 #include "core/ClangFormatTypes.h"
@@ -1058,6 +1062,239 @@ int main(int argc, char** argv) {
                      "Public execution mode must not contain 'Linter'");
             UI_CHECK(modeStr.find("CI Linux job") == std::string::npos,
                      "Public execution mode must not contain 'CI Linux job'");
+        }
+    }
+
+    // CI Windows job quality governance and public copy audit in UI context
+    {
+        vigilio::CiWindowsJobPlan debugPlan = vigilio::CiWindowsJobConfiguration::canonicalDebugPlan();
+        vigilio::CiWindowsJobService ciWindowsService(debugPlan);
+        vigilio::CiWindowsServiceOptions options;
+        options.mode = vigilio::CiWindowsExecutionMode::DryRun;
+        ciWindowsService.setOptions(options);
+
+        // TASK-003: Programmatic dry-run pipeline validation
+        auto debugReport = ciWindowsService.executePlan();
+        UI_CHECK(debugReport.status == vigilio::CiWindowsJobStatus::Passed,
+                 "CI Windows debug plan must pass in dry-run mode");
+        UI_CHECK(debugReport.isPassed(), "CI Windows debug plan report must be passed");
+        UI_CHECK(debugReport.stepResults.size() == debugPlan.steps.size(),
+                 "Debug plan steps evaluated must match plan steps count");
+        UI_CHECK(debugReport.durationMs >= 0, "Execution duration must be non-negative");
+        UI_CHECK(debugReport.isClean, "Debug plan report must be clean");
+
+        // Comprehensive plan with all 8 canonical pipeline steps
+        vigilio::CiWindowsJobPlan comprehensivePlan = debugPlan;
+        comprehensivePlan.presetName = "ci-windows-comprehensive";
+        comprehensivePlan.steps.push_back(vigilio::CiWindowsStepDefinition{
+            .step = vigilio::CiWindowsPipelineStep::SanitizerVerification,
+            .name = "Verificación de sanitizadores de memoria",
+            .command = "ctest --test-dir build-ci-win-debug --output-on-failure -L sanitizer",
+            .isMandatory = true,
+            .options = vigilio::CiWindowsStepOptions{.timeoutMs = 180000,
+                                                     .continueOnError = false,
+                                                     .requiredEnvVars = {},
+                                                     .workingDirectory = "."}});
+        comprehensivePlan.steps.push_back(vigilio::CiWindowsStepDefinition{
+            .step = vigilio::CiWindowsPipelineStep::ArtifactPackaging,
+            .name = "Validación de empaquetado del instalador",
+            .command = "cpack --config build-ci-win-debug/CPackConfig.cmake",
+            .isMandatory = true,
+            .options = vigilio::CiWindowsStepOptions{.timeoutMs = 180000,
+                                                     .continueOnError = false,
+                                                     .requiredEnvVars = {},
+                                                     .workingDirectory = "."}});
+        UI_CHECK(comprehensivePlan.steps.size() == 8,
+                 "Comprehensive pipeline plan must define all 8 canonical steps");
+        ciWindowsService.setPlan(comprehensivePlan);
+        auto comprehensiveReport = ciWindowsService.executePlan();
+        UI_CHECK(comprehensiveReport.status == vigilio::CiWindowsJobStatus::Passed,
+                 "Comprehensive plan with 8 steps must pass");
+        UI_CHECK(comprehensiveReport.stepResults.size() == 8,
+                 "Comprehensive plan must evaluate all 8 steps");
+
+        // TASK-004: UI artifact compilation coverage verification in pipeline
+        bool hasBuild = false;
+        bool hasTests = false;
+        for (const auto& stepDef : debugPlan.steps) {
+            if (stepDef.step == vigilio::CiWindowsPipelineStep::BuildCompilation) {
+                hasBuild = true;
+                const auto cmd = ciWindowsService.buildCommandLine(stepDef);
+                UI_CHECK(!cmd.empty(), "BuildCompilation command line must not be empty");
+                UI_CHECK(cmd.find("build-ci-win-debug") != std::string::npos,
+                         "BuildCompilation command line must reference build directory");
+            }
+            if (stepDef.step == vigilio::CiWindowsPipelineStep::TestSuiteExecution) {
+                hasTests = true;
+                const auto cmd = ciWindowsService.buildCommandLine(stepDef);
+                UI_CHECK(!cmd.empty(), "TestSuiteExecution command line must not be empty");
+                UI_CHECK(cmd.find("fast") != std::string::npos,
+                         "TestSuiteExecution command line must target fast test label");
+            }
+        }
+        UI_CHECK(hasBuild,
+                 "Pipeline plan must contain CiWindowsPipelineStep::BuildCompilation governing UI");
+        UI_CHECK(hasTests,
+                 "Pipeline plan must contain CiWindowsPipelineStep::TestSuiteExecution governing UI");
+
+        // TASK-005: Audit of executionModeToString and formatStepSummary in neutral Spanish
+        const auto dryRunModeStr =
+            vigilio::CiWindowsJobService::executionModeToString(vigilio::CiWindowsExecutionMode::DryRun);
+        UI_CHECK(!dryRunModeStr.empty(), "DryRun mode string must not be empty");
+        UI_CHECK(dryRunModeStr.find("simulada") != std::string::npos ||
+                     dryRunModeStr.find("Simulación") != std::string::npos,
+                 "DryRun mode must mention simulación/simulada in Spanish");
+
+        const auto simulatedModeStr = vigilio::CiWindowsJobService::executionModeToString(
+            vigilio::CiWindowsExecutionMode::Simulated);
+        UI_CHECK(!simulatedModeStr.empty(), "Simulated mode string must not be empty");
+        UI_CHECK(simulatedModeStr.find("Simulación") != std::string::npos,
+                 "Simulated mode must mention simulación in Spanish");
+
+        const auto liveModeStr =
+            vigilio::CiWindowsJobService::executionModeToString(vigilio::CiWindowsExecutionMode::Live);
+        UI_CHECK(!liveModeStr.empty(), "Live mode string must not be empty");
+        UI_CHECK(liveModeStr.find("Ejecución") != std::string::npos,
+                 "Live mode must mention ejecución in Spanish");
+
+        vigilio::CiWindowsStepResult sampleStepResult;
+        sampleStepResult.step = vigilio::CiWindowsPipelineStep::BuildCompilation;
+        sampleStepResult.status = vigilio::CiWindowsStepStatus::Success;
+        sampleStepResult.durationMs = 150;
+        sampleStepResult.exitCode = 0;
+        sampleStepResult.outputSummary = "Compilación completada sin errores.";
+        const auto stepSummary = vigilio::CiWindowsJobService::formatStepSummary(sampleStepResult);
+        UI_CHECK(!stepSummary.empty(), "CiWindowsJobService::formatStepSummary must not be empty");
+        UI_CHECK(stepSummary.find("Compilación") != std::string::npos,
+                 "formatStepSummary must contain step name in Spanish");
+
+        // TASK-006: Audit of diagnostic and remediation copy in neutral Spanish (CiWindowsJobValidator)
+        const std::vector<vigilio::CiWindowsJobStatus> sampleJobStatuses = {
+            vigilio::CiWindowsJobStatus::Pending,   vigilio::CiWindowsJobStatus::Running,
+            vigilio::CiWindowsJobStatus::Passed,    vigilio::CiWindowsJobStatus::Failed,
+            vigilio::CiWindowsJobStatus::Cancelled, vigilio::CiWindowsJobStatus::TimedOut};
+        for (const auto& js : sampleJobStatuses) {
+            const auto jsStr = vigilio::CiWindowsJobValidator::jobStatusToString(js);
+            UI_CHECK(!jsStr.empty(), "jobStatusToString must not be empty");
+        }
+        UI_CHECK(vigilio::CiWindowsJobValidator::jobStatusToString(vigilio::CiWindowsJobStatus::Passed)
+                         .find("correctamente") != std::string::npos,
+                 "Passed status must mention correctamente");
+
+        const std::vector<vigilio::CiWindowsJobError> sampleJobErrors = {
+            vigilio::CiWindowsJobError::None,
+            vigilio::CiWindowsJobError::ToolchainMissing,
+            vigilio::CiWindowsJobError::WindowsSdkMissing,
+            vigilio::CiWindowsJobError::ConfigurationFailed,
+            vigilio::CiWindowsJobError::CompilationFailed,
+            vigilio::CiWindowsJobError::TestExecutionFailed,
+            vigilio::CiWindowsJobError::FormatDiscrepancy,
+            vigilio::CiWindowsJobError::StaticAnalysisIssue,
+            vigilio::CiWindowsJobError::UnsafePipelinePath,
+            vigilio::CiWindowsJobError::TimeoutExceeded,
+            vigilio::CiWindowsJobError::InvalidWorkflowSchema,
+            vigilio::CiWindowsJobError::DependencyOrderingViolation,
+            vigilio::CiWindowsJobError::MemoryLimitExceeded};
+        for (const auto& err : sampleJobErrors) {
+            const auto errStr = vigilio::CiWindowsJobValidator::jobErrorToString(err);
+            UI_CHECK(!errStr.empty(), "jobErrorToString must not be empty");
+            const auto hintStr = vigilio::CiWindowsJobValidator::generateRemediationHint(err);
+            UI_CHECK(!hintStr.empty(), "generateRemediationHint must not be empty");
+        }
+
+        const std::vector<vigilio::CiWindowsPipelineStep> samplePipelineSteps = {
+            vigilio::CiWindowsPipelineStep::EnvironmentCheck,
+            vigilio::CiWindowsPipelineStep::FormatVerification,
+            vigilio::CiWindowsPipelineStep::StaticAnalysis,
+            vigilio::CiWindowsPipelineStep::ConfigurePreset,
+            vigilio::CiWindowsPipelineStep::BuildCompilation,
+            vigilio::CiWindowsPipelineStep::TestSuiteExecution,
+            vigilio::CiWindowsPipelineStep::SanitizerVerification,
+            vigilio::CiWindowsPipelineStep::ArtifactPackaging};
+        for (const auto& ps : samplePipelineSteps) {
+            const auto psStr = vigilio::CiWindowsJobValidator::stepToString(ps);
+            UI_CHECK(!psStr.empty(), "stepToString must not be empty");
+        }
+
+        const std::vector<vigilio::CiWindowsStepStatus> sampleStepStatuses = {
+            vigilio::CiWindowsStepStatus::NotStarted, vigilio::CiWindowsStepStatus::InProgress,
+            vigilio::CiWindowsStepStatus::Success, vigilio::CiWindowsStepStatus::Failure,
+            vigilio::CiWindowsStepStatus::Omitted};
+        for (const auto& ss : sampleStepStatuses) {
+            const auto ssStr = vigilio::CiWindowsJobValidator::stepStatusToString(ss);
+            UI_CHECK(!ssStr.empty(), "stepStatusToString must not be empty");
+        }
+
+        // TASK-007: Absence of forbidden internal engineering terms across all public CI Windows strings
+        for (const auto& js : sampleJobStatuses) {
+            const auto statusStr = vigilio::CiWindowsJobValidator::jobStatusToString(js);
+            UI_CHECK(statusStr.find("Senior Mode") == std::string::npos,
+                     "Public job status must not contain forbidden senior mode term");
+            UI_CHECK(statusStr.find("Modo Senior") == std::string::npos,
+                     "Public job status must not contain forbidden modo senior term");
+            UI_CHECK(statusStr.find("Prompt Builder") == std::string::npos,
+                     "Public job status must not contain forbidden prompt builder term");
+            UI_CHECK(statusStr.find("OpenSpec") == std::string::npos,
+                     "Public job status must not contain forbidden openspec term");
+            UI_CHECK(statusStr.find("DAG") == std::string::npos,
+                     "Public job status must not contain 'DAG'");
+            UI_CHECK(statusStr.find("Linter") == std::string::npos,
+                     "Public job status must not contain 'Linter'");
+            UI_CHECK(statusStr.find("CI Windows job") == std::string::npos,
+                     "Public job status must not contain 'CI Windows job'");
+        }
+        for (const auto& err : sampleJobErrors) {
+            const auto errStr = vigilio::CiWindowsJobValidator::jobErrorToString(err);
+            UI_CHECK(errStr.find("Senior Mode") == std::string::npos,
+                     "Public error string must not contain forbidden senior mode term");
+            UI_CHECK(errStr.find("Modo Senior") == std::string::npos,
+                     "Public error string must not contain forbidden modo senior term");
+            UI_CHECK(errStr.find("Prompt Builder") == std::string::npos,
+                     "Public error string must not contain forbidden prompt builder term");
+            UI_CHECK(errStr.find("OpenSpec") == std::string::npos,
+                     "Public error string must not contain forbidden openspec term");
+            UI_CHECK(errStr.find("DAG") == std::string::npos,
+                     "Public error string must not contain 'DAG'");
+            UI_CHECK(errStr.find("Linter") == std::string::npos,
+                     "Public error string must not contain 'Linter'");
+            UI_CHECK(errStr.find("CI Windows job") == std::string::npos,
+                     "Public error string must not contain 'CI Windows job'");
+
+            const auto hintStr = vigilio::CiWindowsJobValidator::generateRemediationHint(err);
+            UI_CHECK(hintStr.find("Senior Mode") == std::string::npos,
+                     "Public remediation hint must not contain forbidden senior mode term");
+            UI_CHECK(hintStr.find("Modo Senior") == std::string::npos,
+                     "Public remediation hint must not contain forbidden modo senior term");
+            UI_CHECK(hintStr.find("Prompt Builder") == std::string::npos,
+                     "Public remediation hint must not contain forbidden prompt builder term");
+            UI_CHECK(hintStr.find("OpenSpec") == std::string::npos,
+                     "Public remediation hint must not contain forbidden openspec term");
+            UI_CHECK(hintStr.find("DAG") == std::string::npos,
+                     "Public remediation hint must not contain 'DAG'");
+            UI_CHECK(hintStr.find("Linter") == std::string::npos,
+                     "Public remediation hint must not contain 'Linter'");
+            UI_CHECK(hintStr.find("CI Windows job") == std::string::npos,
+                     "Public remediation hint must not contain 'CI Windows job'");
+        }
+        const std::vector<vigilio::CiWindowsExecutionMode> sampleExecutionModes = {
+            vigilio::CiWindowsExecutionMode::DryRun, vigilio::CiWindowsExecutionMode::Simulated,
+            vigilio::CiWindowsExecutionMode::Live};
+        for (const auto& mode : sampleExecutionModes) {
+            const auto modeStr = vigilio::CiWindowsJobService::executionModeToString(mode);
+            UI_CHECK(modeStr.find("Senior Mode") == std::string::npos,
+                     "Public execution mode must not contain forbidden senior mode term");
+            UI_CHECK(modeStr.find("Modo Senior") == std::string::npos,
+                     "Public execution mode must not contain forbidden modo senior term");
+            UI_CHECK(modeStr.find("Prompt Builder") == std::string::npos,
+                     "Public execution mode must not contain forbidden prompt builder term");
+            UI_CHECK(modeStr.find("OpenSpec") == std::string::npos,
+                     "Public execution mode must not contain forbidden openspec term");
+            UI_CHECK(modeStr.find("DAG") == std::string::npos,
+                     "Public execution mode must not contain 'DAG'");
+            UI_CHECK(modeStr.find("Linter") == std::string::npos,
+                     "Public execution mode must not contain 'Linter'");
+            UI_CHECK(modeStr.find("CI Windows job") == std::string::npos,
+                     "Public execution mode must not contain 'CI Windows job'");
         }
     }
 
