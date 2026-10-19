@@ -44,6 +44,20 @@ enum class CiLinuxJobStatus { Pending, Running, Passed, Failed, Cancelled, Timed
 /// @brief Estados de ejecución por etapa individual.
 enum class CiLinuxStepStatus { NotStarted, InProgress, Success, Failure, Omitted };
 
+/// @brief Modos de ejecución operativa para el trabajo de CI Linux.
+enum class CiLinuxExecutionMode : uint8_t { DryRun, Simulated, Live };
+
+/// @brief Opciones operativas del servicio de CI Linux.
+struct CiLinuxServiceOptions {
+    CiLinuxExecutionMode mode{CiLinuxExecutionMode::DryRun};
+    bool failFast{true};
+    uint32_t maxRetries{3};
+    uint32_t retryBackoffMs{50};
+    bool captureOutput{true};
+
+    bool operator==(const CiLinuxServiceOptions& other) const = default;
+};
+
 /// @brief Clasificación exhaustiva y fuertemente tipada de errores de CI Linux.
 enum class CiLinuxJobError {
     None,
